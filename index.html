@@ -1,0 +1,682 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>車両・人員配置管理</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:#f5f7fa;color:#1f2937}
+header{background:#111827;color:#fff;padding:14px 18px;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+header h1{font-size:18px;margin:0}.live{margin-left:auto;color:#86efac;font-weight:700}
+.toolbar{padding:12px 16px;background:#fff;border-bottom:1px solid #ddd;display:flex;gap:8px;align-items:center;flex-wrap:wrap;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(15,23,42,.08)}
+button,select,input{font:inherit;padding:7px 10px;border:1px solid #cbd5e1;border-radius:7px;background:#fff}
+button{cursor:pointer}.primary{background:#2563eb;color:white;border-color:#2563eb}
+.wrap{padding:14px;display:grid;grid-template-columns:minmax(700px,1fr) 280px;gap:14px}
+.card{background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden}.calendar{overflow:auto}
+.grid{display:grid;min-width:900px}.cell{border-right:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb;min-height:42px;padding:5px;position:relative}
+.head{background:#f8fafc;font-weight:700;text-align:center;min-height:38px}.name{font-weight:700;background:#f8fafc;position:sticky;left:0;z-index:3}.resource{display:grid;grid-template-columns:150px 1fr;min-width:900px}
+.days{display:grid;grid-auto-columns:minmax(90px,1fr);grid-auto-flow:column}.month-grid{display:grid;grid-template-columns:repeat(7,minmax(110px,1fr));min-width:770px}.month-grid.week-grid{min-width:0;width:100%}.week-grid .month-head{font-size:16px;padding:14px 8px}.week-grid .month-cell{min-height:620px;padding:10px;min-width:0}.week-grid .date-num{font-size:18px;margin-bottom:10px}.week-grid .month-events{gap:7px}.week-grid .month-event{font-size:14px;padding:8px 9px;min-height:64px;line-height:1.35}.week-grid .month-event span{font-size:12px;white-space:normal;overflow:visible;text-overflow:clip}.week-grid .month-event .week-detail{font-size:11px;opacity:.95;margin-top:3px}.month-head{background:#f8fafc;border-right:1px solid #e5e7eb;border-bottom:1px solid #d9dee7;padding:8px;text-align:center;font-weight:700}.month-cell{min-height:125px;border-right:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb;padding:5px;background:#fff;cursor:default}.month-cell.outside{background:#f8fafc;color:#94a3b8}.month-cell.today{box-shadow:inset 0 0 0 2px #2563eb}.month-cell.selected-day{box-shadow:inset 0 0 0 3px #f59e0b;background:#fffbeb}.month-cell.outside.selected-day{background:#fffbeb}.date-num{font-weight:700;margin-bottom:4px}.month-events{display:flex;flex-direction:column;gap:3px}.month-event{color:#fff;border-radius:5px;padding:4px 5px;font-size:11px;line-height:1.25;cursor:pointer;overflow:hidden}.month-event span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.event{border-radius:6px;padding:5px 7px;margin:2px 0;color:#fff;font-size:12px;cursor:grab;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 1px 2px #0002}
+.vehicle{background:#2563eb}.person{background:#7c3aed}.conflict{background:#dc2626!important}.idle{background:#94a3b8}
+.legend{padding:10px 14px;border-top:1px solid #eee;font-size:12px}.dot{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:4px}
+.side{display:flex;flex-direction:column;gap:12px}.panel{padding:14px}.panel h3{margin:0 0 10px;font-size:15px}.stat{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #eee}
+.log{font-size:12px;max-height:240px;overflow:auto}.log div{padding:7px 0;border-bottom:1px solid #eee}
+.modal{display:none;position:fixed;inset:0;background:#0007;align-items:center;justify-content:center;padding:15px}.modal.show{display:flex}.modalbox{background:#fff;border-radius:12px;padding:18px;width:min(440px,100%)}.modalbox label{display:block;margin:9px 0 4px;font-size:13px}.modalbox input,.modalbox select{width:100%}.modalbox select[multiple]{min-height:120px}.choice-box{width:100%;min-height:120px;max-height:180px;overflow:auto;border:1px solid #cbd5e1;border-radius:8px;padding:6px;background:#f8fafc}.choice-row{display:flex;align-items:center;gap:8px;padding:8px 9px;border-radius:6px;cursor:pointer;background:#fff;margin:3px 0;border:1px solid transparent}.choice-row:hover{background:#eef4ff}.choice-row:has(input:checked),.choice-row.picked{background:#dbeafe;border-color:#93c5fd}.choice-row input{accent-color:#2563eb}.choice-row input{width:auto;padding:0;margin:0}.choice-row span{font-size:14px}.choice-row small{color:#64748b;margin-left:4px}.actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+.small{font-size:12px;color:#64748b}.event{cursor:pointer}.edit-hint{font-size:12px;color:#64748b;margin-top:4px}.warning{color:#b91c1c;font-weight:700}
+@media(max-width:900px){.wrap{grid-template-columns:1fr}.side{order:-1}.wrap{padding:8px}.name{position:sticky;left:0}.live{margin-left:0}}
+
+/* 日表示：6:00〜22:00 時間軸 */
+.timeaxis-wrap{overflow-x:auto;border:1px solid #d9dee7;border-radius:12px;background:#fff}
+.timeaxis{min-width:1000px}
+.timeaxis-head{display:grid;grid-template-columns:220px 1fr;border-bottom:1px solid #d9dee7;background:#fff}
+.timeaxis-label{padding:12px;border-right:1px solid #d9dee7;font-weight:700;background:#f8fafc}
+.hourgrid{display:grid;grid-template-columns:repeat(16,1fr)}
+.hour{padding:10px 2px;text-align:center;font-size:12px;color:#667085;border-right:1px solid #e5e7eb}
+.timeline-row{display:grid;grid-template-columns:220px 1fr;min-height:66px;border-bottom:1px solid #e5e7eb}
+.timeline-name{padding:12px;border-right:1px solid #d9dee7;background:#fafafa;font-weight:600}
+.timeline-name small{display:block;color:#98a2b3;font-weight:400;margin-top:3px}
+.timeline-track{position:relative;min-width:780px;background-image:linear-gradient(to right,#eef1f5 1px,transparent 1px);background-size:calc(100% / 16) 100%}
+.time-event{position:absolute;top:8px;height:50px;border-radius:8px;padding:6px 18px 6px 9px;box-sizing:border-box;color:#fff;overflow:hidden;cursor:grab;box-shadow:0 2px 5px #0001;font-size:12px;line-height:1.25;min-width:30px;touch-action:none;user-select:none}.time-event::after{content:"↔";position:absolute;right:0;top:0;width:14px;height:100%;cursor:ew-resize;background:rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;font-size:10px}
+.time-event.vehicle{background:#2563eb}.time-event.person{background:#7c3aed}
+.time-event.conflict{outline:3px solid #ef4444;background:#dc2626!important}
+.time-event .evt-time{font-weight:700}.time-event .evt-site{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.global-site-legend{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;padding:10px 12px;border-bottom:1px solid #e5e7eb;background:#fff;font-size:12px}.global-site-legend b{margin-right:2px}
+.site-legend{display:flex;flex-wrap:wrap;gap:6px 10px;padding:8px 0 10px}.site-chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#475467;background:#f8fafc;border:1px solid #e4e7ec;border-radius:999px;padding:4px 8px}.site-chip i{width:11px;height:11px;border-radius:3px;display:inline-block}
+.day-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.day-title strong{font-size:18px}.day-note{font-size:12px;color:#667085}
+@media(max-width:700px){
+  body{font-size:14px}
+  header{padding:10px 12px;gap:8px}
+  header h1{font-size:16px}
+  .live{margin-left:0;font-size:12px}
+  .toolbar{top:0;padding:8px 10px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap}
+  .toolbar button{flex:0 0 auto;padding:8px 10px}
+  .toolbar strong{flex:0 0 auto;min-width:max-content}
+  .wrap{padding:8px;display:block}
+  .side{margin-top:10px}
+  .calendar{width:100%;overflow-x:auto}
+  .month-grid{min-width:770px}
+  .month-grid.week-grid{min-width:770px;width:770px}
+  .week-grid .month-cell{min-height:520px}
+  .week-grid .month-event{font-size:13px}
+  .timeaxis{min-width:1000px}
+  .timeaxis-head,.timeline-row{grid-template-columns:150px 1fr}
+}
+
+/* 月間予定印刷 */
+@media print{
+  @page{size:auto;margin:5mm}
+  body{background:#fff;color:#000;font-size:10pt}
+  header,.toolbar,.side,.legend,.modal,.global-site-legend{display:none!important}
+  .wrap{display:block;margin:0;padding:0}
+  .calendar,.card{box-shadow:none!important;border:none!important;background:#fff!important;width:100%!important}
+  #calendar{width:100%!important}
+  #calendar{width:100%!important;transform-origin:top left}
+  .month-grid{min-width:0!important;width:100%!important;break-inside:avoid}
+  .month-cell{min-height:0!important;height:auto!important;overflow:visible!important}
+  .month-event{overflow:visible!important;white-space:normal!important}
+  body.print-fit .calendar{transform:none!important;width:100%!important;max-width:100%!important}
+  body.print-fit #calendar{overflow:visible!important}
+  body.print-fit .month-grid{grid-template-columns:repeat(7,minmax(0,1fr))!important;width:100%!important;min-width:0!important}
+  body.print-fit .month-head,.body.print-fit .month-cell{min-width:0!important}
+  body.print-fit .month-cell{padding:2px!important;min-width:0!important;overflow:hidden!important}
+  body.print-fit .month-event{font-size:clamp(6pt,1.5vw,8pt)!important;line-height:1.15!important;overflow-wrap:anywhere!important}
+  .event{break-inside:avoid}
+  .month-head{font-weight:700}
+}
+</style>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="theme-color" content="#111827">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="配置管理">
+</head>
+<body>
+<header><h1>🚚 車両・人員 配置管理</h1><span>7台 × 8人</span><span class="live">● LIVE（プロトタイプ）</span></header>
+<div class="toolbar">
+<button onclick="moveDay(-1)" title="前日">◀ 日</button><button onclick="moveMonth(-1)" title="前月">◀ 月</button><strong id="monthTitle"></strong><button onclick="moveMonth(1)" title="翌月">月 ▶</button><button onclick="moveDay(1)" title="翌日">日 ▶</button>
+<button onclick="setView('month')">月</button><button onclick="setView('week')">週</button><button onclick="setView('day')">日</button>
+<button class="primary" onclick="openModal()">＋予定追加</button><button onclick="openSettings()">⚙ 車両・人員名変更</button>
+<button onclick="today()">今日</button>
+<button onclick="printMonthlySchedule()">🖨 月間予定を印刷</button>
+<button onclick="copyShareLink()">🔗 共有URL</button>
+<button id="installAppBtn" onclick="installApp()" style="display:none">📲 アプリとしてインストール</button>
+</div>
+<div class="wrap">
+<main class="card calendar"><div id="calendar"></div><div class="legend">
+<span class="dot" style="background:#2563eb"></span>車両 
+<span class="dot" style="background:#7c3aed"></span>人員 
+<span class="dot" style="background:#dc2626"></span>ダブルブッキング
+<br><span class="small">同じ現場には同じ色を付けます。1つの予定に複数の車両・人員を割り当てられます。</span>
+</div></main>
+<aside class="side">
+<div class="card panel"><h3>空き状況</h3><div class="stat"><span>空き車両</span><b id="freeV">-</b></div><div class="stat"><span>空き人員</span><b id="freeP">-</b></div><div class="stat"><span>警告</span><b id="conflicts" class="warning">-</b></div></div>
+<div class="card panel"><h3>車両</h3><div id="vehicleList"></div></div>
+<div class="card panel"><h3>人員</h3><div id="personList"></div></div>
+<div class="card panel"><h3>変更履歴</h3><div id="log" class="log"></div></div>
+</aside>
+</div>
+
+<div id="settingsModal" class="modal"><div class="modalbox" style="width:min(760px,100%);max-height:90vh;overflow:auto">
+<h3>⚙ 車両・人員マスター管理</h3>
+<div id="settingsFields"></div>
+<div class="actions"><button onclick="closeSettings()">閉じる</button></div>
+</div></div>
+<div id="modal" class="modal"><div class="modalbox">
+<h3 id="modalTitle">予定を追加</h3>
+<label>日付</label><input id="fdate" type="date">
+<label>現場</label><input id="fsite" placeholder="現場A">
+<label>仕事内容</label><input id="fwork" placeholder="例：資材搬入・設置作業">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div><label>開始時刻</label><input id="fstart" type="time" step="1800" value="08:00"></div><div><label>終了時刻</label><input id="fend" type="time" step="1800" value="12:00"></div></div>
+<label>車両（複数選択可）</label><div class="small">□ 名前をクリックして選択。複数台を同時に選択できます。</div><div id="fvehicle" class="choice-box"></div>
+<label>担当者（複数選択可）</label><div class="small">□ 名前をクリックして選択。複数人を同時に選択できます。</div><div id="fperson" class="choice-box"></div>
+<label>状態</label><select id="fstatus"><option>予定</option><option>決定</option></select>
+<div class="actions"><button id="deleteEventBtn" onclick="deleteEvent()" style="display:none">削除</button><button onclick="closeModal()">キャンセル</button><button class="primary" onclick="addEvent()">登録</button></div>
+</div></div>
+
+<script>
+let vehicles=JSON.parse(localStorage.getItem("fleetVehicles")||"null")||[
+["001","2t"],["002","4t"],["003","2t"],["004","4t"],["005","2t"],["006","4t"],["007","2t"]];
+let people=JSON.parse(localStorage.getItem("fleetPeople")||"null")||[["田中",""] ,["鈴木",""] ,["佐藤",""] ,["山田",""] ,["高橋",""] ,["伊藤",""] ,["渡辺",""] ,["小林",""]];
+people=people.map(p=>Array.isArray(p)?[p[0],""]:[p,""]);
+let cursor=new Date(2026,8,4), view="month";
+let events=JSON.parse(localStorage.getItem("fleetEvents")||"null")||[
+{id:1,date:"2026-09-04",vehicle:"001",person:"田中",site:"現場A",work:"作業",status:"稼働中"},
+{id:2,date:"2026-09-04",vehicle:"002",person:"鈴木",site:"現場B",work:"配送",status:"移動中"},
+{id:3,date:"2026-09-07",vehicle:"003",person:"佐藤",site:"現場C",work:"設置",status:"予定"},
+{id:4,date:"2026-09-10",vehicle:"004",person:"山田",site:"現場D",work:"搬入",status:"予定"},
+{id:5,date:"2026-09-11",vehicle:"005",person:"高橋",site:"現場E",work:"作業",status:"予定"},
+{id:6,date:"2026-09-14",vehicle:"007",person:"渡辺",site:"現場F",work:"回収",status:"予定"}
+];
+let logs=JSON.parse(localStorage.getItem("fleetLogs")||"[]");
+let lastUpdated=Number(localStorage.getItem("fleetLastUpdated")||Date.now());
+
+events.forEach(e=>{if(!e.start)e.start="08:00";if(!e.end)e.end="12:00"; if(!Array.isArray(e.vehicles)) e.vehicles=e.vehicle?[e.vehicle]:[]; if(!Array.isArray(e.people)) e.people=e.person?[e.person]:[]; if(!e.work)e.work=""; e.vehicle=e.vehicles[0]||""; e.person=e.people[0]||"";});
+
+const GAS_URL="https://script.google.com/macros/s/AKfycbzqhSSKf-AtxEro0fCtPB3EcUOkq--vAKwKm1jpSK8zlPhIpdiexJsVsFnUArYCaxhh/exec";
+function syncToCloud(){
+  if(!GAS_URL)return;
+  try{
+    // file:// で開いても送信しやすいよう、隠しフォームでGASへPOSTします
+    let frame=document.getElementById("gasSyncFrame");
+    if(!frame){
+      frame=document.createElement("iframe");
+      frame.name="gasSyncFrame";
+      frame.id="gasSyncFrame";
+      frame.style.display="none";
+      document.body.appendChild(frame);
+    }
+    const form=document.createElement("form");
+    form.method="POST";
+    form.action=GAS_URL;
+    form.target="gasSyncFrame";
+    form.style.display="none";
+
+    const action=document.createElement("input");
+    action.name="action";
+    action.value="save";
+    form.appendChild(action);
+
+    const payload=document.createElement("input");
+    payload.name="payload";
+    payload.value=JSON.stringify({action:"save",events,vehicles,people,logs,lastUpdated});
+    form.appendChild(payload);
+
+    document.body.appendChild(form);
+    form.submit();
+    setTimeout(()=>form.remove(),1000);
+  }catch(err){
+    console.warn("共有保存に失敗",err);
+  }
+}
+async function loadFromCloud(){
+ if(!GAS_URL)return;
+ try{
+   const r=await fetch(GAS_URL);const d=await r.json();
+   if(d.lastUpdated && d.lastUpdated > lastUpdated){
+     events=d.events;vehicles=d.vehicles||vehicles;people=d.people||people;logs=d.logs||logs;lastUpdated=d.lastUpdated;
+     saveLocal();render();
+   }
+ }catch(err){console.warn("共有読み込みに失敗",err)}
+}
+function saveLocal(){
+ localStorage.setItem("fleetEvents",JSON.stringify(events));
+ localStorage.setItem("fleetVehicles",JSON.stringify(vehicles));
+ localStorage.setItem("fleetPeople",JSON.stringify(people));
+ localStorage.setItem("fleetLogs",JSON.stringify(logs));
+ localStorage.setItem("fleetLastUpdated",String(lastUpdated));
+}
+function save(){lastUpdated=Date.now();saveLocal();syncToCloud()}
+function pad(n){return String(n).padStart(2,"0")} function iso(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
+function dates(){let a=[];if(view==="month"){let y=cursor.getFullYear(),m=cursor.getMonth(),n=new Date(y,m+1,0).getDate();for(let i=1;i<=n;i++)a.push(new Date(y,m,i))}
+else if(view==="week"){let d=new Date(cursor),day=(d.getDay()+6)%7;d.setDate(d.getDate()-day);for(let i=0;i<7;i++){a.push(new Date(d));d.setDate(d.getDate()+1)}}
+else a=[new Date(cursor)];return a}
+
+function printMonthlySchedule(){
+  const previousView=view;
+  const oldTitle=document.title;
+  view="month";
+  render();
+  const title=document.getElementById("monthTitle");
+  document.title=(title?.textContent || "月間予定")+" 月間予定";
+  document.documentElement.style.setProperty("--print-scale","1");
+  document.body.classList.add("print-fit");
+
+  let restored=false;
+  function restore(){
+    if(restored)return;
+    restored=true;
+    document.body.classList.remove("print-fit");
+    document.documentElement.style.removeProperty("--print-scale");
+    document.title=oldTitle;
+    view=previousView;
+    render();
+    window.removeEventListener("afterprint",restore);
+  }
+  window.addEventListener("afterprint",restore,{once:true});
+  try{
+    window.focus();
+    window.print();
+    setTimeout(restore,1500);
+  }catch(err){
+    alert("印刷画面を開けませんでした。ブラウザのメニューから『印刷』を選択してください。");
+    restore();
+  }
+}
+
+function setView(v){view=v;render()} function moveMonth(n){
+  const day=cursor.getDate();
+  cursor.setDate(1); cursor.setMonth(cursor.getMonth()+n);
+  const last=new Date(cursor.getFullYear(),cursor.getMonth()+1,0).getDate();
+  cursor.setDate(Math.min(day,last));
+  render();
+}
+function moveDay(n){
+  cursor.setDate(cursor.getDate()+n);
+  render();
+}
+function today(){cursor=new Date();render()}
+
+function openSettings(){
+ document.getElementById("settingsModal").classList.add("show");
+ renderMaster();
+}
+function closeSettings(){document.getElementById("settingsModal").classList.remove("show")}
+function renderMaster(){
+ let h='<h4>🚚 車両</h4><div class="small">車両は追加・編集・削除できます。予定がある車両の削除時は確認が出ます。</div>';
+ vehicles.forEach((v,i)=>h+=`<div style="display:grid;grid-template-columns:90px 100px 1fr auto;gap:6px;margin:7px 0">
+ <input id="vn${i}" value="${esc(v[0])}" placeholder="番号"><input id="vt${i}" value="${esc(v[1])}" placeholder="車種">
+ <span></span><button onclick="editVehicle(${i})">保存</button><button onclick="deleteVehicle(${i})">削除</button></div>`);
+ h+='<button class="primary" onclick="addVehicle()">＋ 車両追加</button>';
+ h+='<hr><h4>👤 人員</h4><div class="small">人員名のみを管理します。</div>';
+ people.forEach((v,i)=>h+=`<div style="display:grid;grid-template-columns:1fr auto auto;gap:6px;margin:7px 0">
+ <input id="pn${i}" value="${esc(v[0])}" placeholder="氏名">
+ <button onclick="editPerson(${i})">保存</button><button onclick="deletePerson(${i})">削除</button></div>`);
+ h+='<button class="primary" onclick="addPerson()">＋ 人員追加</button>';
+ document.getElementById("settingsFields").innerHTML=h;
+}
+function editVehicle(i){
+ let old=vehicles[i][0], num=document.getElementById("vn"+i).value.trim()||old, type=document.getElementById("vt"+i).value.trim()||vehicles[i][1];
+ if(num!==old && vehicles.some((v,j)=>j!==i&&v[0]===num)){alert("同じ車両番号が既にあります。");return}
+ vehicles[i]=[num,type]; events.forEach(e=>{if(e.vehicles?.includes(old)){e.vehicles=e.vehicles.map(x=>x===old?num:x);e.vehicle=e.vehicles[0]||"";}else if(e.vehicle===old){e.vehicle=num;e.vehicles=[num];}});
+ addLog(`車両変更：${old} → ${num}（${type}）`);save();renderMaster();render();
+}
+function editPerson(i){
+ let old=people[i][0], name=document.getElementById("pn"+i).value.trim()||old;
+ if(name!==old && people.some((v,j)=>j!==i&&v[0]===name)){alert("同じ人員名が既にあります。");return}
+ people[i]=[name,""]; events.forEach(e=>{if(e.people?.includes(old)){e.people=e.people.map(x=>x===old?name:x);e.person=e.people[0]||"";}else if(e.person===old){e.person=name;e.people=[name];}});
+ addLog(`人員変更：${old} → ${name}`);save();renderMaster();render();
+}
+function addVehicle(){
+ let num=prompt("新しい車両番号を入力してください（例：008）"); if(!num)return;
+ num=num.trim(); if(!num)return;
+ if(vehicles.some(v=>v[0]===num)){alert("同じ車両番号が既にあります。");return}
+ let type=prompt("車種を入力してください（例：10t）","2t")||"2t";
+ vehicles.push([num,type.trim()]);addLog(`車両追加：${num}（${type}）`);save();renderMaster();render();
+}
+function deleteVehicle(i){
+ let v=vehicles[i][0], count=events.filter(e=>(e.vehicles||[]).includes(v)||e.vehicle===v).length;
+ let msg=count?`車両 ${v} には ${count}件の予定があります。削除すると予定から車両が外れます。削除しますか？`:`車両 ${v} を削除しますか？`;
+ if(!confirm(msg))return;
+ events.forEach(e=>{if(e.vehicles?.includes(v)){e.vehicles=e.vehicles.filter(x=>x!==v);e.vehicle=e.vehicles[0]||"";}else if(e.vehicle===v)e.vehicle="";});
+ vehicles.splice(i,1);addLog(`車両削除：${v}`);save();renderMaster();render();
+}
+function addPerson(){
+ let name=prompt("新しい人員名を入力してください"); if(!name)return;
+ name=name.trim(); if(!name)return;
+ if(people.some(v=>v[0]===name)){alert("同じ人員名が既にあります。");return}
+ people.push([name,""]);addLog(`人員追加：${name}`);save();renderMaster();render();
+}
+function deletePerson(i){
+ let name=people[i][0], count=events.filter(e=>(e.people||[]).includes(name)||e.person===name).length;
+ let msg=count?`人員 ${name} には ${count}件の予定があります。削除すると予定から担当者が外れます。削除しますか？`:`人員 ${name} を削除しますか？`;
+ if(!confirm(msg))return;
+ events.forEach(e=>{if(e.people?.includes(name)){e.people=e.people.filter(x=>x!==name);e.person=e.people[0]||"";}else if(e.person===name)e.person="";});
+ people.splice(i,1);addLog(`人員削除：${name}`);save();renderMaster();render();
+}
+
+const siteColors=[
+  "#2563eb","#16a34a","#ea580c","#9333ea","#0891b2",
+  "#db2777","#65a30d","#ca8a04","#4f46e5","#0f766e"
+];
+function siteColor(site){
+  site=String(site||"現場未定");
+  let n=0;
+  for(let i=0;i<site.length;i++) n=(n*31+site.charCodeAt(i))>>>0;
+  return siteColors[n%siteColors.length];
+}
+function siteTextColor(site){return "#fff";}
+function uniqueSites(){
+  const a=[];
+  events.forEach(e=>{const x=String(e.site||"現場未定");if(!a.includes(x))a.push(x);});
+  return a;
+}
+
+function esc(v){
+  return String(v ?? "").replace(/[&<>"']/g,function(ch){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch];
+  });
+}
+
+function renderGlobalSiteLegend(){
+  const cal=document.getElementById("calendar");
+  const old=document.getElementById("globalSiteLegend");
+  if(old) old.remove();
+  const sites=uniqueSites();
+  if(!sites.length)return;
+  const box=document.createElement("div");
+  box.id="globalSiteLegend";
+  box.className="global-site-legend";
+  box.innerHTML=`<b>現場別カラー：</b>`+sites.map(site=>`<span class="site-chip"><i style="background:${siteColor(site)}"></i>${esc(site)}</span>`).join("");
+  cal.parentNode.insertBefore(box,cal);
+}
+
+function render(){
+ let title="";
+ if(view==="day"){
+   title=cursor.toLocaleDateString("ja-JP",{year:"numeric",month:"long",day:"numeric"});
+ }else if(view==="week"){
+   const start=new Date(cursor); start.setDate(start.getDate()-((start.getDay()+6)%7));
+   const end=new Date(start); end.setDate(start.getDate()+6);
+   title=`${start.toLocaleDateString("ja-JP",{year:"numeric",month:"long",day:"numeric"})}〜${end.toLocaleDateString("ja-JP",{month:"long",day:"numeric"})}`;
+ }else{
+   title=`${cursor.toLocaleDateString("ja-JP",{year:"numeric",month:"long",day:"numeric"})} を含む月`;
+ }
+ document.getElementById("monthTitle").textContent=title;
+ if(view==="day"){renderDay();}else{renderCalendar();}
+ updateSide();
+ renderGlobalSiteLegend();
+}
+
+function renderDay(){
+  const ds=iso(cursor), dayEvents=events.filter(e=>e.date===ds);
+  const startHour=6, endHour=22;
+  let rows=[];
+  vehicles.forEach(v=>{
+    const es=dayEvents.filter(e=>e.vehicles?.includes(v[0]) || e.vehicle===v[0]);
+    rows.push(`<div class="timeline-row"><div class="timeline-name">🚚 ${esc(v[0])} ${esc(v[1])}</div><div class="timeline-track">${es.map(e=>timeEventHtml(e,"vehicle")).join("")}</div></div>`);
+  });
+  people.forEach(p=>{
+    const es=dayEvents.filter(e=>e.people?.includes(p[0]) || e.person===p[0]);
+    rows.push(`<div class="timeline-row"><div class="timeline-name">👤 ${esc(p[0])}<small>${esc(p[1])}</small></div><div class="timeline-track">${es.map(e=>timeEventHtml(e,"person")).join("")}</div></div>`);
+  });
+  let hours=[];
+  for(let h=startHour;h<=endHour;h++) hours.push(`<div class="hour" style="width:${100/16}%">${pad(h)}:00</div>`);
+  document.getElementById("calendar").innerHTML=`
+    <div class="day-title"><div><strong>${esc(ds)} の予定</strong><div class="day-note">6:00〜22:00 現場ごとに色分け。バー中央で移動、右端で終了時刻を30分単位で変更できます</div></div></div>
+    <div class="timeaxis-wrap"><div class="timeaxis">
+      <div class="timeaxis-head"><div class="timeaxis-label">車両 / 人員</div><div class="hourgrid">${hours.join("")}</div></div>
+      ${rows.join("")}
+    </div></div>`;
+  attachTimelineHandlers();
+}
+
+function timeEventHtml(e,type){
+  const s=e.start||"08:00", en=e.end||"12:00";
+  let sm=Math.max(360,Math.min(1320,toMin(s)));
+  let em=Math.max(sm+30,Math.min(1320,toMin(en)));
+  const left=(sm-360)/960*100;
+  const width=(em-sm)/960*100;
+  const bg=siteColor(e.site);
+  const fg=siteTextColor(e.site);
+  return `<div ondblclick="editEvent(${e.id})" draggable="false" class="time-event ${type} ${isConflict(e)?"conflict":""}" data-id="${esc(e.id)}"
+    style="left:${left}%;width:${width}%;background:${isConflict(e)?"#dc2626":bg};color:${fg}"
+    title="${esc(e.site||"")}${isConflict(e)?"（重複あり）":""}">
+    <div class="evt-time">${esc(s)}–${esc(en)}</div><div class="evt-site">${e.status==="予定"?"● ":""}${esc(e.site||"")}｜${esc(e.work||"")}</div>
+  </div>`;
+}
+
+function toMin(t){
+ const a=String(t||"08:00").split(":"); return Number(a[0])*60+Number(a[1]||0);
+}
+function fromMin(n){
+ n=Math.max(360,Math.min(1320,Math.round(n/30)*30));
+ return pad(Math.floor(n/60))+":"+pad(n%60);
+}
+
+let timelineDrag=null;
+function attachTimelineHandlers(){
+  document.querySelectorAll(".time-event").forEach(el=>{
+    el.addEventListener("pointerdown",function(ev){
+      ev.preventDefault();
+      const id=Number(el.dataset.id);
+      const e=events.find(x=>Number(x.id)===id);
+      const track=el.closest(".timeline-track");
+      if(!e||!track)return;
+      const rect=track.getBoundingClientRect();
+      const start=toMin(e.start||"08:00");
+      const end=toMin(e.end||"12:00");
+      const resize=(ev.clientX >= rect.left + (end-360)/960*rect.width - 14);
+      timelineDrag={el,e,track,rect,start,end,resize,lastStart:start,lastEnd:end,pointerId:ev.pointerId};
+      el.setPointerCapture(ev.pointerId);
+      el.style.cursor=resize?"ew-resize":"grabbing";
+    });
+    el.addEventListener("pointermove",function(ev){
+      const t=timelineDrag;
+      if(!t || t.el!==el)return;
+      const minsPerPixel=960/t.rect.width;
+      const currentMin=360 + (ev.clientX-t.rect.left)*minsPerPixel;
+      const snapped=Math.round(currentMin/30)*30;
+      if(t.resize){
+        const newEnd=Math.max(t.start+30,Math.min(1320,snapped));
+        t.e.end=fromMin(newEnd);
+      }else{
+        const duration=t.end-t.start;
+        const newStart=Math.max(360,Math.min(1320-duration,snapped-(t.start-360)));
+        t.e.start=fromMin(newStart);
+        t.e.end=fromMin(newStart+duration);
+      }
+      const a=toMin(t.e.start), b=toMin(t.e.end);
+      el.style.left=((a-360)/960*100)+"%";
+      el.style.width=((b-a)/960*100)+"%";
+      el.querySelector(".evt-time").textContent=t.e.start+"–"+t.e.end;
+    });
+    el.addEventListener("pointerup",function(){
+      const t=timelineDrag;
+      if(!t || t.el!==el)return;
+      addLog(`予定時間変更：${t.e.site} ${t.e.start}-${t.e.end}`);
+      save();
+      timelineDrag=null;
+      renderDay();
+      updateSide();
+    });
+    el.addEventListener("pointercancel",function(){timelineDrag=null;});
+  });
+}
+
+function renderCalendar(){
+  const cal=document.getElementById("calendar");
+  const y=cursor.getFullYear(), m=cursor.getMonth();
+  let start,end;
+  if(view==="week"){
+    start=new Date(cursor); start.setDate(start.getDate()-((start.getDay()+6)%7));
+    end=new Date(start); end.setDate(start.getDate()+6);
+  }else{
+    start=new Date(y,m,1); end=new Date(y,m+1,0);
+  }
+  let h='<div class="month-grid'+(view==="week"?' week-grid':'')+'">';
+  ["月","火","水","木","金","土","日"].forEach(d=>h+=`<div class="month-head">${d}</div>`);
+  if(view==="month"){
+    const blanks=(start.getDay()+6)%7;
+    for(let i=0;i<blanks;i++) h+='<div class="month-cell blank"></div>';
+  }
+  let d=new Date(start);
+  while(d<=end){
+    const cur=iso(d), todayCls=cur===iso(new Date())?' today':'', selectedCls=cur===iso(cursor)?' selected-day':'';
+    const dayEvents=events.filter(e=>e.date===cur);
+    h+=`<div class="month-cell${todayCls}${selectedCls}" data-date="${cur}" onclick="selectCalendarDate('${cur}')" ondblclick="openModalForDate('${cur}')"><div class="date-num">${d.getMonth()+1}/${d.getDate()}</div><div class="month-events">`;
+    dayEvents.forEach(e=>{
+      const conflict=isConflict(e);
+      const vs=(e.vehicles||[e.vehicle]).filter(Boolean).join(', '), ps=(e.people||[e.person]).filter(Boolean).join(', ');
+      h+=`<div class="month-event ${conflict?'conflict':''}" style="background:${conflict?'#dc2626':siteColor(e.site)}" title="${esc(e.site)}｜${esc(e.work||'')}｜${esc(vs)}｜${esc(ps)}｜${esc(e.start||'08:00')}-${esc(e.end||'12:00')}" onclick="editEvent(${e.id});event.stopPropagation()"><b>${esc(e.date)} ${esc(e.start||'08:00')}–${esc(e.end||'12:00')} ${e.status==='予定'?'●予定':'✓決定'}</b><br><strong>${esc(e.site||'')}</strong>${e.work?`<br><span>仕事内容：${esc(e.work)}</span>`:''}<br><span>車両：${esc(vs||'なし')}</span><br><span>人員：${esc(ps||'なし')}</span></div>`;
+    });
+    h+='</div></div>'; d.setDate(d.getDate()+1);
+  }
+  h+='</div>'; cal.innerHTML=h;
+}
+
+function selectCalendarDate(date){cursor=new Date(date+"T12:00:00");render();}
+function openModalForDate(date){cursor=new Date(date+'T00:00:00');openModal();document.getElementById("fdate").value=date;}
+
+function isConflict(e){
+ return events.some(x=>{
+   if(x.id===e.id||x.date!==e.date)return false;
+   const xv=x.vehicles||[x.vehicle].filter(Boolean), ev=e.vehicles||[e.vehicle].filter(Boolean); const xp=x.people||[x.person].filter(Boolean), ep=e.people||[e.person].filter(Boolean); if(!xv.some(v=>ev.includes(v)) && !xp.some(p=>ep.includes(p)))return false;
+   const a=toMin(e.start||"08:00"),b=toMin(e.end||"12:00"),c=toMin(x.start||"08:00"),d=toMin(x.end||"12:00");
+   return a<d&&c<b;
+ });
+}
+
+function updateSide(){
+ let day=iso(cursor);let dayEs=events.filter(e=>e.date===day);let usedV=new Set(dayEs.flatMap(e=>e.vehicles||[e.vehicle]).filter(Boolean)),usedP=new Set(dayEs.flatMap(e=>e.people||[e.person]).filter(Boolean));
+ document.getElementById("freeV").textContent=vehicles.filter(v=>!usedV.has(v[0])).map(v=>v[0]).join(", ")||"なし";
+ document.getElementById("freeP").textContent=people.filter(p=>!usedP.has(p[0])).map(p=>p[0]).join(", ")||"なし";
+ document.getElementById("conflicts").textContent=events.filter(isConflict).length+"件";
+ document.getElementById("vehicleList").innerHTML=vehicles.map(v=>`<div class="stat"><span>🚚 ${esc(v[0])} (${esc(v[1])})</span><span>${usedV.has(v[0])?"🟢 稼働":"⚪ 空き"}</span></div>`).join("");
+ document.getElementById("personList").innerHTML=people.map(p=>`<div class="stat"><span>👤 ${esc(p[0])}</span><span>${usedP.has(p[0])?"🟢 配置":"⚪ 空き"}</span></div>`).join("");
+ document.getElementById("log").innerHTML=logs.slice(-20).reverse().map(x=>`<div>${esc(x)}</div>`).join("")||"<span class='small'>履歴なし</span>";
+}
+
+let editingEventId=null;
+
+function selectedValues(id){
+  return [...document.querySelectorAll(`#${id} input[type="checkbox"]:checked`)].map(x=>x.value);
+}
+function setSelectedValues(id, values){
+  const set=new Set(Array.isArray(values)?values:[values]);
+  document.querySelectorAll(`#${id} input[type="checkbox"]`).forEach(x=>x.checked=set.has(x.value));
+}
+function renderChoiceBox(id, items, icon){
+  const box=document.getElementById(id);
+  if(!items.length){box.innerHTML='<div class="small">登録なし</div>';return;}
+  box.innerHTML=items.map((x,i)=>{
+    const value=String(x[0]);
+    return `<label class="choice-row"><input type="checkbox" value="${esc(value)}" onchange="this.closest('.choice-row').classList.toggle('picked',this.checked)"><span>${icon} ${esc(value)}</span></label>`;
+  }).join('');
+}
+
+function editEvent(id){
+  const e=events.find(x=>Number(x.id)===Number(id));
+  if(!e)return;
+  editingEventId=e.id;
+  document.getElementById("deleteEventBtn").style.display="";
+  document.getElementById("modalTitle").textContent="予定を変更";
+  document.getElementById("fdate").value=e.date||iso(cursor);
+  document.getElementById("fsite").value=e.site||"";
+  document.getElementById("fwork").value=e.work||"";
+  document.getElementById("fstatus").value=e.status||"予定";
+  const fstart=document.getElementById("fstart"), fend=document.getElementById("fend");
+  if(fstart) fstart.value=e.start||"08:00";
+  if(fend) fend.value=e.end||"12:00";
+
+  const vs=Array.isArray(e.vehicles)?e.vehicles:(e.vehicle?[e.vehicle]:[]);
+  const ps=Array.isArray(e.people)?e.people:(e.person?[e.person]:[]);
+  renderChoiceBox("fvehicle",vehicles,"🚚");
+  renderChoiceBox("fperson",people,"👤");
+  setSelectedValues("fvehicle",vs);
+  setSelectedValues("fperson",ps);
+  document.querySelectorAll("#fvehicle .choice-row, #fperson .choice-row").forEach(r=>r.classList.toggle("picked",r.querySelector("input")?.checked));
+  
+  ["fdate","fsite","fstatus"].forEach(id=>document.getElementById(id).disabled=false);
+  document.querySelectorAll("#fvehicle input,#fperson input").forEach(x=>x.disabled=false);
+  document.querySelectorAll("#fvehicle .choice-row,#fperson .choice-row").forEach(x=>x.style.pointerEvents="");
+
+  document.getElementById("modal").classList.add("show");
+}
+
+function openModal(){
+  editingEventId=null;
+  document.getElementById("deleteEventBtn").style.display="none";
+  document.getElementById("modalTitle").textContent="予定を追加";
+  document.getElementById("modal").classList.add("show");
+  document.getElementById("fdate").value=iso(cursor);
+  document.getElementById("fsite").value="";
+  document.getElementById("fwork").value="";
+  document.getElementById("fstart").value="08:00";
+  document.getElementById("fend").value="12:00";
+  document.getElementById("fstatus").value="予定";
+  ["fdate","fsite","fstatus"].forEach(id=>document.getElementById(id).disabled=false);
+  renderChoiceBox("fvehicle",vehicles,"🚚");
+  renderChoiceBox("fperson",people,"👤");
+}
+
+function closeModal(){editingEventId=null;document.getElementById("modal").classList.remove("show")}
+function deleteEvent(){
+  if(editingEventId===null)return;
+  const e=events.find(x=>Number(x.id)===Number(editingEventId));
+  if(!e)return;
+  if(!confirm(`「${e.site||"この予定"}」を削除しますか？`))return;
+  events=events.filter(x=>Number(x.id)!==Number(editingEventId));
+  addLog(`予定削除：${e.date} ${e.site||""}｜車両 ${(e.vehicles||[e.vehicle]).filter(Boolean).join(", ")||"なし"}｜人員 ${(e.people||[e.person]).filter(Boolean).join(", ")||"なし"}`);
+  save();
+  closeModal();
+  render();
+}
+function addEvent(){
+  let startTime=document.getElementById("fstart").value||"08:00";
+  let endTime=document.getElementById("fend").value||"12:00";
+  if(toMin(endTime)<=toMin(startTime)){alert("終了時刻は開始時刻より後にしてください。");return;}
+
+  const vehicleValues=selectedValues("fvehicle").filter(Boolean);
+  const personValues=selectedValues("fperson").filter(Boolean);
+  const date=document.getElementById("fdate").value;
+  const site=document.getElementById("fsite").value||"現場未定";
+  const work=document.getElementById("fwork").value||"";
+  const status=document.getElementById("fstatus").value;
+
+  if(editingEventId!==null){
+    const e=events.find(x=>Number(x.id)===Number(editingEventId));
+    if(!e)return;
+    const old=`${e.date} ${e.site}｜${e.vehicle||""}｜${e.person||""}｜${e.start||""}-${e.end||""}`;
+
+    e.date=date;
+    e.site=site;
+    e.work=work;
+    e.status=status;
+    e.start=startTime;
+    e.end=endTime;
+    e.vehicles=vehicleValues;
+    e.people=personValues;
+    e.vehicle=vehicleValues[0]||"";
+    e.person=personValues[0]||"";
+
+    addLog(`予定変更：${old} → ${e.date} ${e.site}｜車両 ${vehicleValues.join(", ")||"なし"}｜人員 ${personValues.join(", ")||"なし"}｜${e.start}-${e.end}`);
+  }else{
+    const e={
+      id:Date.now(),date,site,work,status,start:startTime,end:endTime,
+      vehicles:vehicleValues,people:personValues,
+      vehicle:vehicleValues[0]||"",person:personValues[0]||""
+    };
+    events.push(e);
+    addLog(`予定追加：${e.date} ${e.site}｜車両 ${vehicleValues.join(", ")||"なし"}｜人員 ${personValues.join(", ")||"なし"}｜${e.start}-${e.end}`);
+  }
+
+  save();closeModal();render();
+}
+function addLog(s){logs.push(new Date().toLocaleString("ja-JP")+" "+s);logs=logs.slice(-100)}
+
+let deferredInstallPrompt=null;
+window.addEventListener("beforeinstallprompt",(e)=>{
+  e.preventDefault();
+  deferredInstallPrompt=e;
+  const b=document.getElementById("installAppBtn");
+  if(b)b.style.display="inline-block";
+});
+window.addEventListener("appinstalled",()=>{
+  deferredInstallPrompt=null;
+  const b=document.getElementById("installAppBtn");
+  if(b)b.style.display="none";
+  alert("予定表をアプリとしてインストールしました。");
+});
+async function installApp(){
+  if(!deferredInstallPrompt){
+    alert("この機能はWeb上に公開した予定表をChromeまたはEdgeで開いた場合に利用できます。公開後、ブラウザのメニューから『アプリをインストール』を選ぶこともできます。");
+    return;
+  }
+  deferredInstallPrompt.prompt();
+  await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt=null;
+  const b=document.getElementById("installAppBtn");
+  if(b)b.style.display="none";
+}
+async function copyShareLink(){
+  if(location.protocol==="file:"){
+    alert("現在はパソコン内のファイルを開いています。Web上で共有するには、この予定表をWebサーバーへ公開して共有URLを発行する必要があります。");
+    return;
+  }
+  try{
+    await navigator.clipboard.writeText(location.href);
+    alert("共有URLをコピーしました。編集を許可したメンバーに送ってください。");
+  }catch(e){
+    prompt("このURLをコピーして共有してください",location.href);
+  }
+}
+if("serviceWorker" in navigator && location.protocol!=="file:"){
+  window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(e=>console.warn("Service Worker登録失敗",e)));
+}
+render();
+loadFromCloud();
+setInterval(loadFromCloud,30000);
+</script>
+</body></html>
