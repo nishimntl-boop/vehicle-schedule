@@ -15,25 +15,8 @@ button{cursor:pointer}.primary{background:#2563eb;color:white;border-color:#2563
 .card{background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden}.calendar{overflow:auto}
 .grid{display:grid;min-width:900px}.cell{border-right:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb;min-height:42px;padding:5px;position:relative}
 .head{background:#f8fafc;font-weight:700;text-align:center;min-height:38px}.name{font-weight:700;background:#f8fafc;position:sticky;left:0;z-index:3}.resource{display:grid;grid-template-columns:150px 1fr;min-width:900px}
-.days{display:grid;grid-auto-columns:minmax(90px,1fr);grid-auto-flow:column}.month-grid{display:grid;grid-template-columns:repeat(7,minmax(110px,1fr));min-width:770px}.month-grid.week-grid{min-width:0;width:100%}.week-grid .month-head{font-size:16px;padding:14px 8px}.week-grid .month-cell{min-height:620px;padding:10px;min-width:0}.week-grid .date-num{font-size:18px;margin-bottom:10px}.week-grid .month-events{gap:7px}.week-grid .month-event{font-size:14px;padding:8px 9px;min-height:64px;line-height:1.35}.week-grid .month-event span{font-size:12px;white-space:normal;overflow:visible;text-overflow:clip}.week-grid .month-event .week-detail{font-size:11px;opacity:.95;margin-top:3px}.week-grid .month-events{overflow:visible;position:relative}.week-grid .month-cell{overflow:visible}.week-grid .month-event{position:relative;z-index:2}.week-grid .month-event.continuation{margin-left:-10px;padding-left:20px;border-top-left-radius:0;border-bottom-left-radius:0}.week-grid .month-event.continues-after{margin-right:-10px;padding-right:20px;border-top-right-radius:0;border-bottom-right-radius:0}.week-grid .month-event.continuation.continues-after{border-radius:0}.week-grid .month-event.continuation::before,.week-grid .month-event.continues-after::after{display:none}/* 週表示：日またぎを1本の帯として描画。各予定にレーンを割り当て、追加予定との重なりを防止 */
-.week-board{position:relative;min-height:520px;background:#fff;overflow:hidden}
-.week-day-bg{position:absolute;inset:0;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));z-index:0}
-.week-day-bg .week-day-cell{border-right:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb;min-width:0;padding:10px;background:#fff;cursor:default}
-.week-day-bg .week-day-cell:last-child{border-right:0}
-.week-day-bg .week-day-cell.today{box-shadow:inset 0 0 0 2px #2563eb}
-.week-day-bg .week-day-cell.selected-day{box-shadow:inset 0 0 0 3px #f59e0b;background:#fffbeb}
-.week-day-bg .week-day-num{font-weight:700;font-size:18px}
-.week-event-layer{position:absolute;inset:0;z-index:2;pointer-events:none}
-.week-event-bar{position:absolute;pointer-events:auto;color:#fff;border-radius:6px;padding:7px 9px;font-size:13px;line-height:1.3;overflow:hidden;cursor:pointer;box-shadow:0 1px 2px #0002;min-width:0}
-.week-event-bar.start-continued{border-top-left-radius:0;border-bottom-left-radius:0}
-.week-event-bar.end-continued{border-top-right-radius:0;border-bottom-right-radius:0}
-.week-event-bar.start-continued.end-continued{border-radius:0}
-.week-event-bar b,.week-event-bar strong,.week-event-bar span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.week-event-bar .week-detail{font-size:12px;opacity:.97}
-.week-event-bar.conflict{background:#dc2626!important}
-@media(max-width:700px){.week-board{min-width:770px}.week-event-bar{font-size:12px}.week-event-bar .week-detail{font-size:11px}}
-.month-head{background:#f8fafc;border-right:1px solid #e5e7eb;border-bottom:1px solid #d9dee7;padding:8px;text-align:center;font-weight:700}.month-cell{min-height:125px;border-right:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb;padding:5px;background:#fff;cursor:default}.month-cell.outside{background:#f8fafc;color:#94a3b8}.month-cell.today{box-shadow:inset 0 0 0 2px #2563eb}.month-cell.selected-day{box-shadow:inset 0 0 0 3px #f59e0b;background:#fffbeb}.month-cell.outside.selected-day{background:#fffbeb}.date-num{font-weight:700;margin-bottom:4px}.month-events{display:flex;flex-direction:column;gap:3px}.month-event{color:#fff;border-radius:5px;padding:4px 5px;font-size:11px;line-height:1.25;cursor:pointer;overflow:hidden}.month-event span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.month-event.continuation{border-top-left-radius:0;border-bottom-left-radius:0;opacity:.98;margin-left:-7px;padding-left:12px;position:relative;z-index:2}
-.month-event.continues-after{border-top-right-radius:0;border-bottom-right-radius:0;margin-right:-7px;padding-right:12px;position:relative;z-index:2}
+.days{display:grid;grid-auto-columns:minmax(90px,1fr);grid-auto-flow:column}.month-grid{display:grid;grid-template-columns:repeat(7,minmax(110px,1fr));min-width:770px}.month-grid.week-grid{min-width:0;width:100%}.week-grid .month-head{font-size:16px;padding:14px 8px}.week-grid .month-cell{min-height:620px;padding:10px;min-width:0}.week-grid .date-num{font-size:18px;margin-bottom:10px}.week-grid .month-events{gap:7px}.week-grid .month-event{font-size:14px;padding:8px 9px;min-height:64px;line-height:1.35}.week-grid .month-event span{font-size:12px;white-space:normal;overflow:visible;text-overflow:clip}.week-grid .month-event .week-detail{font-size:11px;opacity:.95;margin-top:3px}.week-grid .month-events{overflow:hidden;position:relative}.week-grid .month-cell{overflow:hidden}.week-grid .month-event{position:relative;z-index:1}.week-grid .month-event.continuation{margin-left:-10px;padding-left:20px;border-top-left-radius:0;border-bottom-left-radius:0}.week-grid .month-event.continues-after{margin-right:-10px;padding-right:20px;border-top-right-radius:0;border-bottom-right-radius:0}.week-grid .month-event.continuation.continues-after{margin-left:-10px;margin-right:-10px;border-radius:0}.week-grid .month-event.continuation::before,.week-grid .month-event.continues-after::after{display:none}.month-head{background:#f8fafc;border-right:1px solid #e5e7eb;border-bottom:1px solid #d9dee7;padding:8px;text-align:center;font-weight:700}.month-cell{min-height:125px;border-right:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb;padding:5px;background:#fff;cursor:default}.month-cell.outside{background:#f8fafc;color:#94a3b8}.month-cell.today{box-shadow:inset 0 0 0 2px #2563eb}.month-cell.selected-day{box-shadow:inset 0 0 0 3px #f59e0b;background:#fffbeb}.month-cell.outside.selected-day{background:#fffbeb}.date-num{font-weight:700;margin-bottom:4px}.month-events{display:flex;flex-direction:column;gap:3px}.month-event{color:#fff;border-radius:5px;padding:4px 5px;font-size:11px;line-height:1.25;cursor:pointer;overflow:hidden}.month-event span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.month-event.continuation{border-top-left-radius:0;border-bottom-left-radius:0;opacity:.98;margin-left:-5px;padding-left:10px;position:relative;z-index:1}
+.month-event.continues-after{border-top-right-radius:0;border-bottom-right-radius:0;margin-right:-5px;padding-right:10px;position:relative;z-index:1}
 .month-event.continuation.continues-after{border-radius:0}
 /* 日またぎ：各日のセル端まで本体を伸ばす。隣セルへ疑似要素を重ねないので、追加予定と色が被らない。 */
 .month-event.continuation > *,.month-event.continues-after > *{position:relative;z-index:1}
@@ -86,6 +69,14 @@ button{cursor:pointer}.primary{background:#2563eb;color:white;border-color:#2563
   .timeaxis{min-width:1000px}
   .timeaxis-head,.timeline-row{grid-template-columns:150px 1fr}
 }
+
+/* 日またぎ予定：各セル内で上下に積み、隣セルへはみ出さない。境界だけ連続させる */
+.month-grid .month-events{overflow:hidden;display:flex;flex-direction:column;gap:3px}
+.month-grid .month-cell{overflow:hidden}
+.month-grid .month-event{flex:0 0 auto;min-width:0}
+.month-grid .month-event.continuation{margin-left:-5px}
+.month-grid .month-event.continues-after{margin-right:-5px}
+.month-grid .month-event.continuation.continues-after{margin-left:-5px;margin-right:-5px}
 
 /* 月間予定印刷 */
 @media print{
@@ -543,16 +534,17 @@ function renderCalendar(){
   const y=cursor.getFullYear(), m=cursor.getMonth();
   let start,end;
   if(view==="week"){
-    start=new Date(cursor); start.setHours(0,0,0,0); start.setDate(start.getDate()-((start.getDay()+6)%7));
-    end=new Date(start); end.setDate(start.getDate()+6); end.setHours(23,59,59,999);
-    renderWeekCalendar(start,end);
-    return;
+    start=new Date(cursor); start.setDate(start.getDate()-((start.getDay()+6)%7));
+    end=new Date(start); end.setDate(start.getDate()+6);
+  }else{
+    start=new Date(y,m,1); end=new Date(y,m+1,0);
   }
-  start=new Date(y,m,1); end=new Date(y,m+1,0);
-  let h='<div class="month-grid">';
+  let h='<div class="month-grid'+(view==="week"?' week-grid':'')+'">';
   ["月","火","水","木","金","土","日"].forEach(d=>h+=`<div class="month-head">${d}</div>`);
-  const blanks=(start.getDay()+6)%7;
-  for(let i=0;i<blanks;i++) h+='<div class="month-cell blank"></div>';
+  if(view==="month"){
+    const blanks=(start.getDay()+6)%7;
+    for(let i=0;i<blanks;i++) h+='<div class="month-cell blank"></div>';
+  }
   let d=new Date(start);
   while(d<=end){
     const cur=iso(d), todayCls=cur===iso(new Date())?' today':'', selectedCls=cur===iso(cursor)?' selected-day':'';
@@ -560,10 +552,13 @@ function renderCalendar(){
     const dayEvents=events.filter(e=>eventOverlapsDate(e,dayStart));
     h+=`<div class="month-cell${todayCls}${selectedCls}" data-date="${cur}" onclick="selectCalendarDate('${cur}')" ondblclick="openModalForDate('${cur}')"><div class="date-num">${d.getMonth()+1}/${d.getDate()}</div><div class="month-events">`;
     dayEvents.forEach(e=>{
-      const seg=eventSegmentForDate(e,dayStart); if(!seg)return;
+      const seg=eventSegmentForDate(e,dayStart);
+      if(!seg)return;
       const conflict=isConflict(e);
       const vs=(e.vehicles||[e.vehicle]).filter(Boolean).join(', '), ps=(e.people||[e.person]).filter(Boolean).join(', ');
       const continuation=seg.continuesBefore, continuesAfter=seg.continuesAfter;
+      // 日またぎでも、元の予定時刻（例：23:00–26:00）をそのまま表示する
+      // ことで、月・週表示で「00:00–02:00」のように別予定に見えないようにする。
       const timeLabel=`${e.start||'08:00'}–${e.end||'12:00'}`;
       h+=`<div class="month-event ${conflict?'conflict ':''}${continuation?'continuation ':''}${continuesAfter?'continues-after':''}" style="background:${conflict?'#dc2626':siteColor(e.site)}" title="${esc(e.site)}｜${esc(e.work||'')}｜${esc(vs)}｜${esc(ps)}｜${esc(e.start||'08:00')}-${esc(e.end||'12:00')}" onclick="editEvent(${e.id});event.stopPropagation()"><b>${esc(timeLabel)} ${e.status==='予定'?'●予定':'✓決定'}</b><br><strong>${esc(e.site||'')}</strong>${e.work?`<br><span>仕事内容：${esc(e.work)}</span>`:''}<br><span>車両：${esc(vs||'なし')}</span><br><span>人員：${esc(ps||'なし')}</span></div>`;
     });
@@ -572,60 +567,6 @@ function renderCalendar(){
   h+='</div>'; cal.innerHTML=h;
 }
 
-function renderWeekCalendar(start,end){
-  const dayMs=24*60*60*1000;
-  const days=[];
-  for(let i=0;i<7;i++){const d=new Date(start);d.setDate(start.getDate()+i);days.push(d);}
-  const weekEnd=new Date(start);weekEnd.setDate(start.getDate()+7);weekEnd.setHours(0,0,0,0);
-
-  // 週に表示される予定だけを対象に、同じ日を使う予定が同じレーンにならないよう配置する。
-  const items=[];
-  events.forEach(e=>{
-    const r=eventInterval(e); if(!r)return;
-    if(!(r.start<weekEnd && r.end>start))return;
-    let first=Math.floor((Math.max(r.start.getTime(),start.getTime())-start.getTime())/dayMs);
-    let last=Math.ceil((Math.min(r.end.getTime(),weekEnd.getTime())-start.getTime())/dayMs)-1;
-    first=Math.max(0,Math.min(6,first)); last=Math.max(first,Math.min(6,last));
-    items.push({e,first,last,continuesBefore:r.start<start,continuesAfter:r.end>weekEnd});
-  });
-  items.sort((a,b)=>a.first-b.first || a.last-b.last || Number(a.e.id)-Number(b.e.id));
-  const laneEnds=[];
-  items.forEach(it=>{
-    let lane=0;
-    while(lane<laneEnds.length && laneEnds[lane]>=it.first) lane++;
-    it.lane=lane;
-    laneEnds[lane]=it.last;
-  });
-  const laneCount=Math.max(1,laneEnds.length);
-  const headerH=54, laneH=104, boardH=Math.max(520,headerH+laneCount*laneH+12);
-
-  let h='<div class="week-grid">';
-  ["月","火","水","木","金","土","日"].forEach(d=>h+=`<div class="month-head">${d}</div>`);
-  h+=`</div><div class="week-board" style="height:${boardH}px">`;
-  h+='<div class="week-day-bg">';
-  days.forEach((d,i)=>{
-    const cur=iso(d),todayCls=cur===iso(new Date())?' today':'',selectedCls=cur===iso(cursor)?' selected-day':'';
-    h+=`<div class="week-day-cell${todayCls}${selectedCls}" data-date="${cur}" onclick="selectCalendarDate('${cur}')" ondblclick="openModalForDate('${cur}')"><div class="week-day-num">${d.getMonth()+1}/${d.getDate()}</div></div>`;
-  });
-  h+='</div><div class="week-event-layer">';
-  items.forEach(it=>{
-    const e=it.e, conflict=isConflict(e), bg=conflict?'#dc2626':siteColor(e.site);
-    const vs=(e.vehicles||[e.vehicle]).filter(Boolean).join(', '), ps=(e.people||[e.person]).filter(Boolean).join(', ');
-    const left=(it.first/7)*100, width=((it.last-it.first+1)/7)*100;
-    const top=headerH+it.lane*laneH+6;
-    const cls=(it.continuesBefore?' start-continued':'')+(it.continuesAfter?' end-continued':'');
-    const title=`${e.site||''}｜${e.work||''}｜${vs}｜${ps}｜${e.start||'08:00'}-${e.end||'12:00'}`;
-    h+=`<div class="week-event-bar${conflict?' conflict':''}${cls}" style="left:${left}%;width:${width}%;top:${top}px;height:${laneH-12}px;background:${bg}" title="${esc(title)}" onclick="editEvent(${e.id});event.stopPropagation()">`+
-       `<b>${esc(e.start||'08:00')}–${esc(e.end||'12:00')} ${e.status==='予定'?'●予定':'✓決定'}</b>`+
-       `<strong>${esc(e.site||'')}</strong>`+
-       (e.work?`<span class="week-detail">仕事内容：${esc(e.work)}</span>`:'')+
-       `<span class="week-detail">車両：${esc(vs||'なし')}</span>`+
-       `<span class="week-detail">人員：${esc(ps||'なし')}</span>`+
-       `</div>`;
-  });
-  h+='</div></div>';
-  cal.innerHTML=h;
-}
 function selectCalendarDate(date){cursor=new Date(date+"T12:00:00");render();}
 function openModalForDate(date){cursor=new Date(date+'T00:00:00');openModal();document.getElementById("fdate").value=date;}
 
