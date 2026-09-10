@@ -110,8 +110,8 @@ button{cursor:pointer}.primary{background:#2563eb;color:white;border-color:#2563
 .calendar-cell.today{box-shadow:inset 0 0 0 2px #2563eb}
 .calendar-cell.selected-day{box-shadow:inset 0 0 0 3px #f59e0b;background:#fffbeb}
 .calendar-date{font-weight:700;font-size:14px;position:relative;z-index:1}
-.calendar-events-layer{grid-column:1/8;grid-row:1;position:relative;z-index:5;pointer-events:none;overflow:hidden;padding-top:0}
-.calendar-bar{position:absolute;left:calc((var(--sc) - 1) * 100% / 7);width:calc((var(--ec) - var(--sc)) * 100% / 7);top:calc(34px + var(--lane) * 70px);min-height:62px;height:62px;background:var(--bar-color);color:#fff;border-radius:5px;padding:5px 7px;font-size:11px;line-height:1.25;overflow:hidden;cursor:pointer;pointer-events:auto;box-shadow:0 1px 2px #0002;z-index:10}
+.calendar-events-layer{grid-column:1/8;grid-row:1;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));align-content:start;position:relative;z-index:5;pointer-events:none;overflow:hidden}
+.calendar-bar{min-width:0;min-height:62px;height:62px;align-self:start;background:var(--bar-color);color:#fff;border-radius:5px;padding:5px 7px;font-size:11px;line-height:1.25;overflow:hidden;cursor:pointer;pointer-events:auto;box-shadow:0 1px 2px #0002;z-index:10}
 .calendar-bar.edge-left{border-top-left-radius:5px;border-bottom-left-radius:5px}
 .calendar-bar.edge-right{border-top-right-radius:5px;border-bottom-right-radius:5px}
 .calendar-bar b,.calendar-bar strong,.calendar-bar span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -555,21 +555,16 @@ function renderCalendar(){
   let start,end;
   if(view==="week"){
     start=new Date(cursor); start.setHours(0,0,0,0); start.setDate(start.getDate()-((start.getDay()+6)%7));
-    end=new Date(start); end.setDate(start.getDate()+6);
+    end=new Date(start); end.setDate(start.getDate()+6); end.setHours(0,0,0,0);
   }else{
     start=new Date(y,m,1); start.setHours(0,0,0,0);
     end=new Date(y,m+1,0); end.setHours(0,0,0,0);
   }
 
-  // 月・週表示は「セルの中に予定を押し込む」方式をやめ、
-  // 1週間ごとに専用レーンを作る。これで日またぎ予定を横につなげても、
-  // 他の予定の色の上に重なることがない。
   const firstCol=(start.getDay()+6)%7;
-  const firstDay=view==="month" ? new Date(y,m,1) : new Date(start);
-  firstDay.setHours(0,0,0,0);
-  let gridStart=view==="month" ? new Date(y,m,1-firstCol) : new Date(start);
+  const gridStart=view==="month" ? new Date(y,m,1-firstCol) : new Date(start);
   gridStart.setHours(0,0,0,0);
-  const rowCount=view==="month" ? Math.ceil((((new Date(y,m+1,0)).getDate()+firstCol))/7) : 1;
+  const rowCount=view==="month" ? Math.ceil((firstCol + new Date(y,m+1,0).getDate())/7) : 1;
 
   let h='<div class="calendar-board">';
   h+='<div class="calendar-head">';
@@ -577,71 +572,70 @@ function renderCalendar(){
   h+='</div>';
 
   function dayKey(dt){ return iso(dt); }
-  function eventText(e){
+  function eventText(e, rowStart, rowEnd){
+    const r=eventInterval(e);
+    const beginsBefore=r && r.start<rowStart;
+    const endsAfter=r && r.end>rowEnd;
     const vs=(e.vehicles||[e.vehicle]).filter(Boolean).join(', '), ps=(e.people||[e.person]).filter(Boolean).join(', ');
     const timeLabel=`${e.start||'08:00'}–${e.end||'12:00'}`;
-    return `<b>${esc(timeLabel)} ${e.status==='予定'?'●予定':'✓決定'}</b><br><strong>${esc(e.site||'')}</strong>${e.work?`<br><span>仕事内容：${esc(e.work)}</span>`:''}<br><span>車両：${esc(vs||'なし')}</span><br><span>人員：${esc(ps||'なし')}</span>`;
+    const prefix=beginsBefore?'↳ ':'';
+    return `<b>${esc(prefix+timeLabel)} ${e.status==='予定'?'●予定':'✓決定'}</b><br><strong>${esc(e.site||'')}</strong>${e.work?`<br><span>仕事内容：${esc(e.work)}</span>`:''}<br><span>車両：${esc(vs||'なし')}</span><br><span>人員：${esc(ps||'なし')}</span>`;
   }
-  function addWeekRow(rowStart){
+
+  for(let r=0;r<rowCount;r++){
+    const rowStart=new Date(gridStart); rowStart.setDate(gridStart.getDate()+r*7); rowStart.setHours(0,0,0,0);
     const rowEnd=new Date(rowStart); rowEnd.setDate(rowStart.getDate()+7); rowEnd.setHours(0,0,0,0);
-    const cells=[];
-    for(let c=0;c<7;c++){
-      const d=new Date(rowStart); d.setDate(rowStart.getDate()+c); d.setHours(0,0,0,0);
-      const cur=dayKey(d), outside=view==="month" && d.getMonth()!==m;
-      const todayCls=cur===iso(new Date())?' today':'';
-      const selectedCls=cur===iso(cursor)?' selected-day':'';
-      cells.push(`<div class="calendar-cell${outside?' outside':''}${todayCls}${selectedCls}" data-date="${cur}" onclick="selectCalendarDate('${cur}')" ondblclick="openModalForDate('${cur}')"><div class="calendar-date">${d.getMonth()+1}/${d.getDate()}</div></div>`);
-    }
-    h+=`<div class="calendar-week" style="--lane-count:1">${cells.join('')}<div class="calendar-events-layer">`;
 
     const rowEvents=[];
     events.forEach(e=>{
       const er=eventInterval(e); if(!er)return;
       if(er.end<=rowStart || er.start>=rowEnd)return;
-      let segStart=new Date(er.start<rowStart?rowStart:er.start);
-      let segEnd=new Date(er.end>rowEnd?rowEnd:er.end);
-      // その週に含まれる日単位の範囲へ丸める
-      let sc=Math.max(0,Math.floor((segStart-rowStart)/86400000));
-      let ec=Math.min(7,Math.ceil((segEnd-rowStart)/86400000));
-      if(ec<=sc) ec=Math.min(7,sc+1);
-      const conflict=isConflict(e);
-      const color=conflict?'#dc2626':siteColor(e.site);
-      rowEvents.push({e,sc,ec,color,sort:segStart.getTime()});
+      const segStart=er.start<rowStart?rowStart:er.start;
+      const segEnd=er.end>rowEnd?rowEnd:er.end;
+      // 予定が実際にかかっている「日」の列だけを使う。
+      // 23:00→26:00 は、火曜列から水曜列まで1本のバーになる。
+      const sc=Math.max(0,Math.min(6,Math.floor((segStart-rowStart)/86400000)));
+      const ec=Math.max(sc+1,Math.min(7,Math.ceil((segEnd-rowStart)/86400000)));
+      rowEvents.push({e,sc,ec,sort:segStart.getTime(),color:isConflict(e)?'#dc2626':siteColor(e.site)});
     });
-    rowEvents.sort((a,b)=>a.sort-b.sort || a.sc-b.sc);
 
-    // 列範囲が重なる予定には別レーンを割り当てる。
+    rowEvents.sort((a,b)=>a.sort-b.sort || a.sc-b.sc || a.ec-b.ec);
+
+    // 同じ列を使う予定は必ず別レーンへ。列が違う予定は同じレーンに置ける。
     const lanes=[];
     rowEvents.forEach(item=>{
       let lane=0;
-      while(true){
-        if(!lanes[lane]) lanes[lane]=[];
-        const hit=lanes[lane].some(x=>item.sc<x.ec && x.sc<item.ec);
-        if(!hit)break;
-        lane++;
-      }
+      while(lanes[lane] && lanes[lane].some(x=>item.sc<x.ec && x.sc<item.ec)) lane++;
+      if(!lanes[lane])lanes[lane]=[];
       item.lane=lane;
       lanes[lane].push(item);
     });
-    const laneH=view==="week"?92:70;
-    const layerTop=view==="week"?46:34;
-    const rowHeight=Math.max(view==="week"?620:190, layerTop+Math.max(1,lanes.length)*laneH+12);
-    h=h.replace('style="--lane-count:1"',`style="--row-height:${rowHeight}px;--lane-count:${Math.max(1,lanes.length)}"`);
 
+    const laneH=view==="week"?92:70;
+    const topH=34;
+    const minH=view==="week"?620:190;
+    const rowHeight=Math.max(minH,topH+Math.max(1,lanes.length)*laneH+12);
+
+    // ここが重要：背景セルと予定バーを完全に分離する。
+    // 予定バーはCSS Gridの「列」そのものを占有するので、margin/overflowで隣へ侵入しない。
+    h+=`<div class="calendar-week" style="--row-height:${rowHeight}px;--lane-count:${Math.max(1,lanes.length)};--lane-h:${laneH}px">`;
+    for(let c=0;c<7;c++){
+      const d=new Date(rowStart); d.setDate(rowStart.getDate()+c); d.setHours(0,0,0,0);
+      const cur=dayKey(d), outside=view==="month" && d.getMonth()!==m;
+      const todayCls=cur===iso(new Date())?' today':'';
+      const selectedCls=cur===iso(cursor)?' selected-day':'';
+      h+=`<div class="calendar-cell${outside?' outside':''}${todayCls}${selectedCls}" data-date="${cur}" onclick="selectCalendarDate('${cur}')" ondblclick="openModalForDate('${cur}')"><div class="calendar-date">${d.getMonth()+1}/${d.getDate()}</div></div>`;
+    }
+
+    h+=`<div class="calendar-events-layer" style="grid-template-rows:${topH}px repeat(${Math.max(1,lanes.length)},var(--lane-h));">`;
     rowEvents.forEach(item=>{
       const e=item.e;
-      const continuation= e.date && new Date(String(e.date).slice(0,10)+'T00:00:00') < rowStart;
-      const continuesAfter= eventInterval(e).end>rowEnd;
-      const vs=(e.vehicles||[e.vehicle]).filter(Boolean).join(', '), ps=(e.people||[e.person]).filter(Boolean).join(', ');
-      const title=`${e.site||''}｜${e.work||''}｜${vs}｜${ps}｜${e.start||'08:00'}-${e.end||'12:00'}`;
-      h+=`<div class="calendar-bar${item.sc===0?' edge-left':''}${item.ec===7?' edge-right':''}" style="--sc:${item.sc+1};--ec:${item.ec+1};--lane:${item.lane};--bar-color:${item.color}" title="${esc(title)}" onclick="editEvent(${e.id});event.stopPropagation()">${eventText(e)}</div>`;
+      const title=`${e.site||''}｜${e.work||''}｜${(e.vehicles||[e.vehicle]).filter(Boolean).join(', ')}｜${(e.people||[e.person]).filter(Boolean).join(', ')}｜${e.start||'08:00'}-${e.end||'12:00'}`;
+      const leftClass=item.sc===0?' edge-left':'';
+      const rightClass=item.ec===7?' edge-right':'';
+      h+=`<div class="calendar-bar${leftClass}${rightClass}" style="grid-column:${item.sc+1}/${item.ec+1};grid-row:${item.lane+2};--bar-color:${item.color}" title="${esc(title)}" onclick="editEvent(${e.id});event.stopPropagation()">${eventText(e,rowStart,rowEnd)}</div>`;
     });
     h+='</div></div>';
-  }
-
-  for(let r=0;r<rowCount;r++){
-    const rs=new Date(gridStart); rs.setDate(gridStart.getDate()+r*7); rs.setHours(0,0,0,0);
-    addWeekRow(rs);
   }
   h+='</div>';
   cal.innerHTML=h;
