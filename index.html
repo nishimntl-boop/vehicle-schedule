@@ -111,7 +111,7 @@ button{cursor:pointer}.primary{background:#2563eb;color:white;border-color:#2563
 .calendar-cell.selected-day{box-shadow:inset 0 0 0 3px #f59e0b;background:#fffbeb}
 .calendar-date{font-weight:700;font-size:14px;position:relative;z-index:1}
 .calendar-events-layer{grid-column:1/8;grid-row:1/-1;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));align-content:start;position:relative;z-index:5;pointer-events:none;overflow:hidden}
-.calendar-bar{min-width:0;min-height:54px;height:calc(var(--lane-h) - 8px);align-self:start;background:var(--bar-color);color:#fff;border-radius:5px;padding:5px 7px;font-size:11px;line-height:1.25;overflow:hidden;cursor:pointer;pointer-events:auto;box-shadow:0 1px 2px #0002;z-index:10}
+.calendar-bar{box-sizing:border-box;min-width:0;min-height:54px;height:calc(var(--lane-h) - 10px);align-self:start;background:var(--bar-color);color:#fff;border-radius:5px;padding:5px 7px;font-size:11px;line-height:1.25;overflow:hidden;cursor:pointer;pointer-events:auto;box-shadow:0 1px 2px #0002;z-index:10}
 .calendar-bar.edge-left{border-top-left-radius:5px;border-bottom-left-radius:5px}
 .calendar-bar.edge-right{border-top-right-radius:5px;border-bottom-right-radius:5px}
 .calendar-bar b,.calendar-bar strong,.calendar-bar span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
