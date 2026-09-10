@@ -27,7 +27,7 @@ button{cursor:pointer}.primary{background:#2563eb;color:white;border-color:#2563
 
 /* 日表示：6:00〜22:00 時間軸 */
 .timeaxis-wrap{overflow-x:auto;border:1px solid #d9dee7;border-radius:12px;background:#fff}
-.timeaxis{min-width:1000px}
+.timeaxis{min-width:1200px}
 .timeaxis-head{display:grid;grid-template-columns:220px 1fr;border-bottom:1px solid #d9dee7;background:#fff}
 .timeaxis-label{padding:12px;border-right:1px solid #d9dee7;font-weight:700;background:#f8fafc}
 .hourgrid{display:grid;grid-template-columns:repeat(16,1fr)}
@@ -35,7 +35,7 @@ button{cursor:pointer}.primary{background:#2563eb;color:white;border-color:#2563
 .timeline-row{display:grid;grid-template-columns:220px 1fr;min-height:66px;border-bottom:1px solid #e5e7eb}
 .timeline-name{padding:12px;border-right:1px solid #d9dee7;background:#fafafa;font-weight:600}
 .timeline-name small{display:block;color:#98a2b3;font-weight:400;margin-top:3px}
-.timeline-track{position:relative;min-width:780px;background-image:linear-gradient(to right,#eef1f5 1px,transparent 1px);background-size:calc(100% / 16) 100%}
+.timeline-track{position:relative;min-width:1200px;background-image:linear-gradient(to right,#eef1f5 1px,transparent 1px);background-size:calc(100% / 24) 100%}
 .time-event{position:absolute;top:8px;height:50px;border-radius:8px;padding:6px 18px 6px 9px;box-sizing:border-box;color:#fff;overflow:hidden;cursor:grab;box-shadow:0 2px 5px #0001;font-size:12px;line-height:1.25;min-width:30px;touch-action:none;user-select:none}.time-event::after{content:"↔";position:absolute;right:0;top:0;width:14px;height:100%;cursor:ew-resize;background:rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;font-size:10px}
 .time-event.vehicle{background:#2563eb}.time-event.person{background:#7c3aed}
 .time-event.conflict{outline:3px solid #ef4444;background:#dc2626!important}
@@ -59,7 +59,7 @@ button{cursor:pointer}.primary{background:#2563eb;color:white;border-color:#2563
   .month-grid.week-grid{min-width:770px;width:770px}
   .week-grid .month-cell{min-height:520px}
   .week-grid .month-event{font-size:13px}
-  .timeaxis{min-width:1000px}
+  .timeaxis{min-width:1200px}
   .timeaxis-head,.timeline-row{grid-template-columns:150px 1fr}
 }
 
@@ -128,7 +128,7 @@ button{cursor:pointer}.primary{background:#2563eb;color:white;border-color:#2563
 <label>日付</label><input id="fdate" type="date">
 <label>現場</label><input id="fsite" placeholder="現場A">
 <label>仕事内容</label><input id="fwork" placeholder="例：資材搬入・設置作業">
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div><label>開始時刻</label><input id="fstart" type="time" step="1800" value="08:00"></div><div><label>終了時刻</label><input id="fend" type="time" step="1800" value="12:00"></div></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div><label>開始時刻</label><input id="fstart" type="text" inputmode="numeric" placeholder="08:00" value="08:00"></div><div><label>終了時刻</label><input id="fend" type="text" inputmode="numeric" placeholder="12:00" value="12:00"></div></div><div class="small">夜間作業は24時を超えて入力できます（例：22:00〜26:00）。</div>
 <label>車両（複数選択可）</label><div class="small">□ 名前をクリックして選択。複数台を同時に選択できます。</div><div id="fvehicle" class="choice-box"></div>
 <label>担当者（複数選択可）</label><div class="small">□ 名前をクリックして選択。複数人を同時に選択できます。</div><div id="fperson" class="choice-box"></div>
 <label>状態</label><select id="fstatus"><option>予定</option><option>決定</option></select>
@@ -370,21 +370,21 @@ function render(){
 }
 
 function renderDay(){
-  const ds=iso(cursor), dayEvents=events.filter(e=>e.date===ds);
-  const startHour=6, endHour=22;
+  const ds=iso(cursor), dayEvents=events.filter(e=>segmentForDate(e,ds));
+  const startHour=6, endHour=30;
   let rows=[];
   vehicles.forEach(v=>{
     const es=dayEvents.filter(e=>e.vehicles?.includes(v[0]) || e.vehicle===v[0]);
-    rows.push(`<div class="timeline-row"><div class="timeline-name">🚚 ${esc(v[0])} ${esc(v[1])}</div><div class="timeline-track">${es.map(e=>timeEventHtml(e,"vehicle")).join("")}</div></div>`);
+    rows.push(`<div class="timeline-row"><div class="timeline-name">🚚 ${esc(v[0])} ${esc(v[1])}</div><div class="timeline-track">${es.map(e=>timeEventHtml(e,"vehicle",ds)).join("")}</div></div>`);
   });
   people.forEach(p=>{
     const es=dayEvents.filter(e=>e.people?.includes(p[0]) || e.person===p[0]);
-    rows.push(`<div class="timeline-row"><div class="timeline-name">👤 ${esc(p[0])}<small>${esc(p[1])}</small></div><div class="timeline-track">${es.map(e=>timeEventHtml(e,"person")).join("")}</div></div>`);
+    rows.push(`<div class="timeline-row"><div class="timeline-name">👤 ${esc(p[0])}<small>${esc(p[1])}</small></div><div class="timeline-track">${es.map(e=>timeEventHtml(e,"person",ds)).join("")}</div></div>`);
   });
   let hours=[];
-  for(let h=startHour;h<=endHour;h++) hours.push(`<div class="hour" style="width:${100/16}%">${pad(h)}:00</div>`);
+  for(let h=startHour;h<=endHour;h++) hours.push(`<div class="hour" style="width:${100/24}%">${pad(h)}:00</div>`);
   document.getElementById("calendar").innerHTML=`
-    <div class="day-title"><div><strong>${esc(ds)} の予定</strong><div class="day-note">6:00〜22:00 現場ごとに色分け。バー中央で移動、右端で終了時刻を30分単位で変更できます</div></div></div>
+    <div class="day-title"><div><strong>${esc(ds)} の予定</strong><div class="day-note">6:00〜30:00（翌6:00）を表示。24時を超える夜間作業もそのまま表示できます。</div></div></div>
     <div class="timeaxis-wrap"><div class="timeaxis">
       <div class="timeaxis-head"><div class="timeaxis-label">車両 / 人員</div><div class="hourgrid">${hours.join("")}</div></div>
       ${rows.join("")}
@@ -392,27 +392,54 @@ function renderDay(){
   attachTimelineHandlers();
 }
 
-function timeEventHtml(e,type){
+function timeEventHtml(e,type,ds){
   const s=e.start||"08:00", en=e.end||"12:00";
-  let sm=Math.max(360,Math.min(1320,toMin(s)));
-  let em=Math.max(sm+30,Math.min(1320,toMin(en)));
-  const left=(sm-360)/960*100;
-  const width=(em-sm)/960*100;
+  const seg=segmentForDate(e,ds||e.date);
+  if(!seg) return "";
+  let sm=Math.max(360,Math.min(1800,seg.start));
+  let em=Math.max(sm+30,Math.min(1800,seg.end));
+  const left=(sm-360)/1440*100;
+  const width=(em-sm)/1440*100;
   const bg=siteColor(e.site);
   const fg=siteTextColor(e.site);
+  const displayStart=fromMin(seg.start), displayEnd=fromMin(seg.end);
+  const label=(seg.continuesBefore?"↳ ":"")+displayStart+"–"+displayEnd;
   return `<div ondblclick="editEvent(${e.id})" draggable="false" class="time-event ${type} ${isConflict(e)?"conflict":""}" data-id="${esc(e.id)}"
     style="left:${left}%;width:${width}%;background:${isConflict(e)?"#dc2626":bg};color:${fg}"
-    title="${esc(e.site||"")}${isConflict(e)?"（重複あり）":""}">
-    <div class="evt-time">${esc(s)}–${esc(en)}</div><div class="evt-site">${e.status==="予定"?"● ":""}${esc(e.site||"")}｜${esc(e.work||"")}</div>
+    title="${esc(e.site||"")}｜${esc(e.work||"")}｜${esc(e.date)} ${esc(s)}–${esc(en)}${seg.continuesBefore||seg.continuesAfter?"（日またぎ）":""}">
+    <div class="evt-time">${esc(label)}</div><div class="evt-site">${e.status==="予定"?"● ":""}${esc(e.site||"")}｜${esc(e.work||"")}</div>
   </div>`;
 }
 
 function toMin(t){
- const a=String(t||"08:00").split(":"); return Number(a[0])*60+Number(a[1]||0);
+ const a=String(t||"08:00").trim().split(":");
+ const h=Number(a[0]), m=Number(a[1]||0);
+ if(!Number.isFinite(h)||!Number.isFinite(m)) return NaN;
+ return h*60+m;
 }
 function fromMin(n){
- n=Math.max(360,Math.min(1320,Math.round(n/30)*30));
+ n=Math.max(360,Math.min(1800,Math.round(n/30)*30));
  return pad(Math.floor(n/60))+":"+pad(n%60);
+}
+function normalizeTimeInput(v){
+ const m=String(v||"").trim().match(/^(\d{1,2}):(\d{2})$/);
+ if(!m) return null;
+ const h=Number(m[1]), min=Number(m[2]);
+ if(h<0 || h>30 || min<0 || min>59 || min%30!==0) return null;
+ return pad(h)+":"+pad(min);
+}
+function dateAtMidnight(ds){ return new Date(ds+"T00:00:00"); }
+function eventAbsRange(e){
+ const base=dateAtMidnight(e.date);
+ return {start:base.getTime()/60000+toMin(e.start||"08:00"), end:base.getTime()/60000+toMin(e.end||"12:00")};
+}
+function segmentForDate(e, ds){
+ const dayStart=dateAtMidnight(ds).getTime()/60000, dayEnd=dayStart+1440;
+ const r=eventAbsRange(e);
+ if(r.end<=dayStart || r.start>=dayEnd) return null;
+ const start=Math.max(r.start,dayStart)-dayStart;
+ const end=Math.min(r.end,dayEnd)-dayStart;
+ return {start,end,continuesBefore:r.start<dayStart,continuesAfter:r.end>dayEnd};
 }
 
 let timelineDrag=null;
@@ -427,7 +454,7 @@ function attachTimelineHandlers(){
       const rect=track.getBoundingClientRect();
       const start=toMin(e.start||"08:00");
       const end=toMin(e.end||"12:00");
-      const resize=(ev.clientX >= rect.left + (end-360)/960*rect.width - 14);
+      const resize=(ev.clientX >= rect.left + (end-360)/1440*rect.width - 14);
       timelineDrag={el,e,track,rect,start,end,resize,lastStart:start,lastEnd:end,pointerId:ev.pointerId};
       el.setPointerCapture(ev.pointerId);
       el.style.cursor=resize?"ew-resize":"grabbing";
@@ -435,21 +462,21 @@ function attachTimelineHandlers(){
     el.addEventListener("pointermove",function(ev){
       const t=timelineDrag;
       if(!t || t.el!==el)return;
-      const minsPerPixel=960/t.rect.width;
+      const minsPerPixel=1440/t.rect.width;
       const currentMin=360 + (ev.clientX-t.rect.left)*minsPerPixel;
       const snapped=Math.round(currentMin/30)*30;
       if(t.resize){
-        const newEnd=Math.max(t.start+30,Math.min(1320,snapped));
+        const newEnd=Math.max(t.start+30,Math.min(1800,snapped));
         t.e.end=fromMin(newEnd);
       }else{
         const duration=t.end-t.start;
-        const newStart=Math.max(360,Math.min(1320-duration,snapped-(t.start-360)));
+        const newStart=Math.max(360,Math.min(1800-duration,snapped-(t.start-360)));
         t.e.start=fromMin(newStart);
         t.e.end=fromMin(newStart+duration);
       }
       const a=toMin(t.e.start), b=toMin(t.e.end);
-      el.style.left=((a-360)/960*100)+"%";
-      el.style.width=((b-a)/960*100)+"%";
+      el.style.left=((a-360)/1440*100)+"%";
+      el.style.width=((b-a)/1440*100)+"%";
       el.querySelector(".evt-time").textContent=t.e.start+"–"+t.e.end;
     });
     el.addEventListener("pointerup",function(){
@@ -484,12 +511,15 @@ function renderCalendar(){
   let d=new Date(start);
   while(d<=end){
     const cur=iso(d), todayCls=cur===iso(new Date())?' today':'', selectedCls=cur===iso(cursor)?' selected-day':'';
-    const dayEvents=events.filter(e=>e.date===cur);
+    const dayEvents=events.filter(e=>segmentForDate(e,cur));
     h+=`<div class="month-cell${todayCls}${selectedCls}" data-date="${cur}" onclick="selectCalendarDate('${cur}')" ondblclick="openModalForDate('${cur}')"><div class="date-num">${d.getMonth()+1}/${d.getDate()}</div><div class="month-events">`;
     dayEvents.forEach(e=>{
-      const conflict=isConflict(e);
+      const seg=segmentForDate(e,cur), conflict=isConflict(e);
       const vs=(e.vehicles||[e.vehicle]).filter(Boolean).join(', '), ps=(e.people||[e.person]).filter(Boolean).join(', ');
-      h+=`<div class="month-event ${conflict?'conflict':''}" style="background:${conflict?'#dc2626':siteColor(e.site)}" title="${esc(e.site)}｜${esc(e.work||'')}｜${esc(vs)}｜${esc(ps)}｜${esc(e.start||'08:00')}-${esc(e.end||'12:00')}" onclick="editEvent(${e.id});event.stopPropagation()"><b>${esc(e.date)} ${esc(e.start||'08:00')}–${esc(e.end||'12:00')} ${e.status==='予定'?'●予定':'✓決定'}</b><br><strong>${esc(e.site||'')}</strong>${e.work?`<br><span>仕事内容：${esc(e.work)}</span>`:''}<br><span>車両：${esc(vs||'なし')}</span><br><span>人員：${esc(ps||'なし')}</span></div>`;
+      const displayStart=fromMin(seg.start), displayEnd=fromMin(seg.end);
+      const prefix=seg.continuesBefore?'↳ ':'';
+      const fullTime=`${e.start||'08:00'}–${e.end||'12:00'}`;
+      h+=`<div class="month-event ${conflict?'conflict':''}" style="background:${conflict?'#dc2626':siteColor(e.site)}" title="${esc(e.site)}｜${esc(e.work||'')}｜${esc(vs)}｜${esc(ps)}｜${esc(e.date)} ${esc(fullTime)}${seg.continuesBefore||seg.continuesAfter?'（日またぎ）':''}" onclick="editEvent(${e.id});event.stopPropagation()"><b>${esc(prefix+displayStart+'–'+displayEnd)} ${e.status==='予定'?'●予定':'✓決定'}</b><br><strong>${esc(e.site||'')}</strong>${e.work?`<br><span>仕事内容：${esc(e.work)}</span>`:''}<br><span>車両：${esc(vs||'なし')}</span><br><span>人員：${esc(ps||'なし')}</span></div>`;
     });
     h+='</div></div>'; d.setDate(d.getDate()+1);
   }
@@ -500,11 +530,14 @@ function selectCalendarDate(date){cursor=new Date(date+"T12:00:00");render();}
 function openModalForDate(date){cursor=new Date(date+'T00:00:00');openModal();document.getElementById("fdate").value=date;}
 
 function isConflict(e){
+ const er=eventAbsRange(e);
  return events.some(x=>{
-   if(x.id===e.id||x.date!==e.date)return false;
-   const xv=x.vehicles||[x.vehicle].filter(Boolean), ev=e.vehicles||[e.vehicle].filter(Boolean); const xp=x.people||[x.person].filter(Boolean), ep=e.people||[e.person].filter(Boolean); if(!xv.some(v=>ev.includes(v)) && !xp.some(p=>ep.includes(p)))return false;
-   const a=toMin(e.start||"08:00"),b=toMin(e.end||"12:00"),c=toMin(x.start||"08:00"),d=toMin(x.end||"12:00");
-   return a<d&&c<b;
+   if(x.id===e.id)return false;
+   const xv=x.vehicles||[x.vehicle].filter(Boolean), ev=e.vehicles||[e.vehicle].filter(Boolean);
+   const xp=x.people||[x.person].filter(Boolean), ep=e.people||[e.person].filter(Boolean);
+   if(!xv.some(v=>ev.includes(v)) && !xp.some(p=>ep.includes(p)))return false;
+   const xr=eventAbsRange(x);
+   return er.start<xr.end && xr.start<er.end;
  });
 }
 
@@ -594,8 +627,9 @@ function deleteEvent(){
   render();
 }
 function addEvent(){
-  let startTime=document.getElementById("fstart").value||"08:00";
-  let endTime=document.getElementById("fend").value||"12:00";
+  let startTime=normalizeTimeInput(document.getElementById("fstart").value||"08:00");
+  let endTime=normalizeTimeInput(document.getElementById("fend").value||"12:00");
+  if(!startTime||!endTime){alert("時刻は30分単位で 00:00〜30:00 の形式で入力してください。夜間作業は 25:30、26:00 のように入力できます。");return;}
   if(toMin(endTime)<=toMin(startTime)){alert("終了時刻は開始時刻より後にしてください。");return;}
 
   const vehicleValues=selectedValues("fvehicle").filter(Boolean);
