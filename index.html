@@ -76,15 +76,32 @@
   .app{grid-template-columns:1fr;}
   .side{order:initial;}
 }
-@media(max-width:700px){.cloud-status{display:none}.top{padding:0 6px;gap:3px}.logo{font-size:14px;margin-right:3px}.tabs button{padding:8px 8px}.nav{gap:3px}.nav button{padding:8px 9px}.title{min-width:78px;font-size:16px}}</style>
+@media(max-width:700px){.cloud-status{display:none}.top{padding:0 6px;gap:3px}.logo{font-size:14px;margin-right:3px}.tabs button{padding:8px 8px}.nav{gap:3px}.nav button{padding:8px 9px}.title{min-width:78px;font-size:16px}}
+/* v24 smartphone layout fix */
+.mobile-add{display:none;}
+@media(max-width:700px){
+  .mobile-add{display:block!important;background:#1769e0!important;color:#fff!important;}
+  .app{display:flex!important;flex-direction:column!important;}
+  .side{order:-1!important;min-width:0!important;width:100%!important;}
+  main{order:2!important;min-width:0!important;width:100%!important;}
+  main>.panel{width:100%;overflow-x:auto;overflow-y:hidden;}
+  #main,#secondary{min-width:0!important;width:100%;}
+  .month{grid-template-columns:repeat(7,minmax(0,1fr))!important;min-width:0!important;width:100%!important;}
+  .month .dow{font-size:12px;padding:7px 2px;}
+  .day{height:86px!important;padding:4px!important;}
+  .date{font-size:14px!important;height:20px!important;}
+  .bar{font-size:9px!important;padding:2px 3px!important;height:20px!important;}
+  .head{position:sticky;left:0;}
+}
+</style>
 <body>
-<header class="top"><div class="logo">🚚 車両・人員 配置管理</div><div class="tabs"><button data-v="day">日予定</button><button data-v="week">週予定</button><button data-v="month" class="on">月予定</button></div><div class="nav"><button id="prev">◀</button><div id="title" class="title"></div><span id="cloudStatus" class="cloud-status">共有確認中…</span><button id="next">▶</button><button id="today">今日</button><button onclick="print()">🖨 印刷</button><button id="installBtn" type="button" onclick="installApp()" style="display:none">📱 アプリ追加</button><button id="settingsBtn" type="button" onclick="openSettings()">⚙ 設定</button></div></header>
+<header class="top"><div class="logo">🚚 車両・人員 配置管理</div><div class="tabs"><button data-v="day">日予定</button><button data-v="week">週予定</button><button data-v="month" class="on">月予定</button></div><div class="nav"><button id="prev">◀</button><div id="title" class="title"></div><span id="cloudStatus" class="cloud-status">共有確認中…</span><button id="next">▶</button><button id="today">今日</button><button onclick="print()">🖨 印刷</button><button id="installBtn" type="button" onclick="installApp()" style="display:none">📱 アプリ追加</button><button class="mobile-add" type="button" onclick="newEvent()">＋ 予定</button><button id="settingsBtn" type="button" onclick="openSettings()">⚙ 設定</button></div></header>
 <div class="app"><main><section class="panel"><div id="main"></div></section>
 <section class="panel"><div class="head"><span id="sub"></span><button onclick="shift(-1)">◀</button><button onclick="shift(1)">▶</button><button class="add" onclick="newEvent()">＋ 予定追加</button></div><div id="secondary"></div></section></main>
 <aside class="side"><div class="box"><h3 id="stitle">空き状況</h3><div id="status" class="status"></div></div><div class="box"><h3>お知らせ</h3><div class="notice">・予定／確定をクリックして編集<br>・人員の「休み」を登録<br>・重複した車両／人員だけ赤色<br>・選択した日は青枠で表示</div></div>
 <div class="box form"><h3 id="ftitle">予定の追加</h3><label>区分</label><select id="kind"><option value="plan">予定</option><option value="confirmed">確定</option><option value="off">休み</option></select><label>現場</label><input id="site" placeholder="現場A"><label>仕事内容</label><input id="work" placeholder="資材搬入など"><div class="two"><div><label>開始日</label><input id="sd" type="date"></div><div><label>開始</label><input id="st" type="time" value="08:00"></div></div><div class="two"><div><label>終了日</label><input id="ed" type="date"></div><div><label>終了</label><input id="et" type="time" value="16:00"></div></div><label>車両（複数選択可）</label><div id="vs" class="checks"></div><label>人員（複数選択可）</label><div id="ps" class="checks"></div><div class="actions"><button class="del" onclick="delEvent()">削除</button><button onclick="newEvent()">キャンセル</button><button class="save" onclick="saveEvent()">更新</button></div></div></aside></div>
 <script>
-const VEH=[['001','2t'],['002','4t'],['003','2t'],['004','4t'],['005','2t'],['006','4t'],['007','2t']],PEOPLE=['田中','鈴木','佐藤','山田','高橋','伊藤','渡辺','小林'],COL=['#16a34a','#2563eb','#ea580c','#9333aa','#0891b2','#ca8a04','#0f766e','#4f46e5','#7c3aed','#a16207','#15803d','#0369a1','#c2410c','#6d28d9','#0e7490','#854d0e'];let events=(JSON.parse(localStorage.getItem('vehicleScheduleExact')||'null')||[]).map(e=>e&&e.kind==='work'?{...e,kind:'confirmed'}:e),cur=new Date('2025-06-11T00:00'),view='month',eid=null,cm={},ci=0;
+const VEH=[['001','2t'],['002','4t'],['003','2t'],['004','4t'],['005','2t'],['006','4t'],['007','2t']],PEOPLE=['田中','鈴木','佐藤','山田','高橋','伊藤','渡辺','小林'],COL=['#16a34a','#2563eb','#ea580c','#9333aa','#0891b2','#ca8a04','#0f766e','#4f46e5','#7c3aed','#a16207','#15803d','#0369a1','#c2410c','#6d28d9','#0e7490','#854d0e'];let events=(JSON.parse(localStorage.getItem('vehicleScheduleExact')||'null')||[]).map(e=>e&&e.kind==='work'?{...e,kind:'confirmed'}:e),cur=new Date(new Date().getFullYear(),new Date().getMonth(),new Date().getDate()),view='month',eid=null,cm={},ci=0;
 function K(d){
   const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');
   return `${y}-${m}-${day}`;
