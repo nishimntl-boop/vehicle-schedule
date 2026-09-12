@@ -64,7 +64,8 @@ function defaultState_() {
     logs: [],
     lastUpdated: 0,
     revision: 0,
-    hasData: false
+    hasData: false,
+    saveToken: ''
   };
 }
 
@@ -141,7 +142,8 @@ function normalize_(d) {
     logs: Array.isArray(state.logs) ? state.logs : [],
     lastUpdated: Number(state.lastUpdated || 0),
     revision: Number(state.revision || 0),
-    hasData: false
+    hasData: false,
+    saveToken: String(state.saveToken || '')
   };
 }
 
@@ -175,7 +177,8 @@ function writeState_(data) {
       logs: Array.isArray(data.logs) ? data.logs : current.logs,
       lastUpdated: now,
       revision: Number(current.revision || 0) + 1,
-      hasData: true
+      hasData: true,
+      saveToken: String(data.saveToken || '')
     };
 
     const raw = JSON.stringify(next);
@@ -188,7 +191,7 @@ function writeState_(data) {
     sh.getRange(1, 1, rows.length, 1).setValues(rows);
     sh.setFrozenRows(0);
 
-    return {ok:true, lastUpdated:next.lastUpdated, revision:next.revision, hasData:true};
+    return {ok:true, lastUpdated:next.lastUpdated, revision:next.revision, hasData:true, saveToken:next.saveToken, eventCount:next.events.length, vehicleCount:next.vehicles.length, peopleCount:next.people.length};
   } finally {
     lock.releaseLock();
   }
