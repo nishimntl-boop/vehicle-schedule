@@ -1,4 +1,4 @@
-const CACHE_NAME='vehicle-schedule-v36';
+const CACHE_NAME='vehicle-schedule-v37';
 const STATIC_ASSETS=['./manifest.json','./icons/icon-192.png','./icons/icon-512.png','./icons/apple-touch-icon.png'];
 self.addEventListener('install', event=>{
   event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(STATIC_ASSETS)).then(()=>self.skipWaiting()));

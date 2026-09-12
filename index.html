@@ -201,39 +201,36 @@ async function postCloud(){
   cloudSaving=true;setCloudStatus('共有保存中…');
   const payload=JSON.stringify(cloudState());
   const sentAt=Date.now();
-  let sent=false;
-  // まずCORS不要のno-cors POSTでGASへ直接送信する。
+  let frame=document.getElementById('gasSyncFrame');
+  if(!frame){
+    frame=document.createElement('iframe');
+    frame.name='gasSyncFrame';frame.id='gasSyncFrame';
+    frame.style.display='none';document.body.appendChild(frame);
+  }
+  let form=null;
   try{
-    const body=new URLSearchParams();
-    body.set('action','save');
-    body.set('payload',payload);
-    await fetch(GAS_URL,{method:'POST',mode:'no-cors',body,cache:'no-store',keepalive:true});
-    sent=true;
+    form=document.createElement('form');
+    form.method='POST';form.action=GAS_URL;form.target='gasSyncFrame';
+    form.style.display='none';form.acceptCharset='UTF-8';
+    const a=document.createElement('input');a.type='hidden';a.name='action';a.value='save';form.appendChild(a);
+    const p=document.createElement('input');p.type='hidden';p.name='payload';p.value=payload;form.appendChild(p);
+    document.body.appendChild(form);form.submit();
   }catch(err){
-    console.warn('直接POST失敗、フォーム送信へ切替',err);
+    cloudSaving=false;setCloudStatus('共有保存失敗');console.warn('共有保存送信失敗',err);
+    if(form&&form.parentNode)form.remove();return;
   }
-  // 直接POSTが開始できない環境では従来のフォームPOSTを使用。
-  if(!sent){
-    try{
-      let frame=document.getElementById('gasSyncFrame');
-      if(!frame){frame=document.createElement('iframe');frame.name='gasSyncFrame';frame.id='gasSyncFrame';frame.style.display='none';document.body.appendChild(frame)}
-      const form=document.createElement('form');form.method='POST';form.action=GAS_URL;form.target='gasSyncFrame';form.style.display='none';
-      const a=document.createElement('input');a.name='action';a.value='save';form.appendChild(a);
-      const p=document.createElement('input');p.name='payload';p.value=payload;form.appendChild(p);
-      document.body.appendChild(form);form.submit();setTimeout(()=>form.remove(),10000);
-      sent=true;
-    }catch(err){console.warn('共有保存送信失敗',err);cloudSaving=false;setCloudStatus('共有保存失敗');return}
-  }
-  // POST応答は直接読まず、JSONPで保存結果を確認する。
+  if(form)setTimeout(()=>{if(form.parentNode)form.remove()},15000);
   let verified=false;
-  for(let i=0;i<12;i++){
+  for(let i=0;i<15;i++){
     await new Promise(r=>setTimeout(r,1000));
     const d=await fetchCloudStateOnce();
-    if(d&&d.hasData&&Number(d.lastUpdated||0)>=sentAt){applyCloudState(d);verified=true;break}
+    if(d&&d.hasData&&Number(d.lastUpdated||0)>=sentAt){
+      applyCloudState(d);verified=true;break;
+    }
   }
   cloudSaving=false;
   if(verified){pendingDeletedIds=[];persistLocal();render();setCloudStatus('共有保存・同期済み')}
-  else{setCloudStatus('共有保存確認失敗');console.warn('GASへの保存結果を12秒以内に確認できませんでした')}
+  else{setCloudStatus('共有保存確認失敗');console.warn('GASへの保存結果を15秒以内に確認できませんでした')}
 }
 function saveLocalAndCloud(){persistLocal();postCloud()}
 function fetchCloudStateOnce(){
@@ -307,7 +304,7 @@ async function installApp(){
 }
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js?v=36').catch(err => console.warn('PWA登録失敗', err));
+    navigator.serviceWorker.register('./sw.js?v=37').catch(err => console.warn('PWA登録失敗', err));
   });
 }
 
