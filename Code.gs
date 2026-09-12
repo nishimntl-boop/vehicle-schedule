@@ -1,37 +1,42 @@
-// 車両人員予定表：Google Apps Script 共有バックエンド
-// スプレッドシートに紐付けたApps Scriptとして使用してください。
+// 車両人員予定表：Google Apps Script 共有バックエンド v27
+// スタンドアロンのApps Scriptでも動作するよう、対象スプレッドシートをIDで固定しています。
 
+const SPREADSHEET_ID = '1KYmKn-zGJyLdrut_pjQ_QFVWH6BCIR_wNu910Hf2i80';
 const SHEET_NAME = '予定表データ';
 const LEGACY_SHEET_NAME = '予定データ';
-const CHUNK_SIZE = 45000; // Google Sheets 1セルの文字数制限を避けるため分割保存
+const CHUNK_SIZE = 45000;
 
 function doGet(e) {
   try {
     if (e && e.parameter && e.parameter.api === '1') {
-      var state = readState_();
+      const state = readState_();
       if (e.parameter.callback) return jsonp_(e.parameter.callback, state);
       return json_(state);
+    }
+    if (e && e.parameter && e.parameter.health === '1') {
+      return json_({ok:true, spreadsheet:'connected'});
     }
     return HtmlService.createHtmlOutputFromFile('index')
       .setTitle('車両人員予定表')
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
   } catch (err) {
     return HtmlService.createHtmlOutput('<pre>起動エラー: ' +
-      String(err && err.message || err).replace(/</g,'&lt;') +
+      String(err && err.message || err).replace(/</g, '&lt;') +
       '</pre>');
   }
 }
 
 function doPost(e) {
   try {
-    // フォームPOST（payload=JSON）と、JSON本文の両方に対応
     let raw = '';
     if (e && e.parameter && e.parameter.payload) raw = e.parameter.payload;
     if (!raw && e && e.postData && e.postData.contents) raw = e.postData.contents;
     if (!raw) return json_({ok:false, error:'payloadがありません'});
 
     const data = JSON.parse(raw);
-    if (data.action && data.action !== 'save') return json_({ok:false, error:'未対応のactionです'});
+    if (data.action && data.action !== 'save') {
+      return json_({ok:false, error:'未対応のactionです'});
+    }
     return json_(writeState_(data));
   } catch (err) {
     return json_({ok:false, error:String(err && err.message || err)});
@@ -39,18 +44,15 @@ function doPost(e) {
 }
 
 function json_(obj) {
-  return ContentService
-    .createTextOutput(JSON.stringify(obj))
+  return ContentService.createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
 }
 
 function jsonp_(callback, obj) {
-  // JSONP: GitHub Pages からGASへ安全にGET読込するための互換方式
   if (!/^[A-Za-z_$][0-9A-Za-z_$]*$/.test(callback)) {
     return ContentService.createTextOutput('invalid callback');
   }
-  return ContentService
-    .createTextOutput(callback + '(' + JSON.stringify(obj) + ');')
+  return ContentService.createTextOutput(callback + '(' + JSON.stringify(obj) + ');')
     .setMimeType(ContentService.MimeType.JAVASCRIPT);
 }
 
@@ -66,9 +68,12 @@ function defaultState_() {
   };
 }
 
+function getSpreadsheet_() {
+  return SpreadsheetApp.openById(SPREADSHEET_ID);
+}
+
 function getSheet_() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  if (!ss) throw new Error('スプレッドシートに紐付けたApps Scriptで実行してください');
+  const ss = getSpreadsheet_();
   let sh = ss.getSheetByName(SHEET_NAME);
   if (!sh) sh = ss.insertSheet(SHEET_NAME);
   return sh;
@@ -81,12 +86,12 @@ function readRaw_(sh) {
 }
 
 function readState_() {
+  const ss = getSpreadsheet_();
   const sh = getSheet_();
   let raw = readRaw_(sh);
 
-  // 新しい保存先が空なら、旧「予定データ」シートから一度だけ読み込む
+  // 新しい保存先が空なら、旧「予定データ」シートから読み込む。
   if (!raw) {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
     const old = ss.getSheetByName(LEGACY_SHEET_NAME);
     if (old) raw = readRaw_(old);
   }
@@ -152,13 +157,12 @@ function writeState_(data) {
     const currentIds = new Set(current.events.map(e => String(e.id)));
     const mergedEvents = [];
 
-    // 既存予定を保持しつつ、今回の端末で追加・編集した予定だけ反映する。
     current.events.forEach(e => {
       const id = String(e.id);
       if (deleted.has(id)) return;
       mergedEvents.push(incomingById.has(id) ? incomingById.get(id) : e);
     });
-    // 現在の共有データに無い新規予定を追加する。
+
     incomingEvents.forEach(e => {
       const id = String(e.id);
       if (!currentIds.has(id) && !deleted.has(id)) mergedEvents.push(e);
@@ -178,7 +182,9 @@ function writeState_(data) {
     const sh = getSheet_();
     sh.getRange(1, 1, Math.max(sh.getMaxRows(), 1), 1).clearContent();
     const rows = [];
-    for (let i = 0; i < raw.length; i += CHUNK_SIZE) rows.push([raw.slice(i, i + CHUNK_SIZE)]);
+    for (let i = 0; i < raw.length; i += CHUNK_SIZE) {
+      rows.push([raw.slice(i, i + CHUNK_SIZE)]);
+    }
     sh.getRange(1, 1, rows.length, 1).setValues(rows);
     sh.setFrozenRows(0);
 
