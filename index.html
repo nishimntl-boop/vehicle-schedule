@@ -93,13 +93,43 @@
   .bar{font-size:9px!important;padding:2px 3px!important;height:20px!important;}
   .head{position:sticky;left:0;}
 }
+
+/* 予定入力モーダル */
+.event-modal{position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:2000;display:none;align-items:center;justify-content:center;padding:12px}
+.event-modal.open{display:flex}
+.event-card{width:min(720px,96vw);max-height:94vh;overflow:auto;background:#fff;border-radius:12px;box-shadow:0 16px 50px rgba(0,0,0,.3);padding:14px}
+.event-card .modal-head{display:flex;align-items:center;gap:8px;border-bottom:1px solid #d3dae5;padding:4px 2px 12px;margin-bottom:10px}
+.event-card .modal-head h2{margin:0;font-size:18px;flex:1}
+.event-card .modal-head button{border:0;background:transparent;font-size:26px;padding:4px 10px}
+@media(max-width:700px){
+  .event-modal{padding:0;align-items:stretch}
+  .event-card{width:100%;max-width:none;max-height:none;height:100%;border-radius:0;padding:12px;overflow:auto}
+  .event-card .form{display:block}
+  .event-card .actions{position:sticky;bottom:0;background:#fff;padding:8px 0 4px}
+  .mobile-add{display:inline-block!important}
+}
 </style>
 <body>
 <header class="top"><div class="logo">🚚 車両・人員 配置管理</div><div class="tabs"><button data-v="day">日予定</button><button data-v="week">週予定</button><button data-v="month" class="on">月予定</button></div><div class="nav"><button id="prev">◀</button><div id="title" class="title"></div><span id="cloudStatus" class="cloud-status">共有確認中…</span><button id="next">▶</button><button id="today">今日</button><button onclick="print()">🖨 印刷</button><button id="installBtn" type="button" onclick="installApp()" style="display:none">📱 アプリ追加</button><button class="mobile-add" type="button" onclick="newEvent()">＋ 予定</button><button id="settingsBtn" type="button" onclick="openSettings()">⚙ 設定</button></div></header>
 <div class="app"><main><section class="panel"><div id="main"></div></section>
 <section class="panel"><div class="head"><span id="sub"></span><button onclick="shift(-1)">◀</button><button onclick="shift(1)">▶</button><button class="add" onclick="newEvent()">＋ 予定追加</button></div><div id="secondary"></div></section></main>
 <aside class="side"><div class="box"><h3 id="stitle">空き状況</h3><div id="status" class="status"></div></div><div class="box"><h3>お知らせ</h3><div class="notice">・予定／確定をクリックして編集<br>・人員の「休み」を登録<br>・重複した車両／人員だけ赤色<br>・選択した日は青枠で表示</div></div>
-<div class="box form"><h3 id="ftitle">予定の追加</h3><label>区分</label><select id="kind"><option value="plan">予定</option><option value="confirmed">確定</option><option value="off">休み</option></select><label>現場</label><input id="site" placeholder="現場A"><label>仕事内容</label><input id="work" placeholder="資材搬入など"><div class="two"><div><label>開始日</label><input id="sd" type="date"></div><div><label>開始</label><input id="st" type="time" value="08:00"></div></div><div class="two"><div><label>終了日</label><input id="ed" type="date"></div><div><label>終了</label><input id="et" type="time" value="16:00"></div></div><label>車両（複数選択可）</label><div id="vs" class="checks"></div><label>人員（複数選択可）</label><div id="ps" class="checks"></div><div class="actions"><button class="del" onclick="delEvent()">削除</button><button onclick="newEvent()">キャンセル</button><button class="save" onclick="saveEvent()">更新</button></div></div></aside></div>
+<div class="box form desktop-form"><h3 id="ftitle">予定の追加</h3><label>区分</label><select id="kind"><option value="plan">予定</option><option value="confirmed">確定</option><option value="off">休み</option></select><label>現場</label><input id="site" placeholder="現場A"><label>仕事内容</label><input id="work" placeholder="資材搬入など"><div class="two"><div><label>開始日</label><input id="sd" type="date"></div><div><label>開始</label><input id="st" type="time" value="08:00"></div></div><div class="two"><div><label>終了日</label><input id="ed" type="date"></div><div><label>終了</label><input id="et" type="time" value="16:00"></div></div><label>車両（複数選択可）</label><div id="vs" class="checks"></div><label>人員（複数選択可）</label><div id="ps" class="checks"></div><div class="actions"><button class="del" onclick="delEvent()">削除</button><button onclick="newEvent()">キャンセル</button><button class="save" onclick="saveEvent()">更新</button></div></div></aside></div>
+<div id="eventModal" class="event-modal" onclick="if(event.target===this)closeEventModal()">
+  <div class="event-card">
+    <div class="modal-head"><h2 id="mftitle">予定の追加</h2><button type="button" onclick="closeEventModal()">×</button></div>
+    <div class="box form" style="border:0;margin:0;overflow:visible">
+      <label>区分</label><select id="mkind"><option value="plan">予定</option><option value="confirmed">確定</option><option value="off">休み</option></select>
+      <label>現場</label><input id="msite" placeholder="現場A">
+      <label>仕事内容</label><input id="mwork" placeholder="資材搬入など">
+      <div class="two"><div><label>開始日</label><input id="msd" type="date"></div><div><label>開始</label><input id="mst" type="time" value="08:00"></div></div>
+      <div class="two"><div><label>終了日</label><input id="med" type="date"></div><div><label>終了</label><input id="met" type="time" value="16:00"></div></div>
+      <label>車両（複数選択可）</label><div id="mvs" class="checks"></div>
+      <label>人員（複数選択可）</label><div id="mps" class="checks"></div>
+      <div class="actions"><button class="del" type="button" onclick="delEvent(true)">削除</button><button type="button" onclick="closeEventModal()">キャンセル</button><button class="save" type="button" onclick="saveEvent(true)">保存</button></div>
+    </div>
+  </div>
+</div>
 <script>
 const VEH=[['001','2t'],['002','4t'],['003','2t'],['004','4t'],['005','2t'],['006','4t'],['007','2t']],PEOPLE=['田中','鈴木','佐藤','山田','高橋','伊藤','渡辺','小林'],COL=['#16a34a','#2563eb','#ea580c','#9333aa','#0891b2','#ca8a04','#0f766e','#4f46e5','#7c3aed','#a16207','#15803d','#0369a1','#c2410c','#6d28d9','#0e7490','#854d0e'];let events=(JSON.parse(localStorage.getItem('vehicleScheduleExact')||'null')||[]).map(e=>e&&e.kind==='work'?{...e,kind:'confirmed'}:e),cur=new Date(new Date().getFullYear(),new Date().getMonth(),new Date().getDate()),view='month',eid=null,cm={},ci=0;
 function K(d){
@@ -112,7 +142,46 @@ function WTXT(e,d){let night=e.date!==K(d)||(e.endDate&&e.endDate!==e.date);retu
 function WEEK(){let s=new Date(cur);s.setDate(s.getDate()-((s.getDay()+6)%7));let h='<div class="week"><div class="wh week-switch"><span>週予定</span><div class="week-mode"><button class="wm '+(weekMode==="people"?"on":"")+'" onclick="setWeekMode(\'people\',event)">人員別</button><button class="wm '+(weekMode==="vehicle"?"on":"")+'" onclick="setWeekMode(\'vehicle\',event)">車両別</button></div></div>';for(let i=0;i<7;i++){let d=new Date(s);d.setDate(s.getDate()+i);let ds=K(d);h+=`<div class="wh week-date" title="この日を選択" onclick="selectWeekDate('${ds}',event)">${d.getMonth()+1}/${d.getDate()}（${'日月火水木金土'[d.getDay()]}）</div>`}if(weekMode==="vehicle"){VEH.forEach(v=>{h+=`<div class="person">${E(v[0])}（${E(v[1])}）</div>`;for(let i=0;i<7;i++){let d=new Date(s);d.setDate(s.getDate()+i);let es=events.filter(e=>ON(e,d)&&(e.vehicles||[]).includes(v[0]));h+=`<div>${es.map(e=>`<button class="wbar ${e.kind==='off'?'off':e.kind==='plan'?'plan':' '} ${CF(e)?'conf ':''}${(e.date!==K(d)||(e.endDate&&e.endDate!==e.date))?'overnight':''}" style="${e.kind==='confirmed'&&!CF(e)?'background:'+C(e.site):''}" onclick="editEvent(${e.id},'${K(d)}')">${E(WTXT(e,d))}</button>`).join('')||'－'}</div>`}})}else{PEOPLE.forEach(p=>{h+=`<div class="person">${E(p)}</div>`;for(let i=0;i<7;i++){let d=new Date(s);d.setDate(s.getDate()+i);let es=events.filter(e=>ON(e,d)&&(e.people||[]).includes(p));h+=`<div>${es.map(e=>`<button class="wbar ${e.kind==='off'?'off':e.kind==='plan'?'plan':' '} ${CF(e)?'conf ':''}${(e.date!==K(d)||(e.endDate&&e.endDate!==e.date))?'overnight':''}" style="${e.kind==='confirmed'&&!CF(e)?'background:'+C(e.site):''}" onclick="editEvent(${e.id},'${K(d)}')">${E(WTXT(e,d))}</button>`).join('')||'－'}</div>`}})}return h+'</div>'}
 function DH(dt,day){let h=dt.getHours()+dt.getMinutes()/60;if(K(dt)!==K(day)||h<6)h+=24;return h}function DAY(){let h='<div class="timeline"><div class="times"><div>車両 / 人員</div>'+[6,8,10,12,14,16,18,20,22,24,2,4,6].map(x=>`<div>${x}:00</div>`).join('')+'</div>';events.filter(e=>ON(e,cur)).forEach(e=>{let seg=SEG(e,cur);if(!seg)return;let[a,b]=seg,sh=DH(a,cur),eh=DH(b,cur),l=Math.max(0,(sh-6)/24)*100,r=Math.min(100,(eh-6)/24*100),w=Math.max(1,r-l);if(r<=0||l>=100)return;let night=e.date!==K(cur)||((e.endDate||e.date)!==K(cur));h+=`<div class="trow"><div class="who">${E((e.vehicles||[]).join(', '))}<br>${E((e.people||[]).join(', '))}</div><div class="track"><button class="tbar ${e.kind==='off'?'off':e.kind==='plan'?'plan':' '} ${CF(e)?'conflict':''} ${night?'overnight':''}" style="left:${l}%;width:${w}%;${e.kind==='confirmed'&&!CF(e)?'background:'+C(e.site):''}" onclick="editEvent(${e.id},'${K(cur)}')">${E(e.kind==='off'?'休み':(e.kind==='plan'?'予定 ': '')+e.site+' '+e.start+'～'+e.end+(night?' 🌙日またぎ':''))}</button></div></div>`});return h+'</div>'}
 function render(){document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===view));document.getElementById('title').textContent=`${cur.getFullYear()}年${cur.getMonth()+1}月`;document.getElementById('sub').textContent=view==='month'?'週予定':view==='week'?'日予定':'月予定';document.getElementById('main').innerHTML=view==='month'?MONTH():view==='week'?WEEK():DAY();document.getElementById('secondary').innerHTML=view==='month'?WEEK():view==='week'?DAY():MONTH();status()}function status(){let bv=new Set(),bp=new Set();events.filter(e=>(e.kind==='plan'||e.kind==='confirmed'||e.kind==='work')&&ON(e,cur)).forEach(e=>{(e.vehicles||[]).forEach(v=>bv.add(v));(e.people||[]).forEach(p=>bp.add(p))});document.getElementById('stitle').textContent='空き状況（'+K(cur)+'）';document.getElementById('status').innerHTML=VEH.map(v=>`<div>${v[0]}（${v[1]}） <span class="${bv.has(v[0])?'busy':'free'}">${bv.has(v[0])?'● 稼働':'○ 空き'}</span></div>`).join('')+PEOPLE.map(p=>`<div>${p} <span class="${bp.has(p)?'busy':'free'}">${bp.has(p)?'● 稼働':'○ 空き'}</span></div>`).join('')}
-function checks(){document.getElementById('vs').innerHTML=VEH.map(v=>`<label class="check"><input class="v" type="checkbox" value="${v[0]}"> ${v[0]} (${v[1]})</label>`).join('');document.getElementById('ps').innerHTML=PEOPLE.map(p=>`<label class="check"><input class="p" type="checkbox" value="${p}"> ${p}</label>`).join('')}function newEvent(){eid=null;document.getElementById('ftitle').textContent='予定の追加';document.getElementById('kind').value='plan';document.getElementById('site').value='';document.getElementById('work').value='';document.getElementById('sd').value=K(cur);document.getElementById('ed').value=K(cur);document.getElementById('st').value='08:00';document.getElementById('et').value='16:00';document.querySelectorAll('.v,.p').forEach(x=>x.checked=false)}function editEvent(id,d){let e=events.find(x=>x.id===id);if(!e)return;cur=new Date(d+'T00:00');eid=id;document.getElementById('ftitle').textContent='予定の編集';document.getElementById('kind').value=e.kind;document.getElementById('site').value=e.site||'';document.getElementById('work').value=e.work||'';document.getElementById('sd').value=e.date;document.getElementById('ed').value=e.endDate||e.date;document.getElementById('st').value=e.start;document.getElementById('et').value=e.end;document.querySelectorAll('.v').forEach(x=>x.checked=(e.vehicles||[]).includes(x.value));document.querySelectorAll('.p').forEach(x=>x.checked=(e.people||[]).includes(x.value));render()}function syncAddDate(){const sd=document.getElementById('sd'),ed=document.getElementById('ed');if(sd&&!eid)sd.value=K(cur);if(ed&&!eid)ed.value=K(cur)}function selectDay(d){cur=new Date(d+'T00:00');syncAddDate();render()}function selectWeekDate(d,ev){if(ev)ev.stopPropagation();eid=null;cur=new Date(d+'T00:00');render();newEvent();syncAddDate();document.getElementById('sd').focus()}function saveEvent(){let e={id:eid||Date.now(),kind:document.getElementById('kind').value,site:document.getElementById('site').value,work:document.getElementById('work').value,date:document.getElementById('sd').value,endDate:document.getElementById('ed').value,start:document.getElementById('st').value,end:document.getElementById('et').value,vehicles:[...document.querySelectorAll('.v:checked')].map(x=>x.value),people:[...document.querySelectorAll('.p:checked')].map(x=>x.value)};if(!e.date)return alert('開始日を入力してください');if(e.kind==='off'){e.site='';e.work=''}if(eid)events=events.map(x=>x.id===eid?e:x);else events.push(e);saveLocalAndCloud();render();newEvent()}function delEvent(){if(eid){pendingDeletedIds.push(String(eid));events=events.filter(x=>String(x.id)!==String(eid));saveLocalAndCloud()}newEvent();render()}function shift(n){if(view==='month')cur.setMonth(cur.getMonth()+n);else if(view==='week')cur.setDate(cur.getDate()+7*n);else cur.setDate(cur.getDate()+n);render()}document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{view=b.dataset.v;render()});prev.onclick=()=>shift(-1);next.onclick=()=>shift(1);today.onclick=()=>{cur=new Date();cur.setHours(0,0,0,0);render()};subPrev.onclick=()=>shift(-1);subNext.onclick=()=>shift(1);checks();newEvent();render();
+function checks(){rebuildChecks()}
+function rebuildChecks(){
+ document.getElementById('vs').innerHTML=VEH.map(v=>`<label class="check"><input class="v" type="checkbox" value="${E(v[0])}"> ${E(v[0])} (${E(v[1])})</label>`).join('');
+ document.getElementById('ps').innerHTML=PEOPLE.map(p=>`<label class="check"><input class="p" type="checkbox" value="${E(p)}"> ${E(p)}</label>`).join('');
+ document.getElementById('mvs').innerHTML=VEH.map(v=>`<label class="check"><input class="mv" type="checkbox" value="${E(v[0])}"> ${E(v[0])} (${E(v[1])})</label>`).join('');
+ document.getElementById('mps').innerHTML=PEOPLE.map(p=>`<label class="check"><input class="mp" type="checkbox" value="${E(p)}"> ${E(p)}</label>`).join('');
+}
+function setFormValues(prefix, e){
+ document.getElementById(prefix+'kind').value=e.kind||'plan';
+ document.getElementById(prefix+'site').value=e.site||'';
+ document.getElementById(prefix+'work').value=e.work||'';
+ document.getElementById(prefix+'sd').value=e.date||K(cur);
+ document.getElementById(prefix+'ed').value=e.endDate||e.date||K(cur);
+ document.getElementById(prefix+'st').value=e.start||'08:00';
+ document.getElementById(prefix+'et').value=e.end||'16:00';
+ document.querySelectorAll('.'+(prefix==='m'?'mv':'v')).forEach(x=>x.checked=(e.vehicles||[]).includes(x.value));
+ document.querySelectorAll('.'+(prefix==='m'?'mp':'p')).forEach(x=>x.checked=(e.people||[]).includes(x.value));
+}
+function getFormValues(prefix){
+ return {kind:document.getElementById(prefix+'kind').value,site:document.getElementById(prefix+'site').value,work:document.getElementById(prefix+'work').value,date:document.getElementById(prefix+'sd').value,endDate:document.getElementById(prefix+'ed').value,start:document.getElementById(prefix+'st').value,end:document.getElementById(prefix+'et').value,vehicles:[...document.querySelectorAll('.'+(prefix==='m'?'mv':'v')+':checked')].map(x=>x.value),people:[...document.querySelectorAll('.'+(prefix==='m'?'mp':'p')+':checked')].map(x=>x.value)};
+}
+function openEventModal(){document.getElementById('eventModal').classList.add('open');document.body.style.overflow='hidden'}
+function closeEventModal(){document.getElementById('eventModal').classList.remove('open');document.body.style.overflow='';}
+function newEvent(){eid=null;setFormValues('m',{kind:'plan',site:'',work:'',date:K(cur),endDate:K(cur),start:'08:00',end:'16:00',vehicles:[],people:[]});setFormValues('',{kind:'plan',site:'',work:'',date:K(cur),endDate:K(cur),start:'08:00',end:'16:00',vehicles:[],people:[]});document.getElementById('ftitle').textContent='予定の追加';document.getElementById('mftitle').textContent='予定の追加';openEventModal();}
+function editEvent(id,d){let e=events.find(x=>String(x.id)===String(id));if(!e)return;cur=new Date(d+'T00:00');eid=e.id;setFormValues('m',e);setFormValues('',e);document.getElementById('ftitle').textContent='予定の編集';document.getElementById('mftitle').textContent='予定の編集';render();openEventModal();}
+function syncAddDate(){const sd=document.getElementById('sd'),ed=document.getElementById('ed');if(sd&&!eid)sd.value=K(cur);if(ed&&!eid)ed.value=K(cur);const msd=document.getElementById('msd'),med=document.getElementById('med');if(msd&&!eid)msd.value=K(cur);if(med&&!eid)med.value=K(cur)}
+function selectDay(d){cur=new Date(d+'T00:00');syncAddDate();render()}
+function selectWeekDate(d,ev){if(ev)ev.stopPropagation();eid=null;cur=new Date(d+'T00:00');render();newEvent();syncAddDate();}
+function saveEvent(fromModal=false){
+ let e=getFormValues(fromModal?'m':'');
+ e.id=eid||Date.now();
+ if(!e.date)return alert('開始日を入力してください');
+ if(e.kind==='off'){e.site='';e.work=''}
+ if(eid)events=events.map(x=>String(x.id)===String(eid)?e:x);else events.push(e);
+ saveLocalAndCloud();render();eid=null;
+ if(fromModal)closeEventModal();
+ setFormValues('',{kind:'plan',site:'',work:'',date:K(cur),endDate:K(cur),start:'08:00',end:'16:00',vehicles:[],people:[]});
+}
+function delEvent(fromModal=false){if(eid){pendingDeletedIds.push(String(eid));events=events.filter(x=>String(x.id)!==String(eid));saveLocalAndCloud()}eid=null;if(fromModal)closeEventModal();render();}
+function shift(n){if(view==='month')cur.setMonth(cur.getMonth()+n);else if(view==='week')cur.setDate(cur.getDate()+7*n);else cur.setDate(cur.getDate()+n);render()}document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{view=b.dataset.v;render()});prev.onclick=()=>shift(-1);next.onclick=()=>shift(1);today.onclick=()=>{cur=new Date();cur.setHours(0,0,0,0);render()};subPrev.onclick=()=>shift(-1);subNext.onclick=()=>shift(1);checks();newEvent();render();
 </script>
 <script>
 let peopleList=JSON.parse(localStorage.getItem('vehiclePeopleList')||'null');
@@ -131,6 +200,7 @@ function postCloud(){if(!GAS_URL||cloudSaving)return;cloudSaving=true;setCloudSt
 function saveLocalAndCloud(){persistLocal();postCloud()}
 async function loadCloud(){if(!GAS_URL||cloudLoading)return;cloudLoading=true;setCloudStatus('共有読込中…');await new Promise(resolve=>{const cb='gasCb_'+Date.now()+'_'+Math.random().toString(36).slice(2);let done=false;const script=document.createElement('script');const cleanup=()=>{if(script.parentNode)script.parentNode.removeChild(script);try{delete window[cb]}catch(_){window[cb]=undefined}};const finish=()=>{if(done)return;done=true;cleanup();cloudLoading=false;resolve()};const timer=setTimeout(()=>{console.warn('共有読み込みタイムアウト');setCloudStatus('共有接続エラー');finish()},12000);window[cb]=(d)=>{clearTimeout(timer);try{if(d&&d.hasData){events=Array.isArray(d.events)?d.events:[];peopleList=Array.isArray(d.people)&&d.people.length?d.people:peopleList;vehicleList=Array.isArray(d.vehicles)&&d.vehicles.length?d.vehicles:vehicleList;cloudLastUpdated=Number(d.lastUpdated||0);cloudRevision=Number(d.revision||0);pendingDeletedIds=[];syncMaster();persistLocal();rebuildChecks();render();setCloudStatus('共有同期済み')}else{setCloudStatus('共有データなし');if(events.length||peopleList.length||vehicleList.length)postCloud()}}catch(err){console.warn('共有読み込みに失敗',err);setCloudStatus('共有接続エラー')}finally{finish()}};script.onerror=()=>{clearTimeout(timer);setCloudStatus('共有接続エラー');finish()};script.src=GAS_URL+'?api=1&callback='+encodeURIComponent(cb)+'&_='+Date.now();document.body.appendChild(script)});}
 function persist(){persistLocal();postCloud()}
+function forceCloudReload(){cloudLoading=false;loadCloud()}
 
 function openSettings(){document.getElementById('settings').classList.add('open');manageTab('people')}
 function closeSettings(){document.getElementById('settings').classList.remove('open');rebuildChecks();render()}
