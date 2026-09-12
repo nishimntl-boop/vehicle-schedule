@@ -8,6 +8,11 @@ const CHUNK_SIZE = 45000;
 
 function doGet(e) {
   try {
+    if (e && e.parameter && e.parameter.bridge === '1') {
+      return HtmlService.createHtmlOutputFromFile('bridge')
+        .setTitle('共有通信')
+        .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+    }
     if (e && e.parameter && e.parameter.api === '1') {
       const state = readState_();
       if (e.parameter.callback) return jsonp_(e.parameter.callback, state);
@@ -194,5 +199,18 @@ function writeState_(data) {
     return {ok:true, lastUpdated:next.lastUpdated, revision:next.revision, hasData:true, saveToken:next.saveToken, eventCount:next.events.length, vehicleCount:next.vehicles.length, peopleCount:next.people.length};
   } finally {
     lock.releaseLock();
+  }
+}
+
+
+function bridgeGetState() {
+  return readState_();
+}
+
+function bridgeSaveState(data) {
+  try {
+    return writeState_(data || {});
+  } catch (err) {
+    return {ok:false, error:String(err && err.message || err)};
   }
 }

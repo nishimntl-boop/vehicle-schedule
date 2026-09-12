@@ -202,53 +202,53 @@ async function postCloud(){
   const stateToSave=cloudState();
   const saveToken=stateToSave.saveToken;
   localStorage.setItem('vehicleLastSaveToken',saveToken);
-  const payload=JSON.stringify(stateToSave);
-  const sentAt=Date.now();
-  let frame=document.getElementById('gasSyncFrame');
-  if(!frame){
-    frame=document.createElement('iframe');
-    frame.name='gasSyncFrame';frame.id='gasSyncFrame';
-    frame.style.display='none';document.body.appendChild(frame);
-  }
-  let form=null;
   try{
-    form=document.createElement('form');
-    form.method='POST';form.action=GAS_URL;form.target='gasSyncFrame';
-    form.style.display='none';form.acceptCharset='UTF-8';
-    const a=document.createElement('input');a.type='hidden';a.name='action';a.value='save';form.appendChild(a);
-    const p=document.createElement('input');p.type='hidden';p.name='payload';p.value=payload;form.appendChild(p);
-    document.body.appendChild(form);form.submit();
-  }catch(err){
-    cloudSaving=false;setCloudStatus('共有保存失敗');console.warn('共有保存送信失敗',err);
-    if(form&&form.parentNode)form.remove();return;
-  }
-  if(form)setTimeout(()=>{if(form.parentNode)form.remove()},15000);
-  let verified=false;
-  for(let i=0;i<15;i++){
-    await new Promise(r=>setTimeout(r,1000));
-    const d=await fetchCloudStateOnce();
-    if(d&&d.hasData&&String(d.saveToken||'')===String(saveToken)){
+    const d=await bridgeRequest('gas-save',stateToSave,20000);
+    if(d&&d.ok&&String(d.saveToken||'')===String(saveToken)){
       cloudLastSaveToken=saveToken;
-      applyCloudState(d);verified=true;break;
+      const latest=await bridgeRequest('gas-get',null,12000);
+      if(latest&&latest.hasData&&String(latest.saveToken||'')===String(saveToken)){
+        applyCloudState(latest);pendingDeletedIds=[];persistLocal();render();setCloudStatus('共有保存・同期済み');
+      }else{
+        setCloudStatus('共有保存確認失敗');
+      }
+    }else{
+      setCloudStatus('共有保存失敗');
     }
-  }
-  cloudSaving=false;
-  if(verified){pendingDeletedIds=[];persistLocal();render();setCloudStatus('共有保存・同期済み')}
-  else{setCloudStatus('共有保存確認失敗');console.warn('GASへの保存結果を15秒以内に確認できませんでした')}
+  }catch(err){
+    console.warn('共有保存に失敗',err);setCloudStatus('共有保存失敗');
+  }finally{cloudSaving=false}
 }
 function saveLocalAndCloud(){persistLocal();postCloud()}
-function fetchCloudStateOnce(){
-  return new Promise(resolve=>{
-    if(!GAS_URL){resolve(null);return}
-    const cb='gasVerify_'+Date.now()+'_'+Math.random().toString(36).slice(2);
-    let done=false;const script=document.createElement('script');
-    const finish=d=>{if(done)return;done=true;clearTimeout(timer);if(script.parentNode)script.parentNode.removeChild(script);try{delete window[cb]}catch(_){window[cb]=undefined}resolve(d||null)};
-    const timer=setTimeout(()=>finish(null),7000);
-    window[cb]=d=>finish(d);script.onerror=()=>finish(null);
-    script.src=GAS_URL+'?api=1&callback='+encodeURIComponent(cb)+'&_='+Date.now();
-    document.body.appendChild(script);
+function ensureBridge(){
+  return new Promise((resolve,reject)=>{
+    let frame=document.getElementById('gasBridgeFrame');
+    if(!frame){
+      frame=document.createElement('iframe');frame.id='gasBridgeFrame';frame.title='共有通信';
+      frame.style.display='none';document.body.appendChild(frame);
+      frame.addEventListener('load',()=>{bridgeReady=true;resolve(frame)},{once:true});
+      frame.src=GAS_URL+'?bridge=1&v=39&_='+Date.now();
+      setTimeout(()=>{if(!bridgeReady)reject(new Error('共有通信の起動タイムアウト'))},10000);
+    }else if(bridgeReady)resolve(frame);else{const t=setInterval(()=>{if(bridgeReady){clearInterval(t);resolve(frame)}},50);setTimeout(()=>{clearInterval(t);if(!bridgeReady)reject(new Error('共有通信の起動タイムアウト'))},10000)}
   });
 }
+let bridgeReady=false,bridgeQueue=[];
+window.addEventListener('message',e=>{
+  const d=e&&e.data;
+  if(!d||!d.type||!String(d.type).startsWith('gas-'))return;
+  const q=bridgeQueue.shift();if(q){clearTimeout(q.timer);q.resolve(d.data||null)}
+});
+async function bridgeRequest(type,payload,timeout){
+  const frame=await ensureBridge();
+  return new Promise((resolve,reject)=>{
+    const item={resolve,reject,timer:setTimeout(()=>{const i=bridgeQueue.indexOf(item);if(i>=0)bridgeQueue.splice(i,1);reject(new Error('共有通信タイムアウト'))},timeout||12000)};
+    bridgeQueue.push(item);
+    frame.contentWindow.postMessage({type,payload},'*');
+  });
+}
+function fetchCloudStateOnce(){return bridgeRequest('gas-get',null,12000)}
+function forceCloudReload(){cloudLoading=false;loadCloud()}
+
 function applyCloudState(d){
   if(!d||!d.hasData)return;
   events=Array.isArray(d.events)?d.events:[];
@@ -311,7 +311,7 @@ async function installApp(){
 }
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js?v=38').catch(err => console.warn('PWA登録失敗', err));
+    navigator.serviceWorker.register('./sw.js?v=39').catch(err => console.warn('PWA登録失敗', err));
   });
 }
 
