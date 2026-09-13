@@ -1,15 +1,18 @@
-// 車両人員予定表：Google Apps Script 共有バックエンド v45
+// 車両人員予定表：Google Apps Script 共有バックエンド v47
 // スタンドアロンのApps Scriptでも動作するよう、対象スプレッドシートをIDで固定しています。
 
 const SPREADSHEET_ID = '1KYmKn-zGJyLdrut_pjQ_QFVWH6BCIR_wNu910Hf2i80';
 const SHEET_NAME = '予定表データ';
 const LEGACY_SHEET_NAME = '予定データ';
 const CHUNK_SIZE = 45000;
+const CACHE_KEY = 'vehicle_schedule_state_v1';
+const CACHE_TTL = 21600; // 6時間。保存時に即更新します。
 
 function doGet(e) {
   try {
     if (e && e.parameter && e.parameter.api === '1') {
-      const state = readState_();
+      const forceFresh = String(e.parameter.nocache || '') === '1';
+      const state = readState_(forceFresh);
       const cb = e.parameter.prefix || e.parameter.callback;
       if (cb) return jsonp_(cb, state);
       return json_(state);
@@ -87,7 +90,20 @@ function readRaw_(sh) {
   return sh.getRange(1, 1, lastRow, 1).getDisplayValues().map(r => r[0]).join('');
 }
 
-function readState_() {
+function readState_(forceFresh) {
+  // 通常の読み込みはCacheServiceを優先し、毎回Spreadsheetを開く負荷を避ける。
+  // 手動確認などで最新シートを強制取得したい場合は ?api=1&nocache=1 を使用。
+  try {
+    if (forceFresh) throw new Error('force fresh');
+    const cached = CacheService.getScriptCache().get(CACHE_KEY);
+    if (cached) {
+      const cd = JSON.parse(cached);
+      const cs = normalize_(cd);
+      cs.hasData = !!(cs.events.length || cs.vehicles.length || cs.people.length);
+      return cs;
+    }
+  } catch (err) {}
+
   const ss = getSpreadsheet_();
   const sh = getSheet_();
   let raw = readRaw_(sh);
@@ -104,6 +120,7 @@ function readState_() {
     const d = JSON.parse(raw);
     const state = normalize_(d);
     state.hasData = !!(state.events.length || state.vehicles.length || state.people.length);
+    cacheState_(state);
     return state;
   } catch (err) {
     return defaultState_();
@@ -192,12 +209,24 @@ function writeState_(data) {
     sh.getRange(1, 1, rows.length, 1).setValues(rows);
     sh.setFrozenRows(0);
 
+    // 次回のGETはSpreadsheetを開かず、この保存済み状態を即返せるようにする。
+    cacheState_(next);
+
     return {ok:true, lastUpdated:next.lastUpdated, revision:next.revision, hasData:true, saveToken:next.saveToken, eventCount:next.events.length, vehicleCount:next.vehicles.length, peopleCount:next.people.length};
   } finally {
     lock.releaseLock();
   }
 }
 
+function cacheState_(state) {
+  try {
+    const raw = JSON.stringify(state || defaultState_());
+    // Script Cacheの1エントリ上限を超える場合は無理に保存しない。
+    if (raw.length <= 90000) {
+      CacheService.getScriptCache().put(CACHE_KEY, raw, CACHE_TTL);
+    }
+  } catch (err) {}
+}
 
 // GAS上で表示したindex.htmlから直接呼び出す共有API。
 // GitHub Pages経由のCORS/JSONP/iframe通信を使わないため、スマホでも同じ共有経路になります。

@@ -326,7 +326,7 @@ async function postCloud(){
   try{
     await postForm(stateToSave,20000);
     // doPostの戻り値を直接読むのではなく、JSONPで保存結果を確認する。
-    const latest=await jsonpGet(15000);
+    const latest=await jsonpGet(10000);
     if(latest&&latest.hasData&&String(latest.saveToken||'')===String(saveToken)){
       cloudLastSaveToken=saveToken;
       applyCloudState(latest);pendingDeletedIds=[];persistLocal();render();setCloudStatus('共有保存・同期済み');
@@ -378,7 +378,7 @@ function removePerson(i){let n=peopleList[i];if(!confirm(n+' を削除します�
 function addVehicle(){let id=document.getElementById('newVehicleId').value.trim(),detail=document.getElementById('newVehicleDetail').value.trim()||'2t',memo=document.getElementById('newVehicleMemo').value.trim();if(!id)return alert('車両番号を入力してください');if(vehicleList.some(v=>v.id===id))return alert('同じ車両番号があります');vehicleList.push({id,detail,memo});syncMaster();persist();manageTab('vehicles');rebuildChecks();render()}
 function updateVehicle(i){let old=vehicleList[i].id,id=document.getElementById('vn'+i).value.trim(),detail=document.getElementById('vd'+i).value.trim()||'2t',memo=document.getElementById('vm'+i).value.trim();if(!id)return alert('車両番号を入力してください');if(id!==old&&vehicleList.some(v=>v.id===id))return alert('同じ車両番号があります');events.forEach(e=>{e.vehicles=(e.vehicles||[]).map(x=>x===old?id:x);if(e.vehicle===old)e.vehicle=id});vehicleList[i]={id,detail,memo};syncMaster();persist();manageTab('vehicles');rebuildChecks();render()}
 function removeVehicle(i){let v=vehicleList[i];if(!confirm(v.id+' を削除しますか？'))return;events.forEach(e=>{e.vehicles=(e.vehicles||[]).filter(x=>x!==v.id);if(e.vehicle===v.id)e.vehicle=''});vehicleList.splice(i,1);syncMaster();persist();manageTab('vehicles');rebuildChecks();render()}
-syncMaster();rebuildChecks();render();loadCloud();clearInterval(cloudTimer);cloudTimer=setInterval(()=>{if(!cloudSaving&&!cloudLoading)loadCloud()},10000);
+syncMaster();rebuildChecks();render();loadCloud();clearInterval(cloudTimer);cloudTimer=setInterval(()=>{if(!cloudSaving&&!cloudLoading)loadCloud()},7000);
 
 // PWA: service worker + install button
 let deferredInstallPrompt = null;
