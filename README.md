@@ -10,7 +10,7 @@
 - 入力欄、ボタン、チェックボックスを大型化
 
 
-## v45 共有通信方式
+## v46 共有通信方式
 - GitHub PagesからGASを直接開きません。
 - 読み込み：GASのJSONP API
 - 保存：hidden form POST → doPost

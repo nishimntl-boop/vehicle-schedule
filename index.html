@@ -282,14 +282,22 @@ let jsonpSeq=0;
 function jsonpGet(timeout=15000){
   return new Promise((resolve,reject)=>{
     const cb='__vehicleScheduleJsonp_'+Date.now()+'_'+(++jsonpSeq);
-    const script=document.createElement('script');
-    let done=false;
-    const cleanup=()=>{if(script.parentNode)script.parentNode.removeChild(script);try{delete window[cb]}catch(e){window[cb]=undefined}clearTimeout(timer)};
-    const timer=setTimeout(()=>{if(done)return;done=true;cleanup();reject(new Error('GAS読み込みタイムアウト'))},timeout);
-    window[cb]=(data)=>{if(done)return;done=true;cleanup();resolve(data)};
-    script.onerror=()=>{if(done)return;done=true;cleanup();reject(new Error('GAS読み込みエラー'))};
-    script.src=GAS_URL+'?api=1&callback='+encodeURIComponent(cb)+'&_='+Date.now();
-    document.head.appendChild(script);
+    let attempt=0, lastErr=null;
+    const run=()=>{
+      attempt++;
+      const script=document.createElement('script');
+      let done=false, timer=null;
+      const cleanup=()=>{if(script.parentNode)script.parentNode.removeChild(script);clearTimeout(timer)};
+      const fail=(msg)=>{if(done)return;done=true;cleanup();lastErr=new Error(msg);if(attempt<2){run();}else{try{delete window[cb]}catch(e){window[cb]=undefined}reject(lastErr)}};
+      timer=setTimeout(()=>fail('GAS読み込みタイムアウト（試行'+attempt+'）'),timeout);
+      window[cb]=(data)=>{if(done)return;done=true;cleanup();try{delete window[cb]}catch(e){window[cb]=undefined}resolve(data)};
+      script.onerror=()=>fail('GAS読み込みエラー（試行'+attempt+'）');
+      // まずGoogle公式のJSONP例に合わせた prefix、失敗時は従来の callback で再試行。
+      const param=attempt===1?'prefix':'callback';
+      script.src=GAS_URL+'?api=1&'+param+'='+encodeURIComponent(cb)+'&_='+Date.now();
+      document.head.appendChild(script);
+    };
+    run();
   });
 }
 function postForm(payload,timeout=20000){
@@ -360,7 +368,7 @@ function forceCloudReload(){cloudLoading=false;loadCloud()}
 
 function closeCloudDiag(){const el=document.getElementById('cloudDiag');if(el)el.classList.remove('open')}
 function openCloudDiag(){const el=document.getElementById('cloudDiag');if(el){el.classList.add('open');runCloudDiag()}}
-async function runCloudDiag(){const out=document.getElementById('cloudDiagText');if(!out)return;out.textContent='GASから最新データを確認しています…';const started=Date.now();try{const d=await fetchCloudStateOnce();if(!d){out.textContent='【接続失敗】\nGASからデータを取得できませんでした。\n\nURL: '+GAS_URL;return}const latest=Array.isArray(d.events)?d.events:[];const localCount=Array.isArray(events)?events.length:0;const newest=latest.slice(-5).map(e=>`${e.date||''} ${e.start||''} ${e.site||''} [${e.kind||''}]`).join('\n');out.textContent='【GAS接続：OK】\n取得時間: '+(Date.now()-started)+'ms\nrevision: '+(d.revision||0)+'\n最終更新: '+(d.lastUpdated?new Date(Number(d.lastUpdated)).toLocaleString():'なし')+'\n予定件数(GAS): '+latest.length+'\n予定件数(端末): '+localCount+'\n車両数: '+(Array.isArray(d.vehicles)?d.vehicles.length:0)+'\n人員数: '+(Array.isArray(d.people)?d.people.length:0)+'\nsaveToken: '+(d.saveToken||'なし')+'\n\nGAS側の最新5件:\n'+(newest||'（予定なし）')}catch(err){out.textContent='【接続失敗】\n'+String(err&&err.message||err)+'\n\n※GAS側デプロイを「全員（匿名ユーザーを含む）」にしてください。'}}
+async function runCloudDiag(){const out=document.getElementById('cloudDiagText');if(!out)return;out.textContent='GASから最新データを確認しています…';const started=Date.now();try{const d=await fetchCloudStateOnce();if(!d){out.textContent='【接続失敗】\nGASからデータを取得できませんでした。\n\nURL: '+GAS_URL;return}const latest=Array.isArray(d.events)?d.events:[];const localCount=Array.isArray(events)?events.length:0;const newest=latest.slice(-5).map(e=>`${e.date||''} ${e.start||''} ${e.site||''} [${e.kind||''}]`).join('\n');out.textContent='【GAS接続：OK】\n取得時間: '+(Date.now()-started)+'ms\nrevision: '+(d.revision||0)+'\n最終更新: '+(d.lastUpdated?new Date(Number(d.lastUpdated)).toLocaleString():'なし')+'\n予定件数(GAS): '+latest.length+'\n予定件数(端末): '+localCount+'\n車両数: '+(Array.isArray(d.vehicles)?d.vehicles.length:0)+'\n人員数: '+(Array.isArray(d.people)?d.people.length:0)+'\nsaveToken: '+(d.saveToken||'なし')+'\n\nGAS側の最新5件:\n'+(newest||'（予定なし）')}catch(err){out.textContent='【接続失敗】\n'+String(err&&err.message||err)+'\n\n確認：GAS Webアプリは「自分として実行」＋「全員」で公開してください。\n\n※今回の通信はGASの画面を開くのではなく、データAPI（JSONP）だけを呼び出しています。'}}
 function openSettings(){document.getElementById('settings').classList.add('open');manageTab('people')}
 function closeSettings(){document.getElementById('settings').classList.remove('open');rebuildChecks();render()}
 function manageTab(m){document.getElementById('tabPeople').classList.toggle('on',m==='people');document.getElementById('tabVehicles').classList.toggle('on',m==='vehicles');let h='';if(m==='people'){h='<h3>人員の増減・名前変更</h3>';peopleList.forEach((n,i)=>h+=`<div class="manage-row people"><input id="pn${i}" value="${E(n)}"><button onclick="renamePerson(${i})">変更</button><button onclick="removePerson(${i})">削除</button></div>`);h+='<div class="manage-add"><input id="newPerson" placeholder="新しい人員名"><button onclick="addPerson()">＋ 人員追加</button></div>'}else{h='<h3>車両の増減・詳細変更</h3>';vehicleList.forEach((v,i)=>h+=`<div class="manage-row"><input id="vn${i}" value="${E(v.id)}"><input id="vd${i}" value="${E(v.detail)}"><input id="vm${i}" value="${E(v.memo||'')}" placeholder="詳細・メモ"><button onclick="updateVehicle(${i})">変更</button><button onclick="removeVehicle(${i})">削除</button></div>`);h+='<div class="manage-add"><input id="newVehicleId" placeholder="車両番号 008"><input id="newVehicleDetail" placeholder="2t"><input id="newVehicleMemo" placeholder="詳細・メモ"><button onclick="addVehicle()">＋ 車両追加</button></div>'}document.getElementById('manageBody').innerHTML=h}
@@ -398,7 +406,7 @@ async function installApp(){
 }
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js?v=45').catch(err => console.warn('PWA登録失敗', err));
+    navigator.serviceWorker.register('./sw.js?v=46').catch(err => console.warn('PWA登録失敗', err));
   });
 }
 

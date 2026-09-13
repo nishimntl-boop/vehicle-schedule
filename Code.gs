@@ -10,7 +10,8 @@ function doGet(e) {
   try {
     if (e && e.parameter && e.parameter.api === '1') {
       const state = readState_();
-      if (e.parameter.callback) return jsonp_(e.parameter.callback, state);
+      const cb = e.parameter.prefix || e.parameter.callback;
+      if (cb) return jsonp_(cb, state);
       return json_(state);
     }
     if (e && e.parameter && e.parameter.health === '1') {
