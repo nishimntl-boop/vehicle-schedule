@@ -108,11 +108,90 @@
   .event-card .actions{position:sticky;bottom:0;background:#fff;padding:8px 0 4px}
   .mobile-add{display:inline-block!important}
 }
+
+/* v44 smartphone readability and touch usability */
+@media (max-width:1000px) and (pointer:coarse){
+  html,body{font-size:16px;}
+  body{-webkit-text-size-adjust:100%;overflow-x:hidden;}
+  .top{padding:8px 10px;gap:8px;position:sticky;top:0;}
+  .tabs{width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;order:1;}
+  .tabs button{min-height:50px;padding:10px 6px;font-size:16px;border-radius:8px;}
+  .nav{order:2;width:100%;margin-left:0;display:flex;gap:6px;overflow-x:auto;padding:2px 0 3px;}
+  .nav button{min-width:48px;min-height:48px;padding:10px 12px;font-size:15px;border-radius:8px;}
+  .nav .title{flex:0 0 150px;min-width:150px;font-size:19px;line-height:48px;}
+  .cloud-status{font-size:13px;}
+  .color-note{margin:8px 8px 0;padding:10px 8px;font-size:14px;line-height:1.45;text-align:center;}
+  .app{display:flex;flex-direction:column;gap:10px;padding:8px;margin:0;max-width:none;}
+  .panel,.box{border-radius:9px;margin-bottom:0;}
+  .head{min-height:54px;height:auto;padding:7px 8px;gap:6px;}
+  .head span{font-size:17px;}
+  .head button{min-width:44px;min-height:44px;padding:8px 10px;font-size:15px;}
+  .add{min-width:110px!important;}
+  /* 月予定：スマホ幅に合わせ、横スクロールを基本にしない */
+  .month{grid-template-columns:repeat(7,minmax(0,1fr));min-width:0;width:100%;}
+  .month .dow{padding:8px 2px;font-size:13px;}
+  .day{height:88px;padding:4px 3px;}
+  .date{font-size:14px;height:21px;}
+  .bar{height:21px;padding:2px 3px;font-size:10px;line-height:17px;border-radius:4px;}
+  /* 週予定は内容量が多いため横スクロール可能。ただし文字は大きくする */
+  main>.panel{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  #main,#secondary{min-width:0;}
+  .week{grid-template-columns:105px repeat(7,minmax(115px,1fr));min-width:910px;}
+  .week>div{min-height:64px;padding:7px 6px;font-size:13px;}
+  .wh{font-size:13px;}
+  .week .person{font-size:14px;}
+  .week-mode .wm{min-height:40px;padding:8px 10px;font-size:13px;}
+  .wbar{min-height:38px;padding:8px 7px;font-size:12px;line-height:1.25;}
+  /* 日予定も横スクロール可能 */
+  .timeline{min-width:900px;}
+  .times div{font-size:12px;padding:7px 4px;}
+  .trow{min-height:64px;}
+  .who{padding:9px;font-size:14px;}
+  .tbar{top:8px;height:46px;padding:9px;font-size:13px;}
+  /* 入力欄・チェックを指で押しやすく */
+  .side{min-width:0;}
+  .side .box{padding:12px;}
+  .side h3{font-size:19px;margin-bottom:10px;}
+  .notice{font-size:15px;line-height:1.9;}
+  .form label{font-size:16px;margin:11px 0 5px;}
+  .form input,.form select{min-height:50px;padding:10px 11px;font-size:17px;border-radius:7px;}
+  .two{grid-template-columns:1fr;gap:3px;}
+  .checks{grid-template-columns:1fr 1fr;gap:7px;}
+  .check{min-height:48px;padding:9px 7px;font-size:15px;line-height:1.35;border-radius:7px;}
+  .check input{transform:scale(1.35);margin-right:5px;}
+  .actions{gap:8px;margin-top:12px;padding:8px 0 3px;}
+  .actions button{min-height:52px;padding:11px 8px;font-size:16px;border-radius:7px;}
+  .settings{padding:6px;align-items:flex-end;}
+  .settings-card{width:100%;max-height:94vh;border-radius:12px 12px 0 0;}
+  .settings-head{padding:14px 15px;}
+  .settings-head h2{font-size:19px;}
+  .settings-head button{font-size:28px;padding:6px 10px;}
+  .manage-tabs button{min-height:50px;font-size:16px;}
+  .manage-body{padding:12px;}
+  .manage-row{grid-template-columns:1fr 1fr;gap:7px;}
+  .manage-row input{min-height:46px;font-size:16px;padding:9px;}
+  .manage-row button,.manage-add button{min-height:46px;font-size:15px;padding:9px 11px;}
+  .manage-add input{min-height:48px;font-size:16px;}
+  .cloud-diag{padding:12px;}
+  .cloud-diag-card{max-width:none;padding:18px;border-radius:14px;}
+  .cloud-diag-card h3{font-size:20px;}
+  .cloud-diag-card pre{font-size:14px;line-height:1.55;max-height:50vh;}
+  .cloud-diag-actions button{min-height:48px;padding:10px 14px;font-size:15px;}
+}
+@media (max-width:480px) and (pointer:coarse){
+  .tabs button{font-size:15px;}
+  .nav .title{flex-basis:130px;min-width:130px;font-size:17px;}
+  .month .dow{font-size:12px;}
+  .day{height:82px;}
+  .date{font-size:13px;}
+  .bar{font-size:9px;height:20px;}
+  .checks{grid-template-columns:1fr;}
+}
 </style>
 <body>
 <header class="top"><div class="logo">🚚 車両・人員 配置管理</div><div class="tabs"><button data-v="day">日予定</button><button data-v="week">週予定</button><button data-v="month" class="on">月予定</button></div><div class="nav"><button id="prev">◀</button><div id="title" class="title"></div><span id="cloudStatus" class="cloud-status">共有確認中…</span><button id="cloudDiagBtn" type="button" onclick="openCloudDiag()">🔄 共有診断</button><button id="next">▶</button><button id="today">今日</button><button onclick="print()">🖨 印刷</button><button id="installBtn" type="button" onclick="installApp()" style="display:none">📱 アプリ追加</button><button class="mobile-add" type="button" onclick="newEvent()">＋ 予定</button><button id="settingsBtn" type="button" onclick="openSettings()">⚙ 設定</button></div></header>
 <div id="cloudDiag" class="cloud-diag"><div class="cloud-diag-card"><h3>🔄 共有診断</h3><pre id="cloudDiagText">確認中…</pre><div class="cloud-diag-actions"><button type="button" onclick="closeCloudDiag()">閉じる</button><button type="button" class="primary" onclick="runCloudDiag()">今すぐ確認</button></div></div></div><div class="color-note">現場ごとに色分け　｜　<span class="red-note">赤＝車両・人員のダブルブッキング</span>　｜　<span class="off-note">休み</span></div><div class="app"><main><section class="panel"><div id="main"></div></section>
-<section class="panel"><div class="head"><span id="sub"></span><button onclick="shift(-1)">◀</button><button onclick="shift(1)">▶</button><button class="add" onclick="newEvent()">＋ 予定追加</button></div><div id="secondary"></div></section></main>
+<section class="panel"><div class="head"><span id="sub"></span><button id="subPrev" onclick="shift(-1)">◀</button><button id="subNext" onclick="shift(1)">▶</button><button class="add" onclick="newEvent()">＋ 予定追加</button></div><div id="secondary"></div></section></main>
 <aside class="side"><div class="box"><h3 id="stitle">空き状況</h3><div id="status" class="status"></div></div><div class="box"><h3>お知らせ</h3><div class="notice">・予定／確定をクリックして編集<br>・人員の「休み」を登録<br>・重複した車両／人員だけ赤色<br>・選択した日は青枠で表示</div></div>
 <div class="box form desktop-form"><h3 id="ftitle">予定の追加</h3><label>区分</label><select id="kind"><option value="plan">予定</option><option value="confirmed">確定</option><option value="off">休み</option></select><label>現場</label><input id="site" placeholder="現場A"><label>仕事内容</label><input id="work" placeholder="資材搬入など"><div class="two"><div><label>開始日</label><input id="sd" type="date"></div><div><label>開始</label><input id="st" type="time" value="08:00"></div></div><div class="two"><div><label>終了日</label><input id="ed" type="date"></div><div><label>終了</label><input id="et" type="time" value="16:00"></div></div><label>車両（複数選択可）</label><div id="vs" class="checks"></div><label>人員（複数選択可）</label><div id="ps" class="checks"></div><div class="actions"><button class="del" onclick="delEvent()">削除</button><button onclick="newEvent()">キャンセル</button><button class="save" onclick="saveEvent()">更新</button></div></div></aside></div>
 <div id="eventModal" class="event-modal" onclick="if(event.target===this)closeEventModal()">
@@ -196,6 +275,40 @@ const GAS_URL='https://script.google.com/macros/s/AKfycbw6NI9FHyRj1afnCuPNeuUZCc
 function cloudState(){return {events,vehicles:vehicleList,people:peopleList,logs:[],lastUpdated:Date.now(),baseRevision:cloudRevision,deletedIds:pendingDeletedIds.slice(),saveToken:(crypto.randomUUID?crypto.randomUUID():'tok_'+Date.now()+'_'+Math.random().toString(36).slice(2))}}
 function setCloudStatus(t){const el=document.getElementById('cloudStatus');if(el)el.textContent=t}
 function persistLocal(){localStorage.setItem('vehiclePeopleList',JSON.stringify(peopleList));localStorage.setItem('vehicleList',JSON.stringify(vehicleList));localStorage.setItem('vehicleScheduleExact',JSON.stringify(events));localStorage.setItem('vehicleCloudLastUpdated',String(cloudLastUpdated||0));localStorage.setItem('vehicleCloudRevision',String(cloudRevision||0));localStorage.setItem('vehiclePendingDeletedIds',JSON.stringify(pendingDeletedIds||[]))}
+
+// GitHub Pages → GAS の共有通信。
+// 読み込みは JSONP、保存は hidden form POST を使うため、CORS や iframe 内の GAS UI に依存しません。
+let jsonpSeq=0;
+function jsonpGet(timeout=15000){
+  return new Promise((resolve,reject)=>{
+    const cb='__vehicleScheduleJsonp_'+Date.now()+'_'+(++jsonpSeq);
+    const script=document.createElement('script');
+    let done=false;
+    const cleanup=()=>{if(script.parentNode)script.parentNode.removeChild(script);try{delete window[cb]}catch(e){window[cb]=undefined}clearTimeout(timer)};
+    const timer=setTimeout(()=>{if(done)return;done=true;cleanup();reject(new Error('GAS読み込みタイムアウト'))},timeout);
+    window[cb]=(data)=>{if(done)return;done=true;cleanup();resolve(data)};
+    script.onerror=()=>{if(done)return;done=true;cleanup();reject(new Error('GAS読み込みエラー'))};
+    script.src=GAS_URL+'?api=1&callback='+encodeURIComponent(cb)+'&_='+Date.now();
+    document.head.appendChild(script);
+  });
+}
+function postForm(payload,timeout=20000){
+  return new Promise((resolve,reject)=>{
+    const frame=document.createElement('iframe');
+    frame.name='vehicleSaveFrame_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+    frame.style.display='none';
+    const form=document.createElement('form');
+    form.method='POST';form.action=GAS_URL;form.target=frame.name;form.style.display='none';
+    const input=document.createElement('textarea');
+    input.name='payload';input.value=JSON.stringify(payload);form.appendChild(input);
+    document.body.appendChild(frame);document.body.appendChild(form);
+    let done=false;
+    const finish=(ok,err)=>{if(done)return;done=true;clearTimeout(timer);setTimeout(()=>{frame.remove();form.remove()},100);if(ok)resolve();else reject(err)};
+    const timer=setTimeout(()=>finish(false,new Error('GAS保存タイムアウト')),timeout);
+    frame.addEventListener('load',()=>finish(true),{once:true});
+    try{form.submit()}catch(err){finish(false,err)}
+  });
+}
 async function postCloud(){
   if(!GAS_URL||cloudSaving)return;
   cloudSaving=true;setCloudStatus('共有保存中…');
@@ -203,50 +316,24 @@ async function postCloud(){
   const saveToken=stateToSave.saveToken;
   localStorage.setItem('vehicleLastSaveToken',saveToken);
   try{
-    const d=await bridgeRequest('gas-save',stateToSave,20000);
-    if(d&&d.ok&&String(d.saveToken||'')===String(saveToken)){
+    await postForm(stateToSave,20000);
+    // doPostの戻り値を直接読むのではなく、JSONPで保存結果を確認する。
+    const latest=await jsonpGet(15000);
+    if(latest&&latest.hasData&&String(latest.saveToken||'')===String(saveToken)){
       cloudLastSaveToken=saveToken;
-      const latest=await bridgeRequest('gas-get',null,12000);
-      if(latest&&latest.hasData&&String(latest.saveToken||'')===String(saveToken)){
-        applyCloudState(latest);pendingDeletedIds=[];persistLocal();render();setCloudStatus('共有保存・同期済み');
-      }else{
-        setCloudStatus('共有保存確認失敗');
-      }
+      applyCloudState(latest);pendingDeletedIds=[];persistLocal();render();setCloudStatus('共有保存・同期済み');
+    }else if(latest&&latest.hasData){
+      // 別端末の更新を壊さない。最新データを読み込み直す。
+      applyCloudState(latest);pendingDeletedIds=[];persistLocal();render();setCloudStatus('共有データ更新済み');
     }else{
-      setCloudStatus('共有保存失敗');
+      setCloudStatus('共有保存確認失敗');
     }
   }catch(err){
     console.warn('共有保存に失敗',err);setCloudStatus('共有保存失敗');
   }finally{cloudSaving=false}
 }
 function saveLocalAndCloud(){persistLocal();postCloud()}
-function ensureBridge(){
-  return new Promise((resolve,reject)=>{
-    let frame=document.getElementById('gasBridgeFrame');
-    if(!frame){
-      frame=document.createElement('iframe');frame.id='gasBridgeFrame';frame.title='共有通信';
-      frame.style.display='none';document.body.appendChild(frame);
-      frame.addEventListener('load',()=>{bridgeReady=true;resolve(frame)},{once:true});
-      frame.src=GAS_URL+'?bridge=1&v=39&_='+Date.now();
-      setTimeout(()=>{if(!bridgeReady)reject(new Error('共有通信の起動タイムアウト'))},10000);
-    }else if(bridgeReady)resolve(frame);else{const t=setInterval(()=>{if(bridgeReady){clearInterval(t);resolve(frame)}},50);setTimeout(()=>{clearInterval(t);if(!bridgeReady)reject(new Error('共有通信の起動タイムアウト'))},10000)}
-  });
-}
-let bridgeReady=false,bridgeQueue=[];
-window.addEventListener('message',e=>{
-  const d=e&&e.data;
-  if(!d||!d.type||!String(d.type).startsWith('gas-'))return;
-  const q=bridgeQueue.shift();if(q){clearTimeout(q.timer);q.resolve(d.data||null)}
-});
-async function bridgeRequest(type,payload,timeout){
-  const frame=await ensureBridge();
-  return new Promise((resolve,reject)=>{
-    const item={resolve,reject,timer:setTimeout(()=>{const i=bridgeQueue.indexOf(item);if(i>=0)bridgeQueue.splice(i,1);reject(new Error('共有通信タイムアウト'))},timeout||12000)};
-    bridgeQueue.push(item);
-    frame.contentWindow.postMessage({type,payload},'*');
-  });
-}
-function fetchCloudStateOnce(){return bridgeRequest('gas-get',null,12000)}
+function fetchCloudStateOnce(){return jsonpGet(15000)}
 function forceCloudReload(){cloudLoading=false;loadCloud()}
 
 function applyCloudState(d){
@@ -273,7 +360,7 @@ function forceCloudReload(){cloudLoading=false;loadCloud()}
 
 function closeCloudDiag(){const el=document.getElementById('cloudDiag');if(el)el.classList.remove('open')}
 function openCloudDiag(){const el=document.getElementById('cloudDiag');if(el){el.classList.add('open');runCloudDiag()}}
-async function runCloudDiag(){const out=document.getElementById('cloudDiagText');if(!out)return;out.textContent='GASから最新データを確認しています…';const started=Date.now();const d=await fetchCloudStateOnce();if(!d){out.textContent='【接続失敗】\nGASからデータを取得できませんでした。\n\nURL: '+GAS_URL;return}const latest=Array.isArray(d.events)?d.events:[];const localCount=Array.isArray(events)?events.length:0;const newest=latest.slice(-5).map(e=>`${e.date||''} ${e.start||''} ${e.site||''} [${e.kind||''}]`).join('\n');out.textContent='【GAS接続：OK】\n取得時間: '+(Date.now()-started)+'ms\nrevision: '+(d.revision||0)+'\n最終更新: '+(d.lastUpdated?new Date(Number(d.lastUpdated)).toLocaleString():'なし')+'\n予定件数(GAS): '+latest.length+'\n予定件数(端末): '+localCount+'\n車両数: '+(Array.isArray(d.vehicles)?d.vehicles.length:0)+'\n人員数: '+(Array.isArray(d.people)?d.people.length:0)+'\nsaveToken: '+(d.saveToken||'なし')+'\n\nGAS側の最新5件:\n'+(newest||'（予定なし）');}
+async function runCloudDiag(){const out=document.getElementById('cloudDiagText');if(!out)return;out.textContent='GASから最新データを確認しています…';const started=Date.now();try{const d=await fetchCloudStateOnce();if(!d){out.textContent='【接続失敗】\nGASからデータを取得できませんでした。\n\nURL: '+GAS_URL;return}const latest=Array.isArray(d.events)?d.events:[];const localCount=Array.isArray(events)?events.length:0;const newest=latest.slice(-5).map(e=>`${e.date||''} ${e.start||''} ${e.site||''} [${e.kind||''}]`).join('\n');out.textContent='【GAS接続：OK】\n取得時間: '+(Date.now()-started)+'ms\nrevision: '+(d.revision||0)+'\n最終更新: '+(d.lastUpdated?new Date(Number(d.lastUpdated)).toLocaleString():'なし')+'\n予定件数(GAS): '+latest.length+'\n予定件数(端末): '+localCount+'\n車両数: '+(Array.isArray(d.vehicles)?d.vehicles.length:0)+'\n人員数: '+(Array.isArray(d.people)?d.people.length:0)+'\nsaveToken: '+(d.saveToken||'なし')+'\n\nGAS側の最新5件:\n'+(newest||'（予定なし）')}catch(err){out.textContent='【接続失敗】\n'+String(err&&err.message||err)+'\n\n※GAS側デプロイを「全員（匿名ユーザーを含む）」にしてください。'}}
 function openSettings(){document.getElementById('settings').classList.add('open');manageTab('people')}
 function closeSettings(){document.getElementById('settings').classList.remove('open');rebuildChecks();render()}
 function manageTab(m){document.getElementById('tabPeople').classList.toggle('on',m==='people');document.getElementById('tabVehicles').classList.toggle('on',m==='vehicles');let h='';if(m==='people'){h='<h3>人員の増減・名前変更</h3>';peopleList.forEach((n,i)=>h+=`<div class="manage-row people"><input id="pn${i}" value="${E(n)}"><button onclick="renamePerson(${i})">変更</button><button onclick="removePerson(${i})">削除</button></div>`);h+='<div class="manage-add"><input id="newPerson" placeholder="新しい人員名"><button onclick="addPerson()">＋ 人員追加</button></div>'}else{h='<h3>車両の増減・詳細変更</h3>';vehicleList.forEach((v,i)=>h+=`<div class="manage-row"><input id="vn${i}" value="${E(v.id)}"><input id="vd${i}" value="${E(v.detail)}"><input id="vm${i}" value="${E(v.memo||'')}" placeholder="詳細・メモ"><button onclick="updateVehicle(${i})">変更</button><button onclick="removeVehicle(${i})">削除</button></div>`);h+='<div class="manage-add"><input id="newVehicleId" placeholder="車両番号 008"><input id="newVehicleDetail" placeholder="2t"><input id="newVehicleMemo" placeholder="詳細・メモ"><button onclick="addVehicle()">＋ 車両追加</button></div>'}document.getElementById('manageBody').innerHTML=h}
@@ -311,7 +398,7 @@ async function installApp(){
 }
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js?v=39').catch(err => console.warn('PWA登録失敗', err));
+    navigator.serviceWorker.register('./sw.js?v=45').catch(err => console.warn('PWA登録失敗', err));
   });
 }
 

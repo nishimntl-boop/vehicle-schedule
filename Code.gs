@@ -1,4 +1,4 @@
-// 車両人員予定表：Google Apps Script 共有バックエンド v27
+// 車両人員予定表：Google Apps Script 共有バックエンド v45
 // スタンドアロンのApps Scriptでも動作するよう、対象スプレッドシートをIDで固定しています。
 
 const SPREADSHEET_ID = '1KYmKn-zGJyLdrut_pjQ_QFVWH6BCIR_wNu910Hf2i80';
@@ -8,11 +8,6 @@ const CHUNK_SIZE = 45000;
 
 function doGet(e) {
   try {
-    if (e && e.parameter && e.parameter.bridge === '1') {
-      return HtmlService.createHtmlOutputFromFile('bridge')
-        .setTitle('共有通信')
-        .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
-    }
     if (e && e.parameter && e.parameter.api === '1') {
       const state = readState_();
       if (e.parameter.callback) return jsonp_(e.parameter.callback, state);
@@ -203,11 +198,13 @@ function writeState_(data) {
 }
 
 
-function bridgeGetState() {
+// GAS上で表示したindex.htmlから直接呼び出す共有API。
+// GitHub Pages経由のCORS/JSONP/iframe通信を使わないため、スマホでも同じ共有経路になります。
+function getSharedState() {
   return readState_();
 }
 
-function bridgeSaveState(data) {
+function saveSharedState(data) {
   try {
     return writeState_(data || {});
   } catch (err) {
