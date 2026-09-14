@@ -214,8 +214,8 @@
   </div>
 </div>
 <script>
-const VEH=[['001','2t'],['002','4t'],['003','2t'],['004','4t'],['005','2t'],['006','4t'],['007','2t']],PEOPLE=['田中','鈴木','佐藤','山田','高橋','伊藤','渡辺','小林'],COL=['#2563eb','#0f766e','#15803d','#4f46e5','#7c3aed','#0e7490','#0369a1','#1d4ed8','#166534','#115e59','#134e4a','#155e75','#312e81','#4338ca','#5b21b6','#047857','#365314','#4d7c0f','#3f6212','#334155','#475569','#1e3a8a','#164e63','#1e40af','#3730a3','#6d28d9','#581c87','#374151','#0f3d56','#14532d'];;let events=(JSON.parse(localStorage.getItem('vehicleScheduleExact')||'null')||[]).map(e=>e&&e.kind==='work'?{...e,kind:'confirmed'}:e),cur=new Date(new Date().getFullYear(),new Date().getMonth(),new Date().getDate()),view='month',eid=null,cm={},ci=0;
-// v49: filter/drag/notification state must exist before the first render.
+const VEH=[['001','2t'],['002','4t'],['003','2t'],['004','4t'],['005','2t'],['006','4t'],['007','2t']],PEOPLE=['田中','鈴木','佐藤','山田','高橋','伊藤','渡辺','小林'],COL=['#15803d','#0f766e','#2563eb','#4f46e5','#7c3aed','#365314','#334155','#166534','#115e59','#1d4ed8','#312e81','#5b21b6','#4d7c0f','#475569','#047857','#134e4a','#0369a1','#4338ca','#6d28d9','#3f6212','#374151','#14532d','#0e7490','#1e3a8a','#3730a3','#581c87','#155e75','#1e40af','#164e63','#0f3d56'];;let events=(JSON.parse(localStorage.getItem('vehicleScheduleExact')||'null')||[]).map(e=>e&&e.kind==='work'?{...e,kind:'confirmed'}:e),cur=new Date(new Date().getFullYear(),new Date().getMonth(),new Date().getDate()),view='month',eid=null,cm={},ci=0;
+// v51: filter/drag/notification state is initialized before the first render.
 let searchText='',kindFilter='all',dragEventId=null,notifiedKeys=new Set();
 function K(d){
   const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');
@@ -226,7 +226,7 @@ function MONTH(){let y=cur.getFullYear(),m=cur.getMonth(),s=new Date(y,m,1);s.se
 function WTXT(e,d){let night=e.date!==K(d)||(e.endDate&&e.endDate!==e.date);return e.kind==='off'?'休み':(night?'🌙 ':'')+(e.kind==='plan'?'予定 ': '')+e.site+' '+e.start+'-'+e.end+(night?'（日またぎ）':'')}
 function WEEK(){let s=new Date(cur);s.setDate(s.getDate()-((s.getDay()+6)%7));let h='<div class="week"><div class="wh week-switch"><span>週予定</span><div class="week-mode"><button class="wm '+(weekMode==="people"?"on":"")+'" onclick="setWeekMode(\'people\',event)">人員別</button><button class="wm '+(weekMode==="vehicle"?"on":"")+'" onclick="setWeekMode(\'vehicle\',event)">車両別</button></div></div>';for(let i=0;i<7;i++){let d=new Date(s);d.setDate(s.getDate()+i);let ds=K(d);h+=`<div class="wh week-date" title="この日を選択" onclick="selectWeekDate('${ds}',event)">${d.getMonth()+1}/${d.getDate()}（${'日月火水木金土'[d.getDay()]}）</div>`}const all=filteredEvents();if(weekMode==="vehicle"){VEH.forEach(v=>{h+=`<div class="person">${E(v[0])}（${E(v[1])}）</div>`;for(let i=0;i<7;i++){let d=new Date(s);d.setDate(s.getDate()+i);let es=all.filter(e=>ON(e,d)&&(e.vehicles||[]).includes(v[0]));h+=`<div>${es.map(e=>`<button class="wbar ${e.kind==='off'?'off':e.kind==='plan'?'plan':' '} ${CF(e)?'conf ':''}${(e.date!==K(d)||(e.endDate&&e.endDate!==e.date))?'overnight':''}" style="background:${BG(e)}" onclick="editEvent(${e.id},'${K(d)}')">${E(WTXT(e,d))}</button>`).join('')||'－'}</div>`}});h+=`<div class="person">未割当</div>`;for(let i=0;i<7;i++){let d=new Date(s);d.setDate(s.getDate()+i);let es=all.filter(e=>ON(e,d)&&!(e.vehicles||[]).length);h+=`<div>${es.map(e=>`<button class="wbar ${e.kind==='off'?'off':e.kind==='plan'?'plan':' '} ${CF(e)?'conf ':''}${(e.date!==K(d)||(e.endDate&&e.endDate!==e.date))?'overnight':''}" style="background:${BG(e)}" onclick="editEvent(${e.id},'${K(d)}')">${E(WTXT(e,d))}</button>`).join('')||'－'}</div>`}}else{PEOPLE.forEach(p=>{h+=`<div class="person">${E(p)}</div>`;for(let i=0;i<7;i++){let d=new Date(s);d.setDate(s.getDate()+i);let es=all.filter(e=>ON(e,d)&&(e.people||[]).includes(p));h+=`<div>${es.map(e=>`<button class="wbar ${e.kind==='off'?'off':e.kind==='plan'?'plan':' '} ${CF(e)?'conf ':''}${(e.date!==K(d)||(e.endDate&&e.endDate!==e.date))?'overnight':''}" style="background:${BG(e)}" onclick="editEvent(${e.id},'${K(d)}')">${E(WTXT(e,d))}</button>`).join('')||'－'}</div>`}});h+=`<div class="person">未割当</div>`;for(let i=0;i<7;i++){let d=new Date(s);d.setDate(s.getDate()+i);let es=all.filter(e=>ON(e,d)&&!(e.people||[]).length);h+=`<div>${es.map(e=>`<button class="wbar ${e.kind==='off'?'off':e.kind==='plan'?'plan':' '} ${CF(e)?'conf ':''}${(e.date!==K(d)||(e.endDate&&e.endDate!==e.date))?'overnight':''}" style="background:${BG(e)}" onclick="editEvent(${e.id},'${K(d)}')">${E(WTXT(e,d))}</button>`).join('')||'－'}</div>`}}return h+'</div>'}
 function DH(dt,day){let h=dt.getHours()+dt.getMinutes()/60;if(K(dt)!==K(day)||h<6)h+=24;return h}function DAY(){let h='<div class="timeline"><div class="times"><div>車両 / 人員</div>'+[6,8,10,12,14,16,18,20,22,24,2,4,6].map(x=>`<div>${x}:00</div>`).join('')+'</div>';filteredEvents().filter(e=>ON(e,cur)).forEach(e=>{let seg=SEG(e,cur);if(!seg)return;let[a,b]=seg,sh=DH(a,cur),eh=DH(b,cur),l=Math.max(0,(sh-6)/24)*100,r=Math.min(100,(eh-6)/24*100),w=Math.max(1,r-l);if(r<=0||l>=100)return;let night=e.date!==K(cur)||((e.endDate||e.date)!==K(cur));let txt=e.kind==='off'?'休み':(e.kind==='plan'?'予定 ':'')+e.site+' '+e.start+'～'+e.end;let label=night?'🌙 日またぎ｜':'';h+=`<div class="trow"><div class="who">${E((e.vehicles||[]).join(', '))}<br>${E((e.people||[]).join(', '))}</div><div class="track"><button class="tbar ${e.kind==='off'?'off':e.kind==='plan'?'plan':' '} ${CF(e)?'conflict':''} ${night?'overnight nightbar':''}" style="left:${l}%;width:${w}%;background:${BG(e)}" title="${night?'🌙 日またぎ：':''}${E(txt)}" onclick="editEvent(${e.id},'${K(cur)}')">${E(label+txt)}</button></div></div>`});return h+'</div>'}
-function render(){document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===view));document.getElementById('title').textContent=`${cur.getFullYear()}年${cur.getMonth()+1}月`;document.getElementById('sub').textContent=view==='month'?'週予定':view==='week'?'日予定':'月予定';document.getElementById('main').innerHTML=view==='month'?MONTH():view==='week'?WEEK():DAY();document.getElementById('secondary').innerHTML=view==='month'?WEEK():view==='week'?DAY():MONTH();status()}function status(){let bv=new Set(),bp=new Set(),ov=new Set(),op=new Set();events.filter(e=>ON(e,cur)).forEach(e=>{let vs=e.vehicles||[],ps=e.people||[];if(e.kind==='off'){vs.forEach(v=>ov.add(v));ps.forEach(p=>op.add(p));}else if(e.kind==='plan'||e.kind==='confirmed'||e.kind==='work'){vs.forEach(v=>bv.add(v));ps.forEach(p=>bp.add(p));}});document.getElementById('stitle').textContent='空き状況（'+K(cur)+'）';document.getElementById('status').innerHTML=VEH.map(v=>`<div>${E(v[0])}（${E(v[1])}） <span class="${ov.has(v[0])?'off-note':bv.has(v[0])?'busy':'free'}">${ov.has(v[0])?'● 休み':bv.has(v[0])?'● 稼働':'○ 空き'}</span></div>`).join('')+PEOPLE.map(p=>`<div>${E(p)} <span class="${op.has(p)?'off-note':bp.has(p)?'busy':'free'}">${op.has(p)?'● 休み':bp.has(p)?'● 稼働':'○ 空き'}</span></div>`).join('')+'<div class="status-note">※予定に割り当てた車両・人員を「稼働」、休みを「休み」と表示</div>'}
+function render(){document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===view));document.getElementById('title').textContent=`${cur.getFullYear()}年${cur.getMonth()+1}月`;document.getElementById('sub').textContent=view==='month'?'週予定':view==='week'?'日予定':'月予定';document.getElementById('main').innerHTML=view==='month'?MONTH():view==='week'?WEEK():DAY();document.getElementById('secondary').innerHTML=view==='month'?WEEK():view==='week'?DAY():MONTH();status()}function status(){let bv=new Set(),bp=new Set(),ov=new Set(),op=new Set();events.filter(e=>ON(e,cur)).forEach(e=>{let vs=e.vehicles||[],ps=e.people||[];if(e.kind==='off'){vs.forEach(v=>ov.add(v));ps.forEach(p=>op.add(p));}else if(e.kind==='plan'||e.kind==='confirmed'||e.kind==='work'){vs.forEach(v=>bv.add(v));ps.forEach(p=>bp.add(p));}});document.getElementById('stitle').textContent='空き状況（'+K(cur)+'）';document.getElementById('status').innerHTML=VEH.map(v=>`<div>${E(v[0])}（${E(v[1])}） <span class="${ov.has(v[0])?'off-note':bv.has(v[0])?'busy':'free'}">${ov.has(v[0])?'● 休み':bv.has(v[0])?'● 稼働':'○ 空き'}</span></div>`).join('')+PEOPLE.map(p=>`<div>${E(p)} <span class="${op.has(p)?'off-note':bp.has(p)?'busy':'free'}">${op.has(p)?'● 休み':bp.has(p)?'● 稼働':'○ 空き'}</span></div>`).join('')+'<div class="status-note">※予定に割り当てた車両・人員を「稼働」、休みを「休み」と表示。共有中は古い端末のデータで新しい割り当てを上書きしない仕組みです。</div>'}
 function checks(){rebuildChecks()}
 function rebuildChecks(){
  document.getElementById('vs').innerHTML=VEH.map(v=>`<label class="check"><input class="v" type="checkbox" value="${E(v[0])}"> ${E(v[0])} (${E(v[1])})</label>`).join('');
@@ -258,14 +258,16 @@ function selectWeekDate(d,ev){if(ev)ev.stopPropagation();eid=null;cur=new Date(d
 function saveEvent(fromModal=false){
  let e=getFormValues(fromModal?'m':'');
  e.id=eid||Date.now();
+ e.updatedAt=Date.now();
  if(!e.date)return alert('開始日を入力してください');
  if(e.kind==='off'){e.site='';e.work=''}
  if(eid)events=events.map(x=>String(x.id)===String(eid)?e:x);else events.push(e);
+ dirtyEventIds.add(String(e.id));
  saveLocalAndCloud();render();eid=null;
  if(fromModal)closeEventModal();
  setFormValues('',{kind:'plan',site:'',work:'',date:K(cur),endDate:K(cur),start:'08:00',end:'16:00',vehicles:[],people:[]});
 }
-function delEvent(fromModal=false){if(eid){pendingDeletedIds.push(String(eid));events=events.filter(x=>String(x.id)!==String(eid));saveLocalAndCloud()}eid=null;if(fromModal)closeEventModal();render();}
+function delEvent(fromModal=false){if(eid){const id=String(eid);pendingDeletedIds.push(id);dirtyEventIds.delete(id);events=events.filter(x=>String(x.id)!==id);saveLocalAndCloud()}eid=null;if(fromModal)closeEventModal();render();}
 function shift(n){if(view==='month')cur.setMonth(cur.getMonth()+n);else if(view==='week')cur.setDate(cur.getDate()+7*n);else cur.setDate(cur.getDate()+n);render()}document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{view=b.dataset.v;render()});prev.onclick=()=>shift(-1);next.onclick=()=>shift(1);today.onclick=()=>{cur=new Date();cur.setHours(0,0,0,0);render()};subPrev.onclick=()=>shift(-1);subNext.onclick=()=>shift(1);checks();newEvent();render();
 </script>
 <script>
@@ -276,11 +278,12 @@ if(!Array.isArray(vehicleList)||vehicleList.length===0)vehicleList=VEH.map(v=>({
 vehicleList=vehicleList.filter(v=>v&&typeof v==='object'&&String(v.id||'').trim()).map(v=>({id:String(v.id),detail:String(v.detail||'2t'),memo:String(v.memo||'')}));
 function syncMaster(){PEOPLE.splice(0,PEOPLE.length,...peopleList);VEH.splice(0,VEH.length,...vehicleList.map(v=>[v.id,v.detail]));}
 function rebuildChecks(){document.getElementById('vs').innerHTML=VEH.map(v=>`<label class="check"><input class="v" type="checkbox" value="${E(v[0])}"> ${E(v[0])} (${E(v[1])})</label>`).join('');document.getElementById('ps').innerHTML=PEOPLE.map(p=>`<label class="check"><input class="p" type="checkbox" value="${E(p)}"> ${E(p)}</label>`).join('');document.getElementById('mvs').innerHTML=VEH.map(v=>`<label class="check"><input class="mv" type="checkbox" value="${E(v[0])}"> ${E(v[0])} (${E(v[1])})</label>`).join('');document.getElementById('mps').innerHTML=PEOPLE.map(p=>`<label class="check"><input class="mp" type="checkbox" value="${E(p)}"> ${E(p)}</label>`).join('');}
-let cloudLastUpdated=Number(localStorage.getItem('vehicleCloudLastUpdated')||0),cloudRevision=Number(localStorage.getItem('vehicleCloudRevision')||0),pendingDeletedIds=JSON.parse(localStorage.getItem('vehiclePendingDeletedIds')||'[]'),cloudSaving=false,cloudLoading=false,cloudTimer=null,cloudLastSaveToken=localStorage.getItem('vehicleLastSaveToken')||'';
+let cloudLastUpdated=Number(localStorage.getItem('vehicleCloudLastUpdated')||0),cloudRevision=Number(localStorage.getItem('vehicleCloudRevision')||0),pendingDeletedIds=JSON.parse(localStorage.getItem('vehiclePendingDeletedIds')||'[]'),dirtyEventIds=new Set(JSON.parse(localStorage.getItem('vehicleDirtyEventIds')||'[]').map(String)),cloudSaving=false,cloudLoading=false,cloudTimer=null,cloudLastSaveToken=localStorage.getItem('vehicleLastSaveToken')||'';
+let localMutationVersion=0,cloudSaveQueued=(dirtyEventIds.size>0||pendingDeletedIds.length>0);
 const GAS_URL='https://script.google.com/macros/s/AKfycbw6NI9FHyRj1afnCuPNeuUZCcFGP3n0n0OIlMEvlSrridqC1FcQl6166th9gGSmtzTP/exec';
-function cloudState(){return {events,vehicles:vehicleList,people:peopleList,logs:[],lastUpdated:Date.now(),baseRevision:cloudRevision,deletedIds:pendingDeletedIds.slice(),saveToken:(crypto.randomUUID?crypto.randomUUID():'tok_'+Date.now()+'_'+Math.random().toString(36).slice(2))}}
+function cloudState(){return {events:events,vehicles:vehicleList,people:peopleList,logs:[],lastUpdated:Date.now(),baseRevision:cloudRevision,deletedIds:pendingDeletedIds.slice(),dirtyEventIds:Array.from(dirtyEventIds||[]),saveToken:(crypto.randomUUID?crypto.randomUUID():'tok_'+Date.now()+'_'+Math.random().toString(36).slice(2))}}
 function setCloudStatus(t){const el=document.getElementById('cloudStatus');if(el)el.textContent=t}
-function persistLocal(){localStorage.setItem('vehiclePeopleList',JSON.stringify(peopleList));localStorage.setItem('vehicleList',JSON.stringify(vehicleList));localStorage.setItem('vehicleScheduleExact',JSON.stringify(events));localStorage.setItem('vehicleCloudLastUpdated',String(cloudLastUpdated||0));localStorage.setItem('vehicleCloudRevision',String(cloudRevision||0));localStorage.setItem('vehiclePendingDeletedIds',JSON.stringify(pendingDeletedIds||[]))}
+function persistLocal(){localStorage.setItem('vehiclePeopleList',JSON.stringify(peopleList));localStorage.setItem('vehicleList',JSON.stringify(vehicleList));localStorage.setItem('vehicleScheduleExact',JSON.stringify(events));localStorage.setItem('vehicleCloudLastUpdated',String(cloudLastUpdated||0));localStorage.setItem('vehicleCloudRevision',String(cloudRevision||0));localStorage.setItem('vehiclePendingDeletedIds',JSON.stringify(pendingDeletedIds||[]));localStorage.setItem('vehicleDirtyEventIds',JSON.stringify(Array.from(dirtyEventIds||[])))}
 
 // GitHub Pages → GAS の共有通信。
 // 読み込みは JSONP、保存は hidden form POST を使うため、CORS や iframe 内の GAS UI に依存しません。
@@ -325,28 +328,60 @@ function postForm(payload,timeout=20000){
 }
 async function postCloud(){
   if(!GAS_URL||cloudSaving)return;
-  cloudSaving=true;setCloudStatus('共有保存中…');
-  const stateToSave=cloudState();
-  const saveToken=stateToSave.saveToken;
-  localStorage.setItem('vehicleLastSaveToken',saveToken);
+  cloudSaving=true;
   try{
-    await postForm(stateToSave,20000);
-    // doPostの戻り値を直接読むのではなく、JSONPで保存結果を確認する。
-    const latest=await jsonpGet(10000);
-    if(latest&&latest.hasData&&String(latest.saveToken||'')===String(saveToken)){
-      cloudLastSaveToken=saveToken;
-      applyCloudState(latest);pendingDeletedIds=[];persistLocal();render();setCloudStatus('共有保存・同期済み');
-    }else if(latest&&latest.hasData){
-      // 別端末の更新を壊さない。最新データを読み込み直す。
-      applyCloudState(latest);pendingDeletedIds=[];persistLocal();render();setCloudStatus('共有データ更新済み');
-    }else{
-      setCloudStatus('共有保存確認失敗');
+    while(cloudSaveQueued){
+      cloudSaveQueued=false;
+      setCloudStatus('共有保存中…');
+      // 送信中に別の編集が入っても、その編集を同じ送信に混ぜず、次の送信へ回す。
+      const stateToSave=JSON.parse(JSON.stringify(cloudState()));
+      const saveToken=stateToSave.saveToken;
+      const saveVersion=localMutationVersion;
+      localStorage.setItem('vehicleLastSaveToken',saveToken);
+      try{
+        await postForm(stateToSave,20000);
+        const latest=await jsonpGet(10000);
+        // 送信完了後に別の編集があった場合、古い応答で画面を巻き戻さない。
+        if(localMutationVersion!==saveVersion){
+          setCloudStatus('共有保存済み・最新変更を送信中…');
+          continue;
+        }
+        if(latest&&latest.hasData&&String(latest.saveToken||'')===String(saveToken)){
+          cloudLastSaveToken=saveToken;
+          applyCloudState(latest);
+          pendingDeletedIds=[];
+          dirtyEventIds.clear();
+          persistLocal();
+          render();
+          setCloudStatus('共有保存・同期済み');
+        }else if(latest&&latest.hasData){
+          // 別端末の更新が混ざった場合は、ローカルに未送信変更がない時だけ反映。
+          applyCloudState(latest);
+          pendingDeletedIds=[];
+          dirtyEventIds.clear();
+          persistLocal();
+          render();
+          setCloudStatus('共有データ更新済み');
+        }else{
+          setCloudStatus('共有保存確認失敗');
+        }
+      }catch(err){
+        console.warn('共有保存に失敗',err);
+        setCloudStatus('共有保存失敗');
+      }
     }
-  }catch(err){
-    console.warn('共有保存に失敗',err);setCloudStatus('共有保存失敗');
-  }finally{cloudSaving=false}
+  }finally{
+    cloudSaving=false;
+    // 保存完了直前に編集が入った場合も取りこぼさない。
+    if(cloudSaveQueued)postCloud();
+  }
 }
-function saveLocalAndCloud(){persistLocal();postCloud()}
+function saveLocalAndCloud(){
+  localMutationVersion++;
+  cloudSaveQueued=true;
+  persistLocal();
+  postCloud();
+}
 function fetchCloudStateOnce(){return jsonpGet(15000)}
 function forceCloudReload(){cloudLoading=false;loadCloud()}
 
@@ -359,7 +394,7 @@ function applyCloudState(d){
   syncMaster();rebuildChecks();
 }
 async function loadCloud(){
-  if(!GAS_URL||cloudLoading||cloudSaving)return;
+  if(!GAS_URL||cloudLoading||cloudSaving||cloudSaveQueued)return;
   cloudLoading=true;setCloudStatus('共有読込中…');
   try{
     const d=await fetchCloudStateOnce();
@@ -369,9 +404,7 @@ async function loadCloud(){
   }catch(err){console.warn('共有読み込みに失敗',err);setCloudStatus('共有接続エラー')}
   finally{cloudLoading=false}
 }
-function persist(){persistLocal();postCloud()}
-function forceCloudReload(){cloudLoading=false;loadCloud()}
-
+function persist(){localMutationVersion++;cloudSaveQueued=true;persistLocal();postCloud()}
 function closeCloudDiag(){const el=document.getElementById('cloudDiag');if(el)el.classList.remove('open')}
 function openCloudDiag(){const el=document.getElementById('cloudDiag');if(el){el.classList.add('open');runCloudDiag()}}
 async function runCloudDiag(){const out=document.getElementById('cloudDiagText');if(!out)return;out.textContent='GASから最新データを確認しています…';const started=Date.now();try{const d=await fetchCloudStateOnce();if(!d){out.textContent='【接続失敗】\nGASからデータを取得できませんでした。\n\nURL: '+GAS_URL;return}const latest=Array.isArray(d.events)?d.events:[];const localCount=Array.isArray(events)?events.length:0;const newest=latest.slice(-5).map(e=>`${e.date||''} ${e.start||''} ${e.site||''} [${e.kind||''}]`).join('\n');out.textContent='【GAS接続：OK】\n取得時間: '+(Date.now()-started)+'ms\nrevision: '+(d.revision||0)+'\n最終更新: '+(d.lastUpdated?new Date(Number(d.lastUpdated)).toLocaleString():'なし')+'\n予定件数(GAS): '+latest.length+'\n予定件数(端末): '+localCount+'\n車両数: '+(Array.isArray(d.vehicles)?d.vehicles.length:0)+'\n人員数: '+(Array.isArray(d.people)?d.people.length:0)+'\nsaveToken: '+(d.saveToken||'なし')+'\n\nGAS側の最新5件:\n'+(newest||'（予定なし）')}catch(err){out.textContent='【接続失敗】\n'+String(err&&err.message||err)+'\n\n確認：GAS Webアプリは「自分として実行」＋「全員」で公開してください。\n\n※今回の通信はGASの画面を開くのではなく、データAPI（JSONP）だけを呼び出しています。'}}
@@ -379,21 +412,21 @@ function openSettings(){document.getElementById('settings').classList.add('open'
 function closeSettings(){document.getElementById('settings').classList.remove('open');rebuildChecks();render()}
 function manageTab(m){document.getElementById('tabPeople').classList.toggle('on',m==='people');document.getElementById('tabVehicles').classList.toggle('on',m==='vehicles');let h='';if(m==='people'){h='<h3>人員の増減・名前変更</h3>';peopleList.forEach((n,i)=>h+=`<div class="manage-row people"><input id="pn${i}" value="${E(n)}"><button onclick="renamePerson(${i})">変更</button><button onclick="removePerson(${i})">削除</button></div>`);h+='<div class="manage-add"><input id="newPerson" placeholder="新しい人員名"><button onclick="addPerson()">＋ 人員追加</button></div>'}else{h='<h3>車両の増減・詳細変更</h3>';vehicleList.forEach((v,i)=>h+=`<div class="manage-row"><input id="vn${i}" value="${E(v.id)}"><input id="vd${i}" value="${E(v.detail)}"><input id="vm${i}" value="${E(v.memo||'')}" placeholder="詳細・メモ"><button onclick="updateVehicle(${i})">変更</button><button onclick="removeVehicle(${i})">削除</button></div>`);h+='<div class="manage-add"><input id="newVehicleId" placeholder="車両番号 008"><input id="newVehicleDetail" placeholder="2t"><input id="newVehicleMemo" placeholder="詳細・メモ"><button onclick="addVehicle()">＋ 車両追加</button></div>'}document.getElementById('manageBody').innerHTML=h}
 function addPerson(){let n=document.getElementById('newPerson').value.trim();if(!n)return alert('人員名を入力してください');if(peopleList.includes(n))return alert('同じ名前があります');peopleList.push(n);syncMaster();persist();manageTab('people');rebuildChecks();render()}
-function renamePerson(i){let old=peopleList[i],n=document.getElementById('pn'+i).value.trim();if(!n)return alert('名前を入力してください');if(n!==old&&peopleList.includes(n))return alert('同じ名前があります');events.forEach(e=>e.people=(e.people||[]).map(x=>x===old?n:x));peopleList[i]=n;syncMaster();persist();manageTab('people');rebuildChecks();render()}
-function removePerson(i){let n=peopleList[i];if(!confirm(n+' を削除しますか？'))return;events.forEach(e=>e.people=(e.people||[]).filter(x=>x!==n));peopleList.splice(i,1);syncMaster();persist();manageTab('people');rebuildChecks();render()}
+function renamePerson(i){let old=peopleList[i],n=document.getElementById('pn'+i).value.trim();if(!n)return alert('名前を入力してください');if(n!==old&&peopleList.includes(n))return alert('同じ名前があります');events.forEach(e=>{e.people=(e.people||[]).map(x=>x===old?n:x);e.updatedAt=Date.now();dirtyEventIds.add(String(e.id))});peopleList[i]=n;syncMaster();persist();manageTab('people');rebuildChecks();render()}
+function removePerson(i){let n=peopleList[i];if(!confirm(n+' を削除しますか？'))return;events.forEach(e=>{e.people=(e.people||[]).filter(x=>x!==n);e.updatedAt=Date.now();dirtyEventIds.add(String(e.id))});peopleList.splice(i,1);syncMaster();persist();manageTab('people');rebuildChecks();render()}
 function addVehicle(){let id=document.getElementById('newVehicleId').value.trim(),detail=document.getElementById('newVehicleDetail').value.trim()||'2t',memo=document.getElementById('newVehicleMemo').value.trim();if(!id)return alert('車両番号を入力してください');if(vehicleList.some(v=>v.id===id))return alert('同じ車両番号があります');vehicleList.push({id,detail,memo});syncMaster();persist();manageTab('vehicles');rebuildChecks();render()}
-function updateVehicle(i){let old=vehicleList[i].id,id=document.getElementById('vn'+i).value.trim(),detail=document.getElementById('vd'+i).value.trim()||'2t',memo=document.getElementById('vm'+i).value.trim();if(!id)return alert('車両番号を入力してください');if(id!==old&&vehicleList.some(v=>v.id===id))return alert('同じ車両番号があります');events.forEach(e=>{e.vehicles=(e.vehicles||[]).map(x=>x===old?id:x);if(e.vehicle===old)e.vehicle=id});vehicleList[i]={id,detail,memo};syncMaster();persist();manageTab('vehicles');rebuildChecks();render()}
-function removeVehicle(i){let v=vehicleList[i];if(!confirm(v.id+' を削除しますか？'))return;events.forEach(e=>{e.vehicles=(e.vehicles||[]).filter(x=>x!==v.id);if(e.vehicle===v.id)e.vehicle=''});vehicleList.splice(i,1);syncMaster();persist();manageTab('vehicles');rebuildChecks();render()}
-syncMaster();rebuildChecks();render();loadCloud();clearInterval(cloudTimer);cloudTimer=setInterval(()=>{if(!cloudSaving&&!cloudLoading)loadCloud()},7000);
+function updateVehicle(i){let old=vehicleList[i].id,id=document.getElementById('vn'+i).value.trim(),detail=document.getElementById('vd'+i).value.trim()||'2t',memo=document.getElementById('vm'+i).value.trim();if(!id)return alert('車両番号を入力してください');if(id!==old&&vehicleList.some(v=>v.id===id))return alert('同じ車両番号があります');events.forEach(e=>{e.vehicles=(e.vehicles||[]).map(x=>x===old?id:x);if(e.vehicle===old)e.vehicle=id;e.updatedAt=Date.now();dirtyEventIds.add(String(e.id))});vehicleList[i]={id,detail,memo};syncMaster();persist();manageTab('vehicles');rebuildChecks();render()}
+function removeVehicle(i){let v=vehicleList[i];if(!confirm(v.id+' を削除しますか？'))return;events.forEach(e=>{e.vehicles=(e.vehicles||[]).filter(x=>x!==v.id);if(e.vehicle===v.id)e.vehicle='';e.updatedAt=Date.now();dirtyEventIds.add(String(e.id))});vehicleList.splice(i,1);syncMaster();persist();manageTab('vehicles');rebuildChecks();render()}
+syncMaster();rebuildChecks();render();if(cloudSaveQueued)postCloud();else loadCloud();clearInterval(cloudTimer);cloudTimer=setInterval(()=>{if(!cloudSaving&&!cloudLoading&&!cloudSaveQueued)loadCloud()},7000);
 
-// v48 productivity features
+// productivity features
 function setSearch(v){searchText=String(v||'').trim().toLowerCase();render()}
 function setKindFilter(v){kindFilter=v||'all';render()}
 function clearFilters(){searchText='';kindFilter='all';const a=document.getElementById('searchBox'),b=document.getElementById('filterKind');if(a)a.value='';if(b)b.value='all';render()}
 function filteredEvents(){return events.filter(e=>{if(kindFilter!=='all'&&e.kind!==kindFilter)return false;if(!searchText)return true;const hay=[e.site,e.work,e.start,e.end,...(e.vehicles||[]),...(e.people||[])].join(' ').toLowerCase();return hay.includes(searchText)})}
-function duplicateEvent(){if(!eid)return;const e=events.find(x=>String(x.id)===String(eid));if(!e)return;const copy=JSON.parse(JSON.stringify(e));copy.id=Date.now()+Math.floor(Math.random()*1000);copy.date=K(cur);copy.endDate=e.endDate||e.date;events.push(copy);eid=copy.id;setFormValues('m',copy);setFormValues('',copy);document.getElementById('mftitle').textContent='予定の複製';document.getElementById('ftitle').textContent='予定の複製';saveLocalAndCloud();render()}
+function duplicateEvent(){if(!eid)return;const e=events.find(x=>String(x.id)===String(eid));if(!e)return;const copy=JSON.parse(JSON.stringify(e));copy.id=Date.now()+Math.floor(Math.random()*1000);copy.updatedAt=Date.now();copy.date=K(cur);copy.endDate=e.endDate||e.date;events.push(copy);dirtyEventIds.add(String(copy.id));eid=copy.id;setFormValues('m',copy);setFormValues('',copy);document.getElementById('mftitle').textContent='予定の複製';document.getElementById('ftitle').textContent='予定の複製';saveLocalAndCloud();render()}
 function dragStartEvent(id){dragEventId=id}
-function dropEvent(date){if(!dragEventId)return;const e=events.find(x=>String(x.id)===String(dragEventId));if(!e)return;const old=new Date(e.date+'T00:00'),nd=new Date(date+'T00:00');const delta=Math.round((nd-old)/86400000);if(delta===0){dragEventId=null;return}e.date=date;if(e.endDate){const ed=new Date(e.endDate+'T00:00');ed.setDate(ed.getDate()+delta);e.endDate=K(ed)}saveLocalAndCloud();dragEventId=null;render()}
+function dropEvent(date){if(!dragEventId)return;const e=events.find(x=>String(x.id)===String(dragEventId));if(!e)return;const old=new Date(e.date+'T00:00'),nd=new Date(date+'T00:00');const delta=Math.round((nd-old)/86400000);if(delta===0){dragEventId=null;return}e.date=date;e.updatedAt=Date.now();dirtyEventIds.add(String(e.id));if(e.endDate){const ed=new Date(e.endDate+'T00:00');ed.setDate(ed.getDate()+delta);e.endDate=K(ed)}saveLocalAndCloud();dragEventId=null;render()}
 function openInstallHelp(){document.getElementById('installHelp').classList.add('open')}
 function closeInstallHelp(){document.getElementById('installHelp').classList.remove('open')}
 async function enableNotifications(){if(!('Notification' in window)){alert('このブラウザは通知に対応していません。');return}try{const p=await Notification.requestPermission();if(p==='granted'){localStorage.setItem('vehicleNotifications','1');alert('予定通知を有効にしました。アプリを開いている間、開始前の予定をお知らせします。');checkReminders()}else alert('通知は許可されませんでした。')}catch(e){alert('通知設定を完了できませんでした。')}}
@@ -426,7 +459,7 @@ async function installApp(){
 }
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js?v=49').catch(err => console.warn('PWA登録失敗', err));
+    navigator.serviceWorker.register('./sw.js?v=51').catch(err => console.warn('PWA登録失敗', err));
   });
 }
 

@@ -150,6 +150,7 @@ function normalize_(d) {
     if (!x.start) x.start = '08:00';
     if (!x.end) x.end = '16:00';
     if (!x.endDate) x.endDate = x.date || '';
+    x.updatedAt = Number(x.updatedAt || 0);
     return x;
   }) : [];
 
@@ -173,6 +174,8 @@ function writeState_(data) {
     const now = Date.now();
     const incomingEvents = Array.isArray(data.events) ? data.events : [];
     const deleted = new Set((Array.isArray(data.deletedIds) ? data.deletedIds : []).map(String));
+    const hasDirtyList = Array.isArray(data.dirtyEventIds);
+    const dirty = new Set((hasDirtyList ? data.dirtyEventIds : incomingEvents.map(e => e.id)).map(String));
     const incomingById = new Map(incomingEvents.map(e => [String(e.id), e]));
     const currentIds = new Set(current.events.map(e => String(e.id)));
     const mergedEvents = [];
@@ -180,7 +183,20 @@ function writeState_(data) {
     current.events.forEach(e => {
       const id = String(e.id);
       if (deleted.has(id)) return;
-      mergedEvents.push(incomingById.has(id) ? incomingById.get(id) : e);
+      if (incomingById.has(id)) {
+        const incoming = incomingById.get(id);
+        // v51以降は「実際に編集した予定ID」だけを変更候補にする。
+        // これにより、古い端末が全予定を丸ごと送っても、新しい割り当てを巻き戻さない。
+        if (hasDirtyList && !dirty.has(id)) {
+          mergedEvents.push(e);
+        } else {
+          const incomingTs = Number(incoming.updatedAt || 0);
+          const currentTs = Number(e.updatedAt || 0);
+          mergedEvents.push(incomingTs >= currentTs ? incoming : e);
+        }
+      } else {
+        mergedEvents.push(e);
+      }
     });
 
     incomingEvents.forEach(e => {
