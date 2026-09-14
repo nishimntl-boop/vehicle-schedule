@@ -294,7 +294,7 @@ function saveEvent(fromModal=false){
  setFormValues('',{kind:'plan',site:'',work:'',date:K(cur),endDate:K(cur),start:'08:00',end:'16:00',vehicles:[],people:[]});
 }
 function delEvent(fromModal=false){if(eid){const id=String(eid);markDeleted(id);events=events.filter(x=>String(x.id)!==id);saveLocalAndCloud()}eid=null;if(fromModal)closeEventModal();render();}
-function shift(n){if(view==='month')cur.setMonth(cur.getMonth()+n);else if(view==='week')cur.setDate(cur.getDate()+7*n);else cur.setDate(cur.getDate()+n);render()}document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{view=b.dataset.v;render()});prev.onclick=()=>shift(-1);next.onclick=()=>shift(1);today.onclick=()=>{cur=new Date();cur.setHours(0,0,0,0);render()};subPrev.onclick=()=>shift(-1);subNext.onclick=()=>shift(1);checks();newEvent();render();
+function shift(n){if(view==='month')cur.setMonth(cur.getMonth()+n);else if(view==='week')cur.setDate(cur.getDate()+7*n);else cur.setDate(cur.getDate()+n);render()}document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{view=b.dataset.v;render()});prev.onclick=()=>shift(-1);next.onclick=()=>shift(1);today.onclick=()=>{cur=new Date();cur.setHours(0,0,0,0);render()};subPrev.onclick=()=>shift(-1);subNext.onclick=()=>shift(1);newEvent();render();
 </script>
 <script>
 let peopleList=JSON.parse(localStorage.getItem('vehiclePeopleList')||'null');

@@ -1,0 +1,294 @@
+<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>車両・人員 配置管理</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#101b31">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="車両人員予定表">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4f6fa;font-family:Arial,"Yu Gothic",Meiryo,sans-serif;color:#172033}.top{height:58px;background:#101b31;color:white;display:flex;align-items:center;padding:0 16px;gap:5px;position:sticky;top:0;z-index:5}.logo{font-size:20px;font-weight:900;margin-right:12px}.tabs button,.nav button{border:0;border-radius:4px;padding:9px 16px;font-weight:800}.tabs button{background:#1d2943;color:#fff}.tabs .on{background:#1769e0}.nav{margin-left:auto;display:flex;gap:7px;align-items:center}.nav button{background:#fff}.title{font-size:20px;font-weight:900;min-width:125px;text-align:center}.cloud-diag{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:9999;display:none;align-items:center;justify-content:center;padding:18px}.cloud-diag.open{display:flex}.cloud-diag-card{background:#fff;border-radius:16px;max-width:520px;width:100%;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.25)}.cloud-diag-card h3{margin:0 0 12px}.cloud-diag-card pre{white-space:pre-wrap;word-break:break-word;background:#f3f5f8;border-radius:10px;padding:12px;font-size:12px;max-height:45vh;overflow:auto}.cloud-diag-actions{display:flex;gap:8px;justify-content:flex-end}.cloud-diag-actions button{padding:9px 14px;border-radius:9px;border:1px solid #ccd5e1;background:#fff;font-weight:800}.cloud-diag-actions button.primary{background:#1677e8;color:#fff;border-color:#1677e8}.cloud-status{font-size:11px;font-weight:800;opacity:.95;white-space:nowrap}.color-note{margin:8px auto 0;max-width:1600px;padding:7px 12px;background:#fff;border:1px solid #d3dae5;border-radius:6px;font-weight:900;font-size:12px}.red-note{color:#dc2626}.off-note{color:#c52f67}.app{display:grid;grid-template-columns:minmax(0,1fr) 365px;gap:10px;padding:9px;max-width:1600px;margin:auto}.panel,.box{background:#fff;border:1px solid #d3dae5;border-radius:6px;overflow:hidden;margin-bottom:9px}.legend{display:flex;gap:18px;padding:8px 12px;border-bottom:1px solid #d3dae5;font-weight:800}.dot{display:inline-block;width:13px;height:13px;border-radius:2px;margin-right:5px;vertical-align:-2px}.month{display:grid;grid-template-columns:repeat(7,minmax(110px,1fr));min-width:770px}.month .dow{background:#f8fafc;text-align:center;font-weight:900;padding:6px;border-right:1px solid #d3dae5;border-bottom:1px solid #d3dae5}.day{height:92px;padding:5px;border-right:1px solid #d3dae5;border-bottom:1px solid #d3dae5;overflow:hidden}.out{background:#fafafa;color:#a3aab5}.selected{background:#f7fbff;box-shadow:inset 0 0 0 2px #1769e0}.date{font-weight:900;font-size:15px;height:21px}.sun{color:#d11}.sat{color:#145bd7}.bar{display:block;width:100%;height:20px;margin:2px 0;border:0;border-radius:3px;color:white;padding:2px 6px;text-align:left;font-size:11px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.off{background:#f7d8e6!important;color:#c52f67!important}.plan{background:#9ca3af!important;color:#fff!important}.conflict,.conf{background:#dc2626!important;color:#fff!important}.conf{background:#dc2626!important}.head{height:39px;display:flex;align-items:center;gap:7px;padding:0 9px;border-bottom:1px solid #d3dae5;font-weight:900}.head span{flex:1}.head button{border:1px solid #ccd4df;background:#fff;border-radius:4px;padding:5px 9px}.add{background:#1769e0!important;color:white!important}.week{display:grid;grid-template-columns:120px repeat(7,minmax(105px,1fr));min-width:855px}.week>div{border-right:1px solid #d3dae5;border-bottom:1px solid #d3dae5;padding:5px;min-height:52px}.wh{background:#f8fafc;text-align:center;font-weight:900}.week-switch{display:flex;align-items:center;justify-content:space-between;gap:4px}.week-mode{display:flex;gap:3px}.week-mode .wm{border:1px solid #cbd3df;background:#fff;padding:3px 6px;border-radius:3px;font-size:10px;font-weight:900;cursor:pointer}.week-mode .wm.on{background:#1769e0;color:#fff;border-color:#1769e0}.week-date{cursor:pointer}.overnight{box-shadow:inset 0 0 0 2px #6b7280}.nighttag{font-size:9px;margin-left:4px;padding:1px 3px;border-radius:2px;background:#374151;color:#fff}.week-date:hover{background:#eaf3ff;box-shadow:inset 0 0 0 2px #1769e0}.person{font-weight:900;background:#fbfcfe}.wbar{display:block;width:100%;margin:2px 0;padding:5px;border:0;border-radius:3px;color:white;font-size:11px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.timeline{min-width:950px}.times{display:grid;grid-template-columns:125px repeat(13,1fr)}.times div{padding:5px;text-align:center;border-right:1px solid #e0e5eb;border-bottom:1px solid #d3dae5;font-size:11px}.trow{display:grid;grid-template-columns:125px 1fr;min-height:58px}.who{padding:8px;font-weight:900;border-right:1px solid #d3dae5;border-bottom:1px solid #d3dae5}.track{position:relative;border-bottom:1px solid #d3dae5;background:repeating-linear-gradient(to right,#fff 0,#fff calc(7.692% - 1px),#e1e5eb calc(7.692% - 1px),#e1e5eb 7.692%)}.tbar{position:absolute;top:8px;height:40px;border:0;border-radius:4px;color:#fff;padding:8px;font-weight:900;overflow:hidden;white-space:nowrap}.side .box{padding:11px}.side h3{margin:0 0 9px}.status{display:grid;grid-template-columns:1fr 1fr;gap:5px 12px}.busy{color:#16843b}.free{color:#777}.notice{line-height:1.8}.form label{display:block;font-weight:900;margin:7px 0 3px}.form input,.form select{width:100%;padding:7px;border:1px solid #ccd4df;border-radius:4px}.two{display:grid;grid-template-columns:1fr 1fr;gap:7px}.checks{display:grid;grid-template-columns:1fr 1fr;gap:4px}.check{border:1px solid #d5dbe4;border-radius:4px;padding:5px}.event-card .checks{margin-bottom:10px}.event-card .check{display:block;min-height:36px;line-height:24px}.event-card .check input{transform:scale(1.15);margin-right:6px}.check input{width:auto}.actions{display:flex;gap:7px;margin-top:10px}.actions button{flex:1;padding:9px;border:1px solid #ccd4df;background:#fff;border-radius:4px;font-weight:900}.actions .save{background:#1769e0;color:#fff}.actions .del{color:#d11;border-color:#e99}@media(max-width:1000px){.app{grid-template-columns:1fr}.side{order:-1}.logo{font-size:16px}}
+
+.settings{position:fixed;inset:0;background:rgba(10,18,35,.45);z-index:50;display:none;align-items:center;justify-content:center;padding:20px}
+.settings.open{display:flex}.settings-card{background:#fff;width:min(760px,96vw);max-height:90vh;overflow:auto;border-radius:8px;border:1px solid #cfd6e2;box-shadow:0 15px 50px rgba(0,0,0,.25)}
+.settings-head{display:flex;align-items:center;padding:13px 16px;border-bottom:1px solid #d4dae4}.settings-head h2{margin:0;font-size:18px}.settings-head button{margin-left:auto;border:0;background:#fff;font-size:22px}
+.manage-tabs{display:flex;border-bottom:1px solid #d4dae4}.manage-tabs button{flex:1;border:0;background:#f5f7fa;padding:10px;font-weight:900}.manage-tabs button.on{background:#1769e0;color:#fff}
+.manage-body{padding:14px}.manage-row{display:grid;grid-template-columns:1fr 120px 1.4fr auto;gap:7px;margin-bottom:7px}.manage-row.people{grid-template-columns:1fr auto}.manage-row input{width:100%;padding:7px;border:1px solid #cbd3df;border-radius:4px}.manage-row button{border:1px solid #e0a0a0;background:#fff;color:#c11;border-radius:4px;padding:6px 10px}.manage-add{display:flex;gap:7px;margin-top:12px}.manage-add input{flex:1;padding:8px;border:1px solid #cbd3df;border-radius:4px}.manage-add button{background:#1769e0;color:#fff;border:0;border-radius:4px;padding:8px 15px;font-weight:900}
+.settings{position:fixed;inset:0;background:rgba(10,18,35,.45);z-index:50;display:none;align-items:center;justify-content:center;padding:20px}.settings.open{display:flex}.settings-card{background:#fff;width:min(780px,96vw);max-height:90vh;overflow:auto;border-radius:8px;border:1px solid #cfd6e2}.settings-head{display:flex;align-items:center;padding:13px 16px;border-bottom:1px solid #d4dae4}.settings-head h2{margin:0}.settings-head button{margin-left:auto;border:0;background:#fff;font-size:22px}.manage-tabs{display:flex;border-bottom:1px solid #d4dae4}.manage-tabs button{flex:1;border:0;background:#f5f7fa;padding:10px;font-weight:900}.manage-tabs button.on{background:#1769e0;color:#fff}.manage-body{padding:14px}.manage-row{display:grid;grid-template-columns:1fr 120px 1.3fr auto auto;gap:6px;margin-bottom:7px}.manage-row.people{grid-template-columns:1fr auto auto}.manage-row input{width:100%;padding:7px;border:1px solid #cbd3df;border-radius:4px}.manage-row button{border:1px solid #dfa0a0;background:#fff;color:#c11;border-radius:4px;padding:6px 9px}.manage-add{display:flex;gap:6px;margin-top:12px}.manage-add input{flex:1;padding:8px;border:1px solid #cbd3df;border-radius:4px}.manage-add button{background:#1769e0;color:#fff;border:0;border-radius:4px;padding:8px 13px;font-weight:900}.settings{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px}.settings.open{display:flex}.settings-card{width:min(900px,96vw);max-height:90vh;overflow:auto;background:#fff;border-radius:8px;box-shadow:0 12px 40px rgba(0,0,0,.25)}.settings-head{display:flex;align-items:center;padding:14px 18px;border-bottom:1px solid #d3dae5}.settings-head h2{margin:0;font-size:18px}.settings-head button{margin-left:auto;border:0;background:transparent;font-size:26px;cursor:pointer}.manage-tabs{display:flex;border-bottom:1px solid #d3dae5}.manage-tabs button{flex:1;border:0;background:#f1f4f8;padding:11px;font-weight:900;cursor:pointer}.manage-tabs button.on{background:#1769e0;color:#fff}.manage-body{padding:16px}.manage-row{display:grid;grid-template-columns:110px 110px 1fr auto auto;gap:7px;margin:7px 0}.manage-row.people{grid-template-columns:1fr auto auto}.manage-row input,.manage-add input{min-width:0;padding:8px;border:1px solid #cbd3df;border-radius:4px}.manage-row button{padding:7px 10px;border:1px solid #b9c3d1;background:#fff;border-radius:4px;cursor:pointer}.manage-add{display:flex;gap:7px;margin-top:14px}.manage-add button{border:0;background:#1769e0;color:#fff;border-radius:4px;padding:8px 13px;font-weight:900;cursor:pointer}@media(max-width:700px){.manage-row{grid-template-columns:1fr 1fr}.manage-row.people{grid-template-columns:1fr auto auto}.manage-add{flex-wrap:wrap}.manage-add input{width:100%}}
+/* smartphone usability */
+@media(max-width:700px){
+  body{font-size:14px;overflow-x:hidden;-webkit-text-size-adjust:100%;}
+  .top{height:auto;min-height:0;padding:7px 8px;gap:7px;flex-wrap:wrap;align-items:center;position:sticky;top:0;}
+  .logo{display:none;}
+  .tabs{order:1;width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:5px;}
+  .tabs button{min-height:44px;padding:9px 6px;font-size:14px;border-radius:6px;}
+  .nav{order:2;width:100%;margin-left:0;display:flex;gap:5px;overflow-x:auto;overflow-y:hidden;padding-bottom:2px;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+  .nav::-webkit-scrollbar{display:none;}
+  .nav button{flex:0 0 auto;min-width:44px;min-height:44px;padding:9px 11px;font-size:14px;border-radius:6px;}
+  .nav .title{flex:0 0 140px;min-width:140px;font-size:17px;line-height:44px;}
+  .app{display:flex;flex-direction:column;gap:8px;padding:7px;margin:0;max-width:none;}
+  main{min-width:0;display:flex;flex-direction:column;gap:8px;}
+  .panel{margin-bottom:0;border-radius:7px;overflow:hidden;}
+  main>.panel{overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;}
+  #main,#secondary{min-width:max-content;}
+  .month{grid-template-columns:repeat(7,minmax(112px,1fr));min-width:784px;}
+  .month .dow{padding:9px 5px;font-size:13px;}
+  .day{height:108px;padding:6px;}
+  .date{font-size:14px;height:23px;}
+  .bar{height:23px;padding:3px 6px;font-size:11px;}
+  .head{min-height:48px;height:auto;padding:6px 7px;position:sticky;left:0;z-index:2;}
+  .head span{font-size:15px;}
+  .head button{min-height:40px;padding:7px 10px;font-size:13px;}
+  .week{grid-template-columns:116px repeat(7,minmax(128px,1fr));min-width:1012px;}
+  .week>div{min-height:62px;padding:6px;font-size:12px;}
+  .week .person{font-size:13px;position:sticky;left:0;z-index:1;}
+  .wh{font-size:12px;}
+  .week-mode{gap:4px;}
+  .week-mode .wm{min-height:36px;padding:7px 9px;font-size:12px;}
+  .week-date{min-width:128px;}
+  .wbar{min-height:34px;padding:7px 6px;font-size:11px;line-height:1.2;}
+  .timeline{min-width:950px;}
+  .side{order:initial;min-width:0;}
+  .side .box{padding:10px;margin-bottom:8px;}
+  .side h3{font-size:16px;}
+  .status{grid-template-columns:1fr 1fr;gap:6px 8px;}
+  .form label{font-size:14px;margin-top:9px;}
+  .form input,.form select{min-height:44px;padding:9px;font-size:16px;}
+  .two{grid-template-columns:1fr;gap:2px;}
+  .checks{grid-template-columns:1fr 1fr;gap:6px;}
+  .check{min-height:42px;padding:8px 6px;display:flex;align-items:center;gap:4px;}
+  .check input{transform:scale(1.15);}
+  .actions{position:sticky;bottom:0;background:#fff;padding:7px 0 2px;z-index:3;}
+  .actions button{min-height:46px;padding:10px 7px;font-size:14px;}
+  .settings{padding:7px;align-items:flex-end;}
+  .settings-card{width:100%;max-height:94vh;border-radius:10px 10px 0 0;}
+  .settings-head{padding:12px 14px;position:sticky;top:0;background:#fff;z-index:2;}
+  .manage-tabs button{min-height:46px;font-size:14px;}
+  .manage-body{padding:11px;}
+  .manage-row{grid-template-columns:1fr 1fr;gap:6px;}
+  .manage-row.people{grid-template-columns:1fr auto auto;}
+  .manage-row input{min-height:42px;font-size:16px;}
+  .manage-row button,.manage-add button{min-height:42px;padding:8px 10px;}
+  .manage-add{flex-wrap:wrap;}
+  .manage-add input{width:100%;min-height:44px;font-size:16px;}
+}
+@media(min-width:701px) and (max-width:1000px){
+  .app{grid-template-columns:1fr;}
+  .side{order:initial;}
+}
+@media(max-width:700px){.cloud-status{display:none}.top{padding:0 6px;gap:3px}.logo{font-size:14px;margin-right:3px}.tabs button{padding:8px 8px}.nav{gap:3px}.nav button{padding:8px 9px}.title{min-width:78px;font-size:16px}}
+/* v44 smartphone readability and touch usability */
+@media (max-width:1000px) and (pointer:coarse){
+  html,body{font-size:16px;}
+  body{-webkit-text-size-adjust:100%;overflow-x:hidden;}
+  .top{padding:8px 10px;gap:8px;position:sticky;top:0;}
+  .tabs{width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;order:1;}
+  .tabs button{min-height:50px;padding:10px 6px;font-size:16px;border-radius:8px;}
+  .nav{order:2;width:100%;margin-left:0;display:flex;gap:6px;overflow-x:auto;padding:2px 0 3px;}
+  .nav button{min-width:48px;min-height:48px;padding:10px 12px;font-size:15px;border-radius:8px;}
+  .nav .title{flex:0 0 150px;min-width:150px;font-size:19px;line-height:48px;}
+  .cloud-status{font-size:13px;}
+  .color-note{margin:8px 8px 0;padding:10px 8px;font-size:14px;line-height:1.45;text-align:center;}
+  .app{display:flex;flex-direction:column;gap:10px;padding:8px;margin:0;max-width:none;}
+  .panel,.box{border-radius:9px;margin-bottom:0;}
+  .head{min-height:54px;height:auto;padding:7px 8px;gap:6px;}
+  .head span{font-size:17px;}
+  .head button{min-width:44px;min-height:44px;padding:8px 10px;font-size:15px;}
+  .add{min-width:110px!important;}
+  /* 月予定：スマホ幅に合わせ、横スクロールを基本にしない */
+  .month{grid-template-columns:repeat(7,minmax(0,1fr));min-width:0;width:100%;}
+  .month .dow{padding:8px 2px;font-size:13px;}
+  .day{height:88px;padding:4px 3px;}
+  .date{font-size:14px;height:21px;}
+  .bar{height:21px;padding:2px 3px;font-size:10px;line-height:17px;border-radius:4px;}
+  /* 週予定は内容量が多いため横スクロール可能。ただし文字は大きくする */
+  main>.panel{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  #main,#secondary{min-width:0;}
+  .week{grid-template-columns:105px repeat(7,minmax(115px,1fr));min-width:910px;}
+  .week>div{min-height:64px;padding:7px 6px;font-size:13px;}
+  .wh{font-size:13px;}
+  .week .person{font-size:14px;}
+  .week-mode .wm{min-height:40px;padding:8px 10px;font-size:13px;}
+  .wbar{min-height:38px;padding:8px 7px;font-size:12px;line-height:1.25;}
+  /* 日予定も横スクロール可能 */
+  .timeline{min-width:900px;}
+  .times div{font-size:12px;padding:7px 4px;}
+  .trow{min-height:64px;}
+  .who{padding:9px;font-size:14px;}
+  .tbar{top:8px;height:46px;padding:9px;font-size:13px;}
+  /* 入力欄・チェックを指で押しやすく */
+  .side{min-width:0;}
+  .side .box{padding:12px;}
+  .side h3{font-size:19px;margin-bottom:10px;}
+  .notice{font-size:15px;line-height:1.9;}
+  .form label{font-size:16px;margin:11px 0 5px;}
+  .form input,.form select{min-height:50px;padding:10px 11px;font-size:17px;border-radius:7px;}
+  .two{grid-template-columns:1fr;gap:3px;}
+  .checks{grid-template-columns:1fr 1fr;gap:7px;}
+  .check{min-height:48px;padding:9px 7px;font-size:15px;line-height:1.35;border-radius:7px;}
+  .check input{transform:scale(1.35);margin-right:5px;}
+  .actions{gap:8px;margin-top:12px;padding:8px 0 3px;}
+  .actions button{min-height:52px;padding:11px 8px;font-size:16px;border-radius:7px;}
+  .settings{padding:6px;align-items:flex-end;}
+  .settings-card{width:100%;max-height:94vh;border-radius:12px 12px 0 0;}
+  .settings-head{padding:14px 15px;}
+  .settings-head h2{font-size:19px;}
+  .settings-head button{font-size:28px;padding:6px 10px;}
+  .manage-tabs button{min-height:50px;font-size:16px;}
+  .manage-body{padding:12px;}
+  .manage-row{grid-template-columns:1fr 1fr;gap:7px;}
+  .manage-row input{min-height:46px;font-size:16px;padding:9px;}
+  .manage-row button,.manage-add button{min-height:46px;font-size:15px;padding:9px 11px;}
+  .manage-add input{min-height:48px;font-size:16px;}
+  .cloud-diag{padding:12px;}
+  .cloud-diag-card{max-width:none;padding:18px;border-radius:14px;}
+  .cloud-diag-card h3{font-size:20px;}
+  .cloud-diag-card pre{font-size:14px;line-height:1.55;max-height:50vh;}
+  .cloud-diag-actions button{min-height:48px;padding:10px 14px;font-size:15px;}
+}
+@media (max-width:480px) and (pointer:coarse){
+  .tabs button{font-size:15px;}
+  .nav .title{flex-basis:130px;min-width:130px;font-size:17px;}
+  .month .dow{font-size:12px;}
+  .day{height:82px;}
+  .date{font-size:13px;}
+  .bar{font-size:9px;height:20px;}
+  .checks{grid-template-columns:1fr;}
+}
+</style>
+<body>
+<header class="top"><div class="logo">🚚 車両・人員 配置管理</div><div class="tabs"><button data-v="day">日予定</button><button data-v="week">週予定</button><button data-v="month" class="on">月予定</button></div><div class="nav"><button id="prev">◀</button><div id="title" class="title"></div><span id="cloudStatus" class="cloud-status">共有確認中…</span><button id="cloudDiagBtn" type="button" onclick="openCloudDiag()">🔄 共有診断</button><button id="next">▶</button><button id="today">今日</button><button onclick="print()">🖨 印刷</button><button id="installBtn" type="button" onclick="installApp()" style="display:none">📱 アプリ追加</button><button id="settingsBtn" type="button" onclick="openSettings()">⚙ 設定</button></div></header>
+<div id="cloudDiag" class="cloud-diag"><div class="cloud-diag-card"><h3>🔄 共有診断</h3><pre id="cloudDiagText">確認中…</pre><div class="cloud-diag-actions"><button type="button" onclick="closeCloudDiag()">閉じる</button><button type="button" class="primary" onclick="runCloudDiag()">今すぐ確認</button></div></div></div><div class="color-note">現場ごとに色分け　｜　<span class="red-note">赤＝車両・人員のダブルブッキング</span>　｜　<span class="off-note">休み</span></div><div class="app"><main><section class="panel"><div id="main"></div></section>
+<section class="panel"><div class="head"><span id="sub"></span><button id="subPrev" onclick="shift(-1)">◀</button><button id="subNext" onclick="shift(1)">▶</button><button class="add" onclick="newEvent()">＋ 予定追加</button></div><div id="secondary"></div></section></main>
+<aside class="side"><div class="box"><h3 id="stitle">空き状況</h3><div id="status" class="status"></div></div><div class="box"><h3>お知らせ</h3><div class="notice">・予定／確定をクリックして編集<br>・人員の「休み」を登録<br>・重複した車両／人員だけ赤色<br>・選択した日は青枠で表示</div></div>
+<div class="box form"><h3 id="ftitle">予定の追加</h3><label>区分</label><select id="kind"><option value="plan">予定</option><option value="confirmed">確定</option><option value="off">休み</option></select><label>現場</label><input id="site" placeholder="現場A"><label>仕事内容</label><input id="work" placeholder="資材搬入など"><div class="two"><div><label>開始日</label><input id="sd" type="date"></div><div><label>開始</label><input id="st" type="time" value="08:00"></div></div><div class="two"><div><label>終了日</label><input id="ed" type="date"></div><div><label>終了</label><input id="et" type="time" value="16:00"></div></div><label>車両（複数選択可）</label><div id="vs" class="checks"></div><label>人員（複数選択可）</label><div id="ps" class="checks"></div><div class="actions"><button class="del" onclick="delEvent()">削除</button><button onclick="newEvent()">キャンセル</button><button class="save" onclick="saveEvent()">更新</button></div></div></aside></div>
+<script>
+const VEH=[['001','2t'],['002','4t'],['003','2t'],['004','4t'],['005','2t'],['006','4t'],['007','2t']],PEOPLE=['田中','鈴木','佐藤','山田','高橋','伊藤','渡辺','小林'],COL=['#2563eb','#0f766e','#15803d','#4f46e5','#7c3aed','#0e7490','#0369a1','#1d4ed8','#166534','#115e59','#134e4a','#155e75','#312e81','#4338ca','#5b21b6','#047857','#365314','#4d7c0f','#3f6212','#334155','#475569','#1e3a8a','#164e63','#1e40af','#3730a3','#6d28d9','#581c87','#374151','#0f3d56','#14532d'];;let events=(JSON.parse(localStorage.getItem('vehicleScheduleExact')||'null')||[]).map(e=>e&&e.kind==='work'?{...e,kind:'confirmed'}:e),cur=new Date(),view='month',eid=null,cm={},ci=0;
+function K(d){
+  const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}let weekMode=localStorage.getItem('vehicleWeekMode')||'people';function setWeekMode(mode,ev){if(ev)ev.stopPropagation();weekMode=mode;localStorage.setItem('vehicleWeekMode',mode);render()}function E(x){return String(x??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}function C(s){let key=String(s||'未設定');let h=0;for(let i=0;i<key.length;i++)h=((h*31)+key.charCodeAt(i))>>>0;return COL[h%COL.length]}function BG(e){if(e.kind==='plan')return '#9ca3af';if(e.kind==='off')return '#f7d8e6';if(CF(e))return '#dc2626';return C(e.site||'未設定')}function TM(t){let m=String(t||'00:00').match(/^(\d+):(\d{2})$/);if(!m)return 0;return Number(m[1])*60+Number(m[2])}function DT(ds,tm){let base=new Date(ds+'T00:00');let mins=TM(tm);base.setMinutes(mins);return base}function R(e){let a=DT(e.date,e.start),ed=e.endDate||e.date,b=DT(ed,e.end);if(b<=a)b=new Date(a.getTime()+3600000);return[a,b]}function O(a,b){let[x,y]=R(a),[u,v]=R(b);return x<v&&u<y}function CF(e){return (e.kind==='work'||e.kind==='plan'||e.kind==='confirmed')&&events.some(x=>x!==e&&(x.kind==='work'||x.kind==='plan'||x.kind==='confirmed')&&O(e,x)&&((e.vehicles||[]).some(v=>(x.vehicles||[]).includes(v))||(e.people||[]).some(p=>(x.people||[]).includes(p))))}function ON(e,d){let s=new Date(K(d)+'T00:00'),n=new Date(s);n.setDate(n.getDate()+1);let[a,b]=R(e);return a<n&&b>s}function SEG(e,d){let day=new Date(K(d)+'T00:00'),next=new Date(day);next.setDate(next.getDate()+1);let[a,b]=R(e),s=a<day?day:a,t=b>next?next:b;if(t<=s)return null;return[s,t]}function NX(e,d){let[a,b]=R(e),k=K(d);return e.date!==k&&K(a)===k||e.endDate&&e.endDate!==e.date&&e.endDate===k}
+function BAR(e,d){let night=e.date!==K(d)||((e.endDate||e.date)!==e.date);let txt=e.kind==='off'?'休み':(e.kind==='plan'?'予定 ': '')+e.site+' '+e.start+'-'+e.end+(night?' 🌙日またぎ':'');let bg=e.kind==='off'?'':`background:${BG(e)}`;return `<button class="bar ${e.kind==='off'?'off ':e.kind==='plan'?'plan ':''}${CF(e)?'conf ':''}${night?'overnight':''}" style="${bg}" onclick="editEvent(${e.id},'${K(d)}')">${E(txt)}</button>`}
+function MONTH(){let y=cur.getFullYear(),m=cur.getMonth(),s=new Date(y,m,1);s.setDate(1-((s.getDay()+6)%7));let h='<div class="month">';['月','火','水','木','金','土','日'].forEach(x=>h+=`<div class="dow">${x}</div>`);for(let i=0;i<42;i++){let d=new Date(s);d.setDate(s.getDate()+i);let cn='day '+(d.getMonth()!=m?'out ':'')+(K(d)===K(cur)?'selected':'');let dn=d.getDay()===0?'sun':d.getDay()===6?'sat':'';h+=`<div class="${cn}" onclick="selectDay('${K(d)}')"><div class="date ${dn}">${d.getDate()}</div>${events.filter(e=>ON(e,d)).slice(0,4).map(e=>BAR(e,d)).join('')}</div>`}return h+'</div>'}
+function WTXT(e,d){let night=e.date!==K(d)||(e.endDate&&e.endDate!==e.date);return e.kind==='off'?'休み':(e.kind==='plan'?'予定 ': '')+e.site+' '+e.start+'-'+e.end+(night?' 🌙日またぎ':'')}
+function WEEK(){let s=new Date(cur);s.setDate(s.getDate()-((s.getDay()+6)%7));let h='<div class="week"><div class="wh week-switch"><span>週予定</span><div class="week-mode"><button class="wm '+(weekMode==="people"?"on":"")+'" onclick="setWeekMode(\'people\',event)">人員別</button><button class="wm '+(weekMode==="vehicle"?"on":"")+'" onclick="setWeekMode(\'vehicle\',event)">車両別</button></div></div>';for(let i=0;i<7;i++){let d=new Date(s);d.setDate(s.getDate()+i);let ds=K(d);h+=`<div class="wh week-date" title="この日を選択" onclick="selectWeekDate('${ds}',event)">${d.getMonth()+1}/${d.getDate()}（${'日月火水木金土'[d.getDay()]}）</div>`}if(weekMode==="vehicle"){VEH.forEach(v=>{h+=`<div class="person">${E(v[0])}（${E(v[1])}）</div>`;for(let i=0;i<7;i++){let d=new Date(s);d.setDate(s.getDate()+i);let es=events.filter(e=>ON(e,d)&&(e.vehicles||[]).includes(v[0]));h+=`<div>${es.map(e=>`<button class="wbar ${e.kind==='off'?'off':e.kind==='plan'?'plan':' '} ${CF(e)?'conf ':''}${(e.date!==K(d)||(e.endDate&&e.endDate!==e.date))?'overnight':''}" style="background:${BG(e)}" onclick="editEvent(${e.id},'${K(d)}')">${E(WTXT(e,d))}</button>`).join('')||'－'}</div>`}})}else{PEOPLE.forEach(p=>{h+=`<div class="person">${E(p)}</div>`;for(let i=0;i<7;i++){let d=new Date(s);d.setDate(s.getDate()+i);let es=events.filter(e=>ON(e,d)&&(e.people||[]).includes(p));h+=`<div>${es.map(e=>`<button class="wbar ${e.kind==='off'?'off':e.kind==='plan'?'plan':' '} ${CF(e)?'conf ':''}${(e.date!==K(d)||(e.endDate&&e.endDate!==e.date))?'overnight':''}" style="background:${BG(e)}" onclick="editEvent(${e.id},'${K(d)}')">${E(WTXT(e,d))}</button>`).join('')||'－'}</div>`}})}return h+'</div>'}
+function DH(dt,day){let h=dt.getHours()+dt.getMinutes()/60;if(K(dt)!==K(day)||h<6)h+=24;return h}function DAY(){let h='<div class="timeline"><div class="times"><div>車両 / 人員</div>'+[6,8,10,12,14,16,18,20,22,24,2,4,6].map(x=>`<div>${x}:00</div>`).join('')+'</div>';events.filter(e=>ON(e,cur)).forEach(e=>{let seg=SEG(e,cur);if(!seg)return;let[a,b]=seg,sh=DH(a,cur),eh=DH(b,cur),l=Math.max(0,(sh-6)/24)*100,r=Math.min(100,(eh-6)/24*100),w=Math.max(1,r-l);if(r<=0||l>=100)return;let night=e.date!==K(cur)||((e.endDate||e.date)!==K(cur));h+=`<div class="trow"><div class="who">${E((e.vehicles||[]).join(', '))}<br>${E((e.people||[]).join(', '))}</div><div class="track"><button class="tbar ${e.kind==='off'?'off':e.kind==='plan'?'plan':' '} ${CF(e)?'conflict':''} ${night?'overnight':''}" style="left:${l}%;width:${w}%;background:${BG(e)}" onclick="editEvent(${e.id},'${K(cur)}')">${E(e.kind==='off'?'休み':(e.kind==='plan'?'予定 ': '')+e.site+' '+e.start+'～'+e.end+(night?' 🌙日またぎ':''))}</button></div></div>`});return h+'</div>'}
+function render(){document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===view));document.getElementById('title').textContent=`${cur.getFullYear()}年${cur.getMonth()+1}月`;document.getElementById('sub').textContent=view==='month'?'週予定':view==='week'?'日予定':'月予定';document.getElementById('main').innerHTML=view==='month'?MONTH():view==='week'?WEEK():DAY();document.getElementById('secondary').innerHTML=view==='month'?WEEK():view==='week'?DAY():MONTH();status()}function status(){let bv=new Set(),bp=new Set();events.filter(e=>(e.kind==='plan'||e.kind==='confirmed'||e.kind==='work')&&ON(e,cur)).forEach(e=>{(e.vehicles||[]).forEach(v=>bv.add(v));(e.people||[]).forEach(p=>bp.add(p))});document.getElementById('stitle').textContent='空き状況（'+K(cur)+'）';document.getElementById('status').innerHTML=VEH.map(v=>`<div>${v[0]}（${v[1]}） <span class="${bv.has(v[0])?'busy':'free'}">${bv.has(v[0])?'● 稼働':'○ 空き'}</span></div>`).join('')+PEOPLE.map(p=>`<div>${p} <span class="${bp.has(p)?'busy':'free'}">${bp.has(p)?'● 稼働':'○ 空き'}</span></div>`).join('')}
+function checks(){document.getElementById('vs').innerHTML=VEH.map(v=>`<label class="check"><input class="v" type="checkbox" value="${v[0]}"> ${v[0]} (${v[1]})</label>`).join('');document.getElementById('ps').innerHTML=PEOPLE.map(p=>`<label class="check"><input class="p" type="checkbox" value="${p}"> ${p}</label>`).join('')}function newEvent(){eid=null;document.getElementById('ftitle').textContent='予定の追加';document.getElementById('kind').value='plan';document.getElementById('site').value='';document.getElementById('work').value='';document.getElementById('sd').value=K(cur);document.getElementById('ed').value=K(cur);document.getElementById('st').value='08:00';document.getElementById('et').value='16:00';document.querySelectorAll('.v,.p').forEach(x=>x.checked=false)}function editEvent(id,d){let e=events.find(x=>x.id===id);if(!e)return;cur=new Date(d+'T00:00');eid=id;document.getElementById('ftitle').textContent='予定の編集';document.getElementById('kind').value=e.kind;document.getElementById('site').value=e.site||'';document.getElementById('work').value=e.work||'';document.getElementById('sd').value=e.date;document.getElementById('ed').value=e.endDate||e.date;document.getElementById('st').value=e.start;document.getElementById('et').value=e.end;document.querySelectorAll('.v').forEach(x=>x.checked=(e.vehicles||[]).includes(x.value));document.querySelectorAll('.p').forEach(x=>x.checked=(e.people||[]).includes(x.value));render()}function syncAddDate(){const sd=document.getElementById('sd'),ed=document.getElementById('ed');if(sd&&!eid)sd.value=K(cur);if(ed&&!eid)ed.value=K(cur)}function selectDay(d){cur=new Date(d+'T00:00');syncAddDate();render()}function selectWeekDate(d,ev){if(ev)ev.stopPropagation();eid=null;cur=new Date(d+'T00:00');render();newEvent();syncAddDate();document.getElementById('sd').focus()}function saveEvent(){let e={id:eid||Date.now(),kind:document.getElementById('kind').value,site:document.getElementById('site').value,work:document.getElementById('work').value,date:document.getElementById('sd').value,endDate:document.getElementById('ed').value,start:document.getElementById('st').value,end:document.getElementById('et').value,vehicles:[...document.querySelectorAll('.v:checked')].map(x=>x.value),people:[...document.querySelectorAll('.p:checked')].map(x=>x.value)};if(!e.date)return alert('開始日を入力してください');if(e.kind==='off'){e.site='';e.work=''}if(eid)events=events.map(x=>x.id===eid?e:x);else events.push(e);saveLocalAndCloud();render();newEvent()}function delEvent(){if(eid){pendingDeletedIds.push(String(eid));events=events.filter(x=>String(x.id)!==String(eid));saveLocalAndCloud()}newEvent();render()}function shift(n){if(view==='month')cur.setMonth(cur.getMonth()+n);else if(view==='week')cur.setDate(cur.getDate()+7*n);else cur.setDate(cur.getDate()+n);render()}document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{view=b.dataset.v;render()});document.getElementById('prev').onclick=()=>shift(-1);document.getElementById('next').onclick=()=>shift(1);document.getElementById('today').onclick=()=>{cur=new Date();cur.setHours(0,0,0,0);render()};document.getElementById('subPrev').onclick=()=>shift(-1);document.getElementById('subNext').onclick=()=>shift(1);checks();newEvent();render();
+</script>
+<script>
+let peopleList=JSON.parse(localStorage.getItem('vehiclePeopleList')||'null');
+if(!Array.isArray(peopleList)||peopleList.length===0)peopleList=PEOPLE.slice();
+let vehicleList=JSON.parse(localStorage.getItem('vehicleList')||'null');
+if(!Array.isArray(vehicleList)||vehicleList.length===0)vehicleList=VEH.map(v=>({id:v[0],detail:v[1],memo:''}));
+vehicleList=vehicleList.filter(v=>v&&typeof v==='object'&&String(v.id||'').trim()).map(v=>({id:String(v.id),detail:String(v.detail||'2t'),memo:String(v.memo||'')}));
+function syncMaster(){PEOPLE.splice(0,PEOPLE.length,...peopleList);VEH.splice(0,VEH.length,...vehicleList.map(v=>[v.id,v.detail]));}
+function rebuildChecks(){document.getElementById('vs').innerHTML=VEH.map(v=>`<label class="check"><input class="v" type="checkbox" value="${E(v[0])}"> ${E(v[0])} (${E(v[1])})</label>`).join('');document.getElementById('ps').innerHTML=PEOPLE.map(p=>`<label class="check"><input class="p" type="checkbox" value="${E(p)}"> ${E(p)}</label>`).join('');document.getElementById('mvs').innerHTML=VEH.map(v=>`<label class="check"><input class="mv" type="checkbox" value="${E(v[0])}"> ${E(v[0])} (${E(v[1])})</label>`).join('');document.getElementById('mps').innerHTML=PEOPLE.map(p=>`<label class="check"><input class="mp" type="checkbox" value="${E(p)}"> ${E(p)}</label>`).join('');}
+let cloudLastUpdated=Number(localStorage.getItem('vehicleCloudLastUpdated')||0),cloudRevision=Number(localStorage.getItem('vehicleCloudRevision')||0),pendingDeletedIds=JSON.parse(localStorage.getItem('vehiclePendingDeletedIds')||'[]'),cloudSaving=false,cloudLoading=false,cloudTimer=null,cloudLastSaveToken=localStorage.getItem('vehicleLastSaveToken')||'';
+const GAS_URL='GAS内蔵共有版';
+function cloudState(){return {events,vehicles:vehicleList,people:peopleList,logs:[],lastUpdated:Date.now(),baseRevision:cloudRevision,deletedIds:pendingDeletedIds.slice(),saveToken:(crypto.randomUUID?crypto.randomUUID():'tok_'+Date.now()+'_'+Math.random().toString(36).slice(2))}}
+function setCloudStatus(t){const el=document.getElementById('cloudStatus');if(el)el.textContent=t}
+function persistLocal(){localStorage.setItem('vehiclePeopleList',JSON.stringify(peopleList));localStorage.setItem('vehicleList',JSON.stringify(vehicleList));localStorage.setItem('vehicleScheduleExact',JSON.stringify(events));localStorage.setItem('vehicleCloudLastUpdated',String(cloudLastUpdated||0));localStorage.setItem('vehicleCloudRevision',String(cloudRevision||0));localStorage.setItem('vehiclePendingDeletedIds',JSON.stringify(pendingDeletedIds||[]));localStorage.setItem('vehicleLastSaveToken',cloudLastSaveToken||'')}
+function applyCloudState(d){
+  if(!d)return;
+  if(Array.isArray(d.events)) events=d.events;
+  if(Array.isArray(d.vehicles)&&d.vehicles.length) vehicleList=d.vehicles.map(v=>({id:String(v&&v.id||''),detail:String(v&&v.detail||'2t'),memo:String(v&&v.memo||'')})).filter(v=>v.id);
+  if(Array.isArray(d.people)&&d.people.length) peopleList=d.people.map(p=>String(p||'')).filter(Boolean);
+  cloudLastUpdated=Number(d.lastUpdated||0);
+  cloudRevision=Number(d.revision||0);
+  cloudLastSaveToken=String(d.saveToken||'');
+  syncMaster();
+  rebuildChecks();
+}
+function gasRunAvailable(){return !!(window.google&&google.script&&google.script.run)}
+function saveToGas(data){return new Promise((resolve,reject)=>{if(!gasRunAvailable()){reject(new Error('GAS版として開かれていません'));return}google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).saveSharedState(data)})}
+function readFromGas(){return new Promise((resolve,reject)=>{if(!gasRunAvailable()){reject(new Error('GAS版として開かれていません'));return}google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).getSharedState()})}
+async function postCloud(){
+  if(cloudSaving)return;
+  cloudSaving=true;setCloudStatus('共有保存中…');
+  const stateToSave=cloudState();
+  const saveToken=stateToSave.saveToken;
+  try{
+    const d=await saveToGas(stateToSave);
+    if(!d||!d.ok)throw new Error((d&&d.error)||'保存結果を取得できませんでした');
+    cloudLastUpdated=Number(d.lastUpdated||Date.now());cloudRevision=Number(d.revision||cloudRevision);cloudLastSaveToken=String(d.saveToken||saveToken);pendingDeletedIds=[];persistLocal();render();setCloudStatus('共有保存・同期済み');
+  }catch(err){
+    console.warn('GAS共有保存失敗',err);setCloudStatus('共有保存失敗');
+  }finally{cloudSaving=false}
+}
+function saveLocalAndCloud(){persistLocal();postCloud()}
+async function loadCloud(){
+  if(cloudLoading||cloudSaving)return;
+  cloudLoading=true;setCloudStatus('共有読込中…');
+  try{
+    const d=await readFromGas();
+    if(d&&d.hasData){applyCloudState(d);pendingDeletedIds=[];persistLocal();render();setCloudStatus('共有同期済み')}
+    else if(d){setCloudStatus('共有データなし');if(events.length||peopleList.length||vehicleList.length)await postCloud()}
+    else setCloudStatus('共有接続エラー');
+  }catch(err){console.warn('GAS共有読み込み失敗',err);setCloudStatus('共有接続エラー')}
+  finally{cloudLoading=false}
+}
+function persist(){persistLocal();postCloud()}
+function forceCloudReload(){cloudLoading=false;loadCloud()}
+function closeCloudDiag(){const el=document.getElementById('cloudDiag');if(el)el.classList.remove('open')}
+function openCloudDiag(){const el=document.getElementById('cloudDiag');if(el){el.classList.add('open');runCloudDiag()}}
+async function runCloudDiag(){
+  const out=document.getElementById('cloudDiagText');if(!out)return;
+  out.textContent='GAS共有版へ直接接続しています…';
+  const started=Date.now();
+  try{
+    const d=await readFromGas();
+    if(!d){out.textContent='【接続失敗】\nGASからデータを取得できませんでした。';return}
+    const latest=Array.isArray(d.events)?d.events:[];const localCount=Array.isArray(events)?events.length:0;
+    const newest=latest.slice(-5).map(e=>`${e.date||''} ${e.start||''} ${e.site||''} [${e.kind||''}]`).join('\n');
+    out.textContent='【GAS接続：OK】\n取得時間: '+(Date.now()-started)+'ms\nrevision: '+(d.revision||0)+'\n最終更新: '+(d.lastUpdated?new Date(Number(d.lastUpdated)).toLocaleString():'なし')+'\n予定件数(GAS): '+latest.length+'\n予定件数(端末): '+localCount+'\n車両数: '+(Array.isArray(d.vehicles)?d.vehicles.length:0)+'\n人員数: '+(Array.isArray(d.people)?d.people.length:0)+'\nsaveToken: '+(d.saveToken||'なし')+'\n\nGAS側の最新5件:\n'+(newest||'（予定なし）');
+  }catch(err){out.textContent='【接続失敗】\nGAS共有版への直接接続に失敗しました。\n\n'+String(err&&err.message||err)}
+}
+function openSettings(){document.getElementById('settings').classList.add('open');manageTab('people')}
+function closeSettings(){document.getElementById('settings').classList.remove('open');rebuildChecks();render()}
+function manageTab(m){document.getElementById('tabPeople').classList.toggle('on',m==='people');document.getElementById('tabVehicles').classList.toggle('on',m==='vehicles');let h='';if(m==='people'){h='<h3>人員の増減・名前変更</h3>';peopleList.forEach((n,i)=>h+=`<div class="manage-row people"><input id="pn${i}" value="${E(n)}"><button onclick="renamePerson(${i})">変更</button><button onclick="removePerson(${i})">削除</button></div>`);h+='<div class="manage-add"><input id="newPerson" placeholder="新しい人員名"><button onclick="addPerson()">＋ 人員追加</button></div>'}else{h='<h3>車両の増減・詳細変更</h3>';vehicleList.forEach((v,i)=>h+=`<div class="manage-row"><input id="vn${i}" value="${E(v.id)}"><input id="vd${i}" value="${E(v.detail)}"><input id="vm${i}" value="${E(v.memo||'')}" placeholder="詳細・メモ"><button onclick="updateVehicle(${i})">変更</button><button onclick="removeVehicle(${i})">削除</button></div>`);h+='<div class="manage-add"><input id="newVehicleId" placeholder="車両番号 008"><input id="newVehicleDetail" placeholder="2t"><input id="newVehicleMemo" placeholder="詳細・メモ"><button onclick="addVehicle()">＋ 車両追加</button></div>'}document.getElementById('manageBody').innerHTML=h}
+function addPerson(){let n=document.getElementById('newPerson').value.trim();if(!n)return alert('人員名を入力してください');if(peopleList.includes(n))return alert('同じ名前があります');peopleList.push(n);syncMaster();persist();manageTab('people');rebuildChecks();render()}
+function renamePerson(i){let old=peopleList[i],n=document.getElementById('pn'+i).value.trim();if(!n)return alert('名前を入力してください');if(n!==old&&peopleList.includes(n))return alert('同じ名前があります');events.forEach(e=>e.people=(e.people||[]).map(x=>x===old?n:x));peopleList[i]=n;syncMaster();persist();manageTab('people');rebuildChecks();render()}
+function removePerson(i){let n=peopleList[i];if(!confirm(n+' を削除しますか？'))return;events.forEach(e=>e.people=(e.people||[]).filter(x=>x!==n));peopleList.splice(i,1);syncMaster();persist();manageTab('people');rebuildChecks();render()}
+function addVehicle(){let id=document.getElementById('newVehicleId').value.trim(),detail=document.getElementById('newVehicleDetail').value.trim()||'2t',memo=document.getElementById('newVehicleMemo').value.trim();if(!id)return alert('車両番号を入力してください');if(vehicleList.some(v=>v.id===id))return alert('同じ車両番号があります');vehicleList.push({id,detail,memo});syncMaster();persist();manageTab('vehicles');rebuildChecks();render()}
+function updateVehicle(i){let old=vehicleList[i].id,id=document.getElementById('vn'+i).value.trim(),detail=document.getElementById('vd'+i).value.trim()||'2t',memo=document.getElementById('vm'+i).value.trim();if(!id)return alert('車両番号を入力してください');if(id!==old&&vehicleList.some(v=>v.id===id))return alert('同じ車両番号があります');events.forEach(e=>{e.vehicles=(e.vehicles||[]).map(x=>x===old?id:x);if(e.vehicle===old)e.vehicle=id});vehicleList[i]={id,detail,memo};syncMaster();persist();manageTab('vehicles');rebuildChecks();render()}
+function removeVehicle(i){let v=vehicleList[i];if(!confirm(v.id+' を削除しますか？'))return;events.forEach(e=>{e.vehicles=(e.vehicles||[]).filter(x=>x!==v.id);if(e.vehicle===v.id)e.vehicle=''});vehicleList.splice(i,1);syncMaster();persist();manageTab('vehicles');rebuildChecks();render()}
+syncMaster();rebuildChecks();render();loadCloud();clearInterval(cloudTimer);cloudTimer=setInterval(()=>{if(!cloudSaving&&!cloudLoading)loadCloud()},10000);
+
+// PWA: service worker + install button
+let deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  const b = document.getElementById('installBtn');
+  if (b) b.style.display = '';
+});
+window.addEventListener('appinstalled', () => {
+  deferredInstallPrompt = null;
+  const b = document.getElementById('installBtn');
+  if (b) b.style.display = 'none';
+});
+async function installApp(){
+  if (deferredInstallPrompt){
+    deferredInstallPrompt.prompt();
+    try { await deferredInstallPrompt.userChoice; } catch(e){}
+    deferredInstallPrompt = null;
+    const b = document.getElementById('installBtn');
+    if (b) b.style.display = 'none';
+    return;
+  }
+  alert('iPhone/iPad：共有ボタン →「ホーム画面に追加」\nAndroid：ブラウザの「アプリをインストール」または「ホーム画面に追加」から登録してください。');
+}
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js?v=44').catch(err => console.warn('PWA登録失敗', err));
+  });
+}
+
+</script>
+<div id="settings" class="settings" onclick="if(event.target===this)closeSettings()">
+<div class="settings-card">
+<div class="settings-head"><h2>⚙ 車両・人員の設定</h2><button type="button" onclick="closeSettings()">×</button></div>
+<div class="manage-tabs"><button id="tabPeople" class="on" type="button" onclick="manageTab('people')">人員</button><button id="tabVehicles" type="button" onclick="manageTab('vehicles')">車両</button></div>
+<div id="manageBody" class="manage-body"></div>
+</div></div></html>
