@@ -221,8 +221,28 @@ function K(d){
   const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');
   return `${y}-${m}-${day}`;
 }let weekMode=localStorage.getItem('vehicleWeekMode')||'people';function setWeekMode(mode,ev){if(ev)ev.stopPropagation();weekMode=mode;localStorage.setItem('vehicleWeekMode',mode);render()}function E(x){return String(x??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}function CH(s){let key=String(s||'未設定'),h=0;for(let i=0;i<key.length;i++)h=((h*31)+key.charCodeAt(i))>>>0;return h>>>0}
-function dayColorMap(d){let ds=typeof d==='string'?d:K(d), dayShift=(CH(ds)*11)%COL.length, sites=[...new Set(events.filter(e=>e.kind==='confirmed'||e.kind==='work').filter(e=>ON(e,new Date(ds+'T00:00'))).map(e=>String(e.site||'未設定')))];sites.sort((a,b)=>(CH(ds+'|'+a)-CH(ds+'|'+b)));let used=[],map={};sites.forEach((site,idx)=>{let target=(dayShift+CH(site))%COL.length,best=-1,bestScore=-1e9;for(let i=0;i<COL.length;i++){if(used.includes(i))continue;let ci=(target+i)%COL.length,minDist=used.length?Math.min(...used.map(u=>{let x=Math.abs(ci-u);return Math.min(x,COL.length-x)})):COL.length;let score=minDist*100-Math.abs(i);if(score>bestScore){bestScore=score;best=ci}}used.push(best);map[site]=best});return map}
-function C(s,d){let ds=typeof d==='string'?d:K(d||cur),m=dayColorMap(ds),key=String(s||'未設定');return COL[m[key]??((CH(ds)+CH(key))%COL.length)]}
+function hexRGB(hex){const h=hex.replace('#','');return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]}
+const COLRGB=COL.map(hexRGB);
+function colorDist(a,b){const A=COLRGB[a],B=COLRGB[b];const r=A[0]-B[0],g=A[1]-B[1],bl=A[2]-B[2];return Math.sqrt(r*r+g*g+bl*bl)}
+function dayColorMap(d){
+  const ds=typeof d==='string'?d:K(d);
+  const active=[...new Set(events.filter(e=>e.kind==='confirmed'||e.kind==='work').filter(e=>ON(e,new Date(ds+'T00:00'))).map(e=>String(e.site||'未設定')))].sort((a,b)=>CH(ds+'|'+a)-CH(ds+'|'+b));
+  const dayNo=Math.floor(new Date(ds+'T00:00').getTime()/86400000);
+  const seed=((dayNo*17)%COL.length+COL.length)%COL.length;
+  const used=[]; const map={};
+  active.forEach((site,idx)=>{
+    let best=-1,bestScore=-Infinity;
+    for(let i=0;i<COL.length;i++){
+      if(used.includes(i))continue;
+      const ci=(seed+i*7+idx*11)%COL.length;
+      const sameDay=used.length?Math.min(...used.map(u=>colorDist(ci,u))):9999;
+      const score=sameDay*10 + colorDist(ci,(seed+17)%COL.length)*0.15 - Math.abs(((ci-seed+COL.length)%COL.length)-15)*0.01;
+      if(score>bestScore){bestScore=score;best=ci}
+    }
+    used.push(best);map[site]=best;
+  });
+  return map;
+}
 function BG(e,d){if(e.kind==='plan')return '#9ca3af';if(e.kind==='off')return '#f7d8e6';if(CF(e))return '#dc2626';return C(e.site||'未設定',d)}function TM(t){let m=String(t||'00:00').match(/^(\d+):(\d{2})$/);if(!m)return 0;return Number(m[1])*60+Number(m[2])}function DT(ds,tm){let base=new Date(ds+'T00:00');let mins=TM(tm);base.setMinutes(mins);return base}function R(e){let a=DT(e.date,e.start),ed=e.endDate||e.date,b=DT(ed,e.end);if(b<=a)b=new Date(a.getTime()+3600000);return[a,b]}function O(a,b){let[x,y]=R(a),[u,v]=R(b);return x<v&&u<y}function CF(e){return (e.kind==='work'||e.kind==='plan'||e.kind==='confirmed')&&events.some(x=>x!==e&&(x.kind==='work'||x.kind==='plan'||x.kind==='confirmed')&&O(e,x)&&((e.vehicles||[]).some(v=>(x.vehicles||[]).includes(v))||(e.people||[]).some(p=>(x.people||[]).includes(p))))}function ON(e,d){let s=new Date(K(d)+'T00:00'),n=new Date(s);n.setDate(n.getDate()+1);let[a,b]=R(e);return a<n&&b>s}function SEG(e,d){let day=new Date(K(d)+'T00:00'),next=new Date(day);next.setDate(next.getDate()+1);let[a,b]=R(e),s=a<day?day:a,t=b>next?next:b;if(t<=s)return null;return[s,t]}function NX(e,d){let[a,b]=R(e),k=K(d);return e.date!==k&&K(a)===k||e.endDate&&e.endDate!==e.date&&e.endDate===k}
 function BAR(e,d){let night=e.date!==K(d)||((e.endDate||e.date)!==e.date);let txt=e.kind==='off'?'休み':(e.kind==='plan'?'予定 ': '')+e.site+' '+e.start+'-'+e.end;let bg=e.kind==='off'?'':`background:${BG(e,d)}`;let label=night?`<span class="nighttag">🌙 日またぎ</span>`:'';return `<button draggable="true" ondragstart="dragStartEvent(${e.id})" class="bar ${e.kind==='off'?'off ':e.kind==='plan'?'plan ':''}${CF(e)?'conf ':''}${night?'overnight nightbar':''}" style="${bg}" title="${night?'🌙 日またぎ：':''}${E(txt)}" onclick="editEvent(${e.id},'${K(d)}')">${label}${E(txt)}</button>`}
 function MONTH(){let y=cur.getFullYear(),m=cur.getMonth(),s=new Date(y,m,1);s.setDate(1-((s.getDay()+6)%7));let h='<div class="month">';['月','火','水','木','金','土','日'].forEach(x=>h+=`<div class="dow">${x}</div>`);for(let i=0;i<42;i++){let d=new Date(s);d.setDate(s.getDate()+i);let cn='day '+(d.getMonth()!=m?'out ':'')+(K(d)===K(cur)?'selected':'');let dn=d.getDay()===0?'sun':d.getDay()===6?'sat':'';h+=`<div class="${cn}" ondragover="event.preventDefault()" ondrop="dropEvent('${K(d)}')" onclick="selectDay('${K(d)}')"><div class="date ${dn}">${d.getDate()}</div>${filteredEvents().filter(e=>ON(e,d)).slice(0,5).map(e=>BAR(e,d)).join('')}</div>`}return h+'</div>'}
@@ -372,13 +392,21 @@ async function postCloud(){
           render();
           setCloudStatus('共有保存・同期済み');
         }else if(latest&&latest.hasData){
-          // 別端末の更新が混ざった場合は、ローカルに未送信変更がない時だけ反映。
-          applyCloudState(latest);
-          pendingDeletedIds=[];
-          dirtyEventIds.clear();
-          persistLocal();
-          render();
-          setCloudStatus('共有データ更新済み');
+          // 他端末の更新でトークンが変わっていても、こちらの編集を勝手に消さない。
+          // 最新共有状態は、未送信のローカル変更が残っている場合は取り込まず次回送信へ回す。
+          if(localMutationVersion===saveVersion){
+            const latestById=new Map((latest.events||[]).map(e=>[String(e.id),e]));
+            const stillDirty=new Set(Array.from(dirtyEventIds||[]).map(String));
+            events=events.map(local=>{
+              const id=String(local.id);
+              if(stillDirty.has(id))return local;
+              return latestById.get(id)||local;
+            });
+            (latest.events||[]).forEach(remote=>{const id=String(remote.id);if(!events.some(e=>String(e.id)===id)&&!stillDirty.has(id))events.push(remote)});
+            cloudRevision=Number(latest.revision||cloudRevision);cloudLastUpdated=Number(latest.lastUpdated||cloudLastUpdated);
+            persistLocal();render();
+          }
+          setCloudStatus('共有データ更新を確認しました');
         }else{
           setCloudStatus('共有保存確認失敗');
         }
@@ -415,7 +443,12 @@ async function loadCloud(){
   cloudLoading=true;setCloudStatus('共有読込中…');
   try{
     const d=await fetchCloudStateOnce();
-    if(d&&d.hasData){applyCloudState(d);pendingDeletedIds=[];persistLocal();render();setCloudStatus('共有同期済み')}
+    if(d&&d.hasData){
+      const dirty=new Set(Array.from(dirtyEventIds||[]).map(String));
+      const remoteById=new Map((d.events||[]).map(e=>[String(e.id),e]));
+      const merged=events.map(local=>dirty.has(String(local.id))?local:(remoteById.get(String(local.id))||local));
+      (d.events||[]).forEach(remote=>{const id=String(remote.id);if(!events.some(e=>String(e.id)===id)&&!dirty.has(id))merged.push(remote)});
+      events=merged;peopleList=Array.isArray(d.people)&&d.people.length?d.people:peopleList;vehicleList=Array.isArray(d.vehicles)&&d.vehicles.length?d.vehicles:vehicleList;cloudLastUpdated=Number(d.lastUpdated||0);cloudRevision=Number(d.revision||0);if(d.saveToken)cloudLastSaveToken=String(d.saveToken);syncMaster();rebuildChecks();persistLocal();render();setCloudStatus('共有同期済み')}
     else if(d){setCloudStatus('共有データなし');if(events.length||peopleList.length||vehicleList.length)postCloud()}
     else setCloudStatus('共有接続エラー');
   }catch(err){console.warn('共有読み込みに失敗',err);setCloudStatus('共有接続エラー')}
@@ -476,7 +509,7 @@ async function installApp(){
 }
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js?v=53').catch(err => console.warn('PWA登録失敗', err));
+    navigator.serviceWorker.register('./sw.js?v=54').catch(err => console.warn('PWA登録失敗', err));
   });
 }
 
