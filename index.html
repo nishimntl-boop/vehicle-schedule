@@ -1,4 +1,4 @@
-<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=0.5,maximum-scale=1,user-scalable=no"><title>車両・人員 配置管理</title>
+<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"><title>車両・人員 配置管理</title>
 <link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#101b31">
 <meta name="mobile-web-app-capable" content="yes">
@@ -197,8 +197,8 @@
 .zoom-tools{display:flex;align-items:center;gap:2px;margin-left:4px;flex:0 0 auto;}
 .zoom-tools button{border:1px solid #cbd3df;border-radius:5px;background:#fff;color:#172033;font-weight:900;min-width:32px;height:34px;padding:0 7px;line-height:1;}
 .zoom-tools .zoom-value{min-width:52px;font-size:11px;}
-#zoomContent{transform-origin:top left;}
-@supports (zoom: 1){#zoomContent{zoom:var(--app-zoom,1);width:calc(100% / var(--app-zoom,1));}}
+#zoomContent{transform-origin:top left;width:100%;}
+/* カスタム倍率はこの領域だけ。上の固定ヘッダーは絶対に倍率変更しない。 */
 @media(max-width:700px){
   .zoom-tools{margin-left:2px;}
   .zoom-tools button{min-width:34px;height:36px;padding:0 6px;}
@@ -356,13 +356,29 @@ function WEEK(){
 }
 function DAY(){
   const start=new Date(cur);start.setDate(start.getDate()-1);const end=new Date(cur);end.setDate(end.getDate()+1);prepareColors(start,end);
-  const labels=Array.from({length:25},(_,i)=>i===24?'24:00':String(i).padStart(2,'0')+':00');
+  const labels=Array.from({length:25},(_,i)=>String(i).padStart(2,'0')+':00').map((x,i)=>i===24?'24:00':x);
   let h='<div class="timeline"><div class="times"><div>車両 / 人員</div>'+labels.map(x=>`<div>${x}</div>`).join('')+'</div>';
   events.filter(e=>ON(e,cur)).forEach(e=>{const seg=SEG(e,cur);if(!seg)return;const[a,b]=seg;const dayStart=new Date(K(cur)+'T00:00');const nextDay=new Date(dayStart);nextDay.setDate(nextDay.getDate()+1);const sh=Math.max(0,Math.min(24,(a-dayStart)/3600000));const eh=Math.max(0,Math.min(24,(b-dayStart)/3600000));const l=(sh/24)*100,r=(eh/24)*100;if(r<=0||l>=100||r<=l)return;const w=Math.max(1,r-l),night=nightOnDay(e,cur);h+=`<div class="trow"><div class="who">${E((e.vehicles||[]).join(', '))}<br>${E((e.people||[]).join(', '))}</div><div class="track"><button class="tbar ${e.kind==='off'?'off':e.kind==='plan'?'plan':''} ${CF(e)?'conflict':''} ${night?'overnight':''}" style="left:${l}%;width:${w}%;background:${BG(e,cur)}" onclick="editEvent('${E(e.id)}','${K(cur)}')">${E(e.kind==='off'?'休み':(night?'🌙 ':'')+(e.kind==='plan'?'予定 ':'')+(e.site||'未設定')+' '+e.start+'～'+e.end)}</button></div></div>`;});
   return h+'</div>';
 }
 let appZoom=Number(localStorage.getItem('vehicleAppZoom')||'1');
-function applyZoom(){appZoom=Math.max(0.6,Math.min(1.6,Math.round(appZoom*10)/10));document.documentElement.style.setProperty('--app-zoom',String(appZoom));const z=document.getElementById('zoomContent');if(z&&!CSS.supports('zoom','1')){z.style.transform=`scale(${appZoom})`;z.style.width=`${100/appZoom}%`;z.style.marginBottom=`${Math.max(0,(appZoom-1)*100)}%`;}const v=document.getElementById('zoomValue');if(v)v.textContent=Math.round(appZoom*100)+'%';localStorage.setItem('vehicleAppZoom',String(appZoom));}
+function applyZoom(){
+  appZoom=Math.max(0.6,Math.min(1.6,Math.round(appZoom*10)/10));
+  const z=document.getElementById('zoomContent');
+  if(z){
+    z.style.transformOrigin='top left';
+    z.style.transform=`scale(${appZoom})`;
+    z.style.width=`${100/appZoom}%`;
+    requestAnimationFrame(()=>{
+      const h=z.scrollHeight;
+      z.style.minHeight='0';
+      z.style.marginBottom=`${Math.max(0,h*(appZoom-1))}px`;
+    });
+  }
+  const v=document.getElementById('zoomValue');
+  if(v)v.textContent=Math.round(appZoom*100)+'%';
+  localStorage.setItem('vehicleAppZoom',String(appZoom));
+}
 function changeZoom(delta){appZoom=Math.round((appZoom+delta)*10)/10;applyZoom();}
 function resetZoom(){appZoom=1;applyZoom();}
 

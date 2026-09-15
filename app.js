@@ -97,7 +97,7 @@ function BAR(e,d){const night=nightOnDay(e,d),bg=BG(e,d);return `<button class="
 function MONTH(){
   const y=cur.getFullYear(),m=cur.getMonth(),s=new Date(y,m,1);s.setDate(1-((s.getDay()+6)%7));const end=new Date(s);end.setDate(end.getDate()+41);prepareColors(s,end);
   let h='<div class="month">';['月','火','水','木','金','土','日'].forEach(x=>h+=`<div class="dow">${x}</div>`);
-  for(let i=0;i<42;i++){const d=new Date(s);d.setDate(s.getDate()+i);const cn='day '+(d.getMonth()!=m?'out ':'')+(K(d)===K(cur)?'selected':'');const dn=d.getDay()===0?'sun':d.getDay()===6?'sat':'';h+=`<div class="${cn}" onclick="selectDay('${K(d)}')"><div class="date ${dn}">${d.getDate()}</div>${events.filter(e=>ON(e,d)).slice(0,6).map(e=>BAR(e,d)).join('')}</div>`;}return h+'</div>';
+  for(let i=0;i<42;i++){const d=new Date(s);d.setDate(s.getDate()+i);const cn='day '+(d.getMonth()!=m?'out ':'')+(K(d)===K(cur)?'selected':'');const dn=d.getDay()===0?'sun':d.getDay()===6?'sat':'';h+=`<div class="${cn}" onclick="selectDay('${K(d)}')"><div class="date ${dn}">${d.getDate()}</div>${events.filter(e=>ON(e,d)).map(e=>BAR(e,d)).join('')}</div>`;}return h+'</div>';
 }
 function WEEK(){
   const s=new Date(cur);s.setDate(s.getDate()-((s.getDay()+6)%7));const end=new Date(s);end.setDate(end.getDate()+6);prepareColors(s,end);
@@ -122,7 +122,7 @@ function WEEK(){
 function DH(dt,day){let h=dt.getHours()+dt.getMinutes()/60;if(K(dt)!==K(day)||h<6)h+=24;return h;}
 function DAY(){
   const start=new Date(cur);start.setDate(start.getDate()-1);const end=new Date(cur);end.setDate(end.getDate()+1);prepareColors(start,end);
-  let h='<div class="timeline"><div class="times"><div>車両 / 人員</div>'+[6,8,10,12,14,16,18,20,22,24,2,4,6].map(x=>`<div>${x}:00</div>`).join('')+'</div>';
+  let h='<div class="timeline"><div class="times"><div>車両 / 人員</div>'+Array.from({length:25},(_,i)=>`<div>${String(i).padStart(2,'0')}:00</div>`).join('')+'</div>';
   events.filter(e=>ON(e,cur)).forEach(e=>{const seg=SEG(e,cur);if(!seg)return;let[a,b]=seg,sh=DH(a,cur),eh=DH(b,cur),l=Math.max(0,(sh-6)/24)*100,r=Math.min(100,(eh-6)/24*100);if(r<=0||l>=100)return;const w=Math.max(1,r-l),night=nightOnDay(e,cur);h+=`<div class="trow"><div class="who">${E((e.vehicles||[]).join(', '))}<br>${E((e.people||[]).join(', '))}</div><div class="track"><button class="tbar ${e.kind==='off'?'off':e.kind==='plan'?'plan':''} ${CF(e)?'conflict':''} ${night?'overnight':''}" style="left:${l}%;width:${w}%;background:${BG(e,cur)}" onclick="editEvent('${E(e.id)}','${K(cur)}')">${E(e.kind==='off'?'休み':(night?'🌙 ':'')+(e.kind==='plan'?'予定 ':'')+(e.site||'未設定')+' '+e.start+'～'+e.end)}</button></div></div>`;});
   return h+'</div>';
 }
