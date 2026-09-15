@@ -1,3 +1,4 @@
+
 const DEFAULT_VEH=[['001','2t'],['002','4t'],['003','2t'],['004','4t'],['005','2t'],['006','4t'],['007','2t']];
 const DEFAULT_PEOPLE=['田中','鈴木','佐藤','山田','高橋','伊藤','渡辺','小林'];
 // 赤系は競合表示専用にするため、通常色には使わない。
@@ -54,36 +55,30 @@ function hash(s){let h=2166136261;for(let i=0;i<String(s).length;i++){h^=String(
 function rgb(hex){return [parseInt(hex.slice(1,3),16),parseInt(hex.slice(3,5),16),parseInt(hex.slice(5,7),16)];}
 function colorDist(a,b){const x=rgb(a),y=rgb(b);return Math.sqrt((x[0]-y[0])**2+(x[1]-y[1])**2+(x[2]-y[2])**2);}
 function prepareColors(startDate,endDate){
-  const key=K(startDate)+'|'+K(endDate)+'|'+events.map(e=>`${e.id}:${e.site}:${e.kind}:${e.date}:${e.endDate}`).join(';');
+  const key=events.map(e=>`${e.id}:${e.site}:${e.kind}:${e.date}:${e.endDate}`).join(';');
   if(colorPreparedFor===key)return;
   colorCache.clear();
-  const prevSiteColor=new Map();
-  const d=new Date(startDate);
-  while(d<=endDate){
-    const ds=K(d);
-    const sites=[...new Set(events.filter(e=>e.kind==='confirmed'&&e.site&&ON(e,d)).map(e=>String(e.site)))];
-    sites.sort((a,b)=>hash(a+'|'+ds)-hash(b+'|'+ds));
-    const used=[];
-    sites.forEach(site=>{
-      let best=COL[hash(site+'|'+ds)%COL.length],bestScore=-1e9;
-      COL.forEach(c=>{
-        const sameDay=used.length?Math.min(...used.map(u=>colorDist(c,u))):999;
-        const prev=prevSiteColor.get(site);
-        const prevDist=prev?colorDist(c,prev):120;
-        const score=sameDay*4+prevDist*3+colorDist(c,COL[(hash(site)+7)%COL.length]);
-        if(score>bestScore){bestScore=score;best=c;}
-      });
-      colorCache.set(ds+'|'+site,best);used.push(best);prevSiteColor.set(site,best);
+  const sites=[...new Set(events.filter(e=>e.kind==='confirmed'&&e.site).map(e=>String(e.site)))];
+  const assigned=new Map();
+  const used=[];
+  sites.sort((a,b)=>hash(a)-hash(b));
+  sites.forEach(site=>{
+    let best=null,bestScore=-1e9;
+    COL.forEach(c=>{
+      if(used.includes(c))return;
+      const score=used.length?Math.min(...used.map(u=>colorDist(c,u))):999;
+      if(score>bestScore){bestScore=score;best=c;}
     });
-    d.setDate(d.getDate()+1);
-  }
+    if(!best)best=COL[hash(site)%COL.length];
+    assigned.set(site,best);used.push(best);
+  });
+  assigned.forEach((color,site)=>colorCache.set('site|'+site,color));
   colorPreparedFor=key;
 }
 function C(site,date){
-  const ds=date?K(date):K(cur);
-  const key=ds+'|'+String(site||'未設定');
-  if(!colorCache.has(key))prepareColors(new Date(ds+'T00:00'),new Date(ds+'T00:00'));
-  return colorCache.get(key)||COL[hash(site||'未設定')%COL.length];
+  const name=String(site||'未設定');
+  if(!colorCache.has('site|'+name))prepareColors(cur,cur);
+  return colorCache.get('site|'+name)||COL[hash(name)%COL.length];
 }
 function R(e){let a=DT(e.date,e.start),b=DT(e.endDate||e.date,e.end);if(b<=a)b=new Date(a.getTime()+3600000);return[a,b];}
 function TM(t){const m=String(t||'00:00').match(/^(\d+):(\d{2})$/);return m?Number(m[1])*60+Number(m[2]):0;}
@@ -140,8 +135,11 @@ function rebuildChecks(){
   document.getElementById('mvs').innerHTML=VEH.map(v=>`<label class="check"><input class="mv" type="checkbox" value="${E(v[0])}"> ${E(v[0])} (${E(v[1])})</label>`).join('');
   document.getElementById('mps').innerHTML=PEOPLE.map(p=>`<label class="check"><input class="mp" type="checkbox" value="${E(p)}"> ${E(p)}</label>`).join('');
 }
-function setFormValues(prefix,e){document.getElementById(prefix+'kind').value=e.kind||'plan';document.getElementById(prefix+'site').value=e.site||'';document.getElementById(prefix+'work').value=e.work||'';document.getElementById(prefix+'sd').value=e.date||K(cur);document.getElementById(prefix+'ed').value=e.endDate||e.date||K(cur);document.getElementById(prefix+'st').value=e.start||'08:00';document.getElementById(prefix+'et').value=e.end||'16:00';document.querySelectorAll('.'+(prefix==='m'?'mv':'v')).forEach(x=>x.checked=(e.vehicles||[]).includes(x.value));document.querySelectorAll('.'+(prefix==='m'?'mp':'p')).forEach(x=>x.checked=(e.people||[]).includes(x.value));}
+function setFormValues(prefix,e){document.getElementById(prefix+'kind').value=e.kind||'plan';document.getElementById(prefix+'site').value=e.site||'';document.getElementById(prefix+'work').value=e.work||'';document.getElementById(prefix+'sd').value=e.date||K(cur);document.getElementById(prefix+'ed').value=e.endDate||e.date||K(cur);document.getElementById(prefix+'st').value=e.start||'08:00';document.getElementById(prefix+'et').value=e.end||'16:00';document.querySelectorAll('.'+(prefix==='m'?'mv':'v')).forEach(x=>x.checked=(e.vehicles||[]).includes(x.value));document.querySelectorAll('.'+(prefix==='m'?'mp':'p')).forEach(x=>x.checked=(e.people||[]).includes(x.value));;const ot=document.getElementById(prefix+'overnight');if(ot)ot.checked=(e.endDate||e.date)!==e.date;}
 function getFormValues(prefix){return {kind:document.getElementById(prefix+'kind').value,site:document.getElementById(prefix+'site').value,work:document.getElementById(prefix+'work').value,date:document.getElementById(prefix+'sd').value,endDate:document.getElementById(prefix+'ed').value,start:document.getElementById(prefix+'st').value,end:document.getElementById(prefix+'et').value,vehicles:[...document.querySelectorAll('.'+(prefix==='m'?'mv':'v')+':checked')].map(x=>x.value),people:[...document.querySelectorAll('.'+(prefix==='m'?'mp':'p')+':checked')].map(x=>x.value)};}
+function addDays(ds,n){const d=new Date(ds+'T00:00');d.setDate(d.getDate()+n);return K(d);}
+function toggleOvernight(prefix){const ot=document.getElementById(prefix+'overnight');const sd=document.getElementById(prefix+'sd');const ed=document.getElementById(prefix+'ed');if(!ot||!sd||!ed)return;if(ot.checked){if(!ed.value||ed.value===sd.value)ed.value=addDays(sd.value,1);}else ed.value=sd.value;}
+
 function openEventModal(){document.getElementById('eventModal').classList.add('open');document.body.style.overflow='hidden';}
 function closeEventModal(){document.getElementById('eventModal').classList.remove('open');document.body.style.overflow='';}
 function newEvent(){eid=null;const blank={kind:'plan',site:'',work:'',date:K(cur),endDate:K(cur),start:'08:00',end:'16:00',vehicles:[],people:[]};setFormValues('m',blank);setFormValues('',blank);document.getElementById('ftitle').textContent='予定の追加';document.getElementById('mftitle').textContent='予定の追加';openEventModal();}
@@ -150,7 +148,7 @@ function selectDay(d){cur=new Date(d+'T00:00');render();}
 function selectWeekDate(d,ev){if(ev)ev.stopPropagation();cur=new Date(d+'T00:00');newEvent();}
 function markDirtyEvent(e,baseUpdatedAt){e.updatedAt=Number(e.updatedAt||baseUpdatedAt||0);dirtyEvents.set(String(e.id),{event:JSON.parse(JSON.stringify(e)),baseUpdatedAt:Number(baseUpdatedAt||0)});pendingDeletes.delete(String(e.id));}
 function saveEvent(fromModal=false){
-  const prefix=fromModal?'m':'';const form=getFormValues(prefix);if(!form.date)return alert('開始日を入力してください');
+  const prefix=fromModal?'m':'';const form=getFormValues(prefix);if(!form.date)return alert('開始日を入力してください'); const ot=document.getElementById(prefix+'overnight'); if(ot) form.endDate=ot.checked?(form.endDate&&form.endDate!==form.date?form.endDate:addDays(form.date,1)):form.date;
   const old=eid?events.find(x=>String(x.id)===String(eid)):null;
   if(old){
     // 区分だけ変更した場合など、車両・人員欄に触っていない編集では既存割当を必ず保持。
@@ -179,7 +177,7 @@ function restoreDirty(){
 restoreDirty();
 
 let jsonpSeq=0;
-function jsonpGet(timeout=15000,forceFresh=false){return new Promise((resolve,reject)=>{const cb='__vehicleScheduleJsonp_'+Date.now()+'_'+(++jsonpSeq),script=document.createElement('script');let done=false;const timer=setTimeout(()=>finish(new Error('GAS読み込みタイムアウト')),timeout);function finish(err,data){if(done)return;done=true;clearTimeout(timer);if(script.parentNode)script.parentNode.removeChild(script);try{delete window[cb]}catch(e){window[cb]=undefined}err?reject(err):resolve(data);}window[cb]=data=>finish(null,data);script.onerror=()=>finish(new Error('GAS読み込みエラー'));script.src=GAS_URL+'?api=1&prefix='+encodeURIComponent(cb)+(forceFresh?'&nocache=1':'')+'&_='+Date.now();document.head.appendChild(script);});}
+function jsonpGet(timeout=15000){return new Promise((resolve,reject)=>{const cb='__vehicleScheduleJsonp_'+Date.now()+'_'+(++jsonpSeq),script=document.createElement('script');let done=false;const timer=setTimeout(()=>finish(new Error('GAS読み込みタイムアウト')),timeout);function finish(err,data){if(done)return;done=true;clearTimeout(timer);if(script.parentNode)script.parentNode.removeChild(script);try{delete window[cb]}catch(e){window[cb]=undefined}err?reject(err):resolve(data);}window[cb]=data=>finish(null,data);script.onerror=()=>finish(new Error('GAS読み込みエラー'));script.src=GAS_URL+'?api=1&prefix='+encodeURIComponent(cb)+'&_='+Date.now();document.head.appendChild(script);});}
 function postForm(payload,timeout=20000){return new Promise((resolve,reject)=>{const frame=document.createElement('iframe');frame.name='vehicleSaveFrame_'+Date.now()+'_'+Math.random().toString(36).slice(2);frame.style.display='none';const form=document.createElement('form');form.method='POST';form.action=GAS_URL;form.target=frame.name;form.style.display='none';const input=document.createElement('textarea');input.name='payload';input.value=JSON.stringify(payload);form.appendChild(input);document.body.appendChild(frame);document.body.appendChild(form);let done=false;const timer=setTimeout(()=>finish(false,new Error('GAS保存タイムアウト')),timeout);function finish(ok,err){if(done)return;done=true;clearTimeout(timer);setTimeout(()=>{frame.remove();form.remove();},100);ok?resolve():reject(err);}frame.addEventListener('load',()=>finish(true),{once:true});try{form.submit();}catch(err){finish(false,err);}});}
 function queueCloudSave(){if(!GAS_URL)return;if(cloudTimer)clearTimeout(cloudTimer);cloudTimer=setTimeout(postCloud,150);}
 function buildPatch(){const changes=[...dirtyEvents.values()].map(x=>Object.assign({},x.event,{baseUpdatedAt:Number(x.baseUpdatedAt||0)}));const deletes=[...pendingDeletes.values()];return {action:'patch',clientId:CLIENT_ID,changes,deletes,vehicles:masterDirty?vehicleList:null,people:masterDirty?peopleList:null,masterChanged:masterDirty,baseMasterUpdatedAt:cloudMasterUpdatedAt};}
@@ -269,4 +267,5 @@ setInterval(()=>{if(!cloudSaving&&!cloudLoading)loadCloud();},7000);
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;const b=document.getElementById('installBtn');if(b)b.style.display='';});
 window.addEventListener('appinstalled',()=>{deferredInstallPrompt=null;const b=document.getElementById('installBtn');if(b)b.style.display='none';});
 async function installApp(){if(deferredInstallPrompt){deferredInstallPrompt.prompt();try{await deferredInstallPrompt.userChoice;}catch(e){}deferredInstallPrompt=null;const b=document.getElementById('installBtn');if(b)b.style.display='none';return;}alert('iPhone/iPad：共有ボタン →「ホーム画面に追加」\nAndroid：ブラウザの「アプリをインストール」または「ホーム画面に追加」から登録してください。');}
-if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=47fix1').catch(err=>console.warn('PWA登録失敗',err)));
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=47fix3').catch(err=>console.warn('PWA登録失敗',err)));
+
