@@ -1,3 +1,4 @@
+
 const DEFAULT_VEH=[['001','2t'],['002','4t'],['003','2t'],['004','4t'],['005','2t'],['006','4t'],['007','2t']];
 const DEFAULT_PEOPLE=['田中','鈴木','佐藤','山田','高橋','伊藤','渡辺','小林'];
 // 赤系は競合表示専用にするため、通常色には使わない。
@@ -100,23 +101,23 @@ function MONTH(){
 }
 function WEEK(){
   const s=new Date(cur);s.setDate(s.getDate()-((s.getDay()+6)%7));const end=new Date(s);end.setDate(end.getDate()+6);prepareColors(s,end);
-  let header='<div class="week week-header"><div class="wh week-switch"><span>週予定</span><div class="week-mode"><button class="wm '+(weekMode==='people'?'on':'')+'" onclick="setWeekMode(\'people\',event)">人員別</button><button class="wm '+(weekMode==='vehicle'?'on':'')+'" onclick="setWeekMode(\'vehicle\',event)">車両別</button></div></div>';
-  for(let i=0;i<7;i++){const d=new Date(s);d.setDate(s.getDate()+i);header+='<div class="wh week-date '+(K(d)===K(cur)?'selected':'')+'" onclick="selectDay(\''+K(d)+'\')">'+(d.getMonth()+1)+'/'+d.getDate()+'（'+'日月火水木金土'[d.getDay()]+'）</div>';}
-  header+='</div>';
-  let body='<div class="week week-body">';
+  let h='<div class="week"><div class="wh week-switch"><span>週予定</span><div class="week-mode"><button class="wm '+(weekMode==='people'?'on':'')+'" onclick="setWeekMode(\'people\',event)">人員別</button><button class="wm '+(weekMode==='vehicle'?'on':'')+'" onclick="setWeekMode(\'vehicle\',event)">車両別</button></div></div>';
+  for(let i=0;i<7;i++){const d=new Date(s);d.setDate(s.getDate()+i);h+='<div class="wh week-date '+(K(d)===K(cur)?'selected':'')+'" onclick="selectDay(\''+K(d)+'\')">'+(d.getMonth()+1)+'/'+d.getDate()+'（'+'日月火水木金土'[d.getDay()]+'）</div>'; }
   const rows=weekMode==='vehicle'?VEH.map(v=>({label:v[0]+'（'+v[1]+'）',id:v[0],field:'vehicles'})):PEOPLE.map(p=>({label:p,id:p,field:'people'}));
   rows.forEach(r=>{
-    body+='<div class="person">'+E(r.label)+'</div>';
+    h+='<div class="person">'+E(r.label)+'</div>';
     for(let i=0;i<7;i++){
       const d=new Date(s);d.setDate(s.getDate()+i);const es=events.filter(e=>ON(e,d)&&(e[r.field]||[]).includes(r.id));
-      let cell='';es.forEach(e=>{cell+='<button class="wbar '+(e.kind==='off'?'off':e.kind==='plan'?'plan':'')+' '+(CF(e)?'conf ':'')+' '+(nightOnDay(e,d)?'overnight':'')+'" style="background:'+BG(e,d)+'" onclick="editEvent(\''+E(e.id)+'\',\''+K(d)+'\');event.stopPropagation()">'+E(WTXT(e,d))+'</button>';});
-      body+='<div>'+(cell||'－')+'</div>';
+      let cell='';
+      es.forEach(e=>{cell+='<button class="wbar '+(e.kind==='off'?'off':e.kind==='plan'?'plan':'')+' '+(CF(e)?'conf ':'')+' '+(nightOnDay(e,d)?'overnight':'')+'" style="background:'+BG(e,d)+'" onclick="editEvent(\''+E(e.id)+'\',\''+K(d)+'\');event.stopPropagation()">'+E(WTXT(e,d))+'</button>';});
+      h+='<div>'+(cell||'－')+'</div>';
     }
   });
-  const field=weekMode==='vehicle'?'vehicles':'people';body+='<div class="person">未割当</div>';
-  for(let i=0;i<7;i++){const d=new Date(s);d.setDate(s.getDate()+i);const es=events.filter(e=>ON(e,d)&&!(e[field]||[]).length);let cell='';es.forEach(e=>{cell+='<button class="wbar '+(e.kind==='off'?'off':e.kind==='plan'?'plan':'')+' '+(CF(e)?'conf ':'')+' '+(nightOnDay(e,d)?'overnight':'')+'" style="background:'+BG(e,d)+'" onclick="editEvent(\''+E(e.id)+'\',\''+K(d)+'\');event.stopPropagation()">'+E(WTXT(e,d))+'</button>';});body+='<div>'+(cell||'－')+'</div>';}
-  body+='</div>';
-  return '<div class="week-shell"><div class="week-head-scroll">'+header+'</div><div class="week-body-scroll">'+body+'</div></div>';
+  // 割当なし予定も専用行で表示し、スマホでも未割当を見落とさない。
+  const field=weekMode==='vehicle'?'vehicles':'people';
+  h+='<div class="person">未割当</div>';
+  for(let i=0;i<7;i++){const d=new Date(s);d.setDate(s.getDate()+i);const es=events.filter(e=>ON(e,d)&&!(e[field]||[]).length);let cell='';es.forEach(e=>{cell+='<button class="wbar '+(e.kind==='off'?'off':e.kind==='plan'?'plan':'')+' '+(CF(e)?'conf ':'')+' '+(nightOnDay(e,d)?'overnight':'')+'" style="background:'+BG(e,d)+'" onclick="editEvent(\''+E(e.id)+'\',\''+K(d)+'\');event.stopPropagation()">'+E(WTXT(e,d))+'</button>';});h+='<div>'+(cell||'－')+'</div>';}
+  return h+'</div>';
 }
 function DH(dt,day){let h=dt.getHours()+dt.getMinutes()/60;if(K(dt)!==K(day)||h<6)h+=24;return h;}
 function DAY(){
@@ -125,26 +126,26 @@ function DAY(){
   events.filter(e=>ON(e,cur)).forEach(e=>{const seg=SEG(e,cur);if(!seg)return;let[a,b]=seg,sh=DH(a,cur),eh=DH(b,cur),l=Math.max(0,(sh-6)/24)*100,r=Math.min(100,(eh-6)/24*100);if(r<=0||l>=100)return;const w=Math.max(1,r-l),night=nightOnDay(e,cur);h+=`<div class="trow"><div class="who">${E((e.vehicles||[]).join(', '))}<br>${E((e.people||[]).join(', '))}</div><div class="track"><button class="tbar ${e.kind==='off'?'off':e.kind==='plan'?'plan':''} ${CF(e)?'conflict':''} ${night?'overnight':''}" style="left:${l}%;width:${w}%;background:${BG(e,cur)}" onclick="editEvent('${E(e.id)}','${K(cur)}')">${E(e.kind==='off'?'休み':(night?'🌙 ':'')+(e.kind==='plan'?'予定 ':'')+(e.site||'未設定')+' '+e.start+'～'+e.end)}</button></div></div>`;});
   return h+'</div>';
 }
-function render(){
-let uiZoom=Number(localStorage.getItem('vehicleUiZoom')||1);
-function applyUiZoom(){document.body.style.zoom=String(uiZoom);const z=document.getElementById('uiZoomValue');if(z)z.textContent=Math.round(uiZoom*100)+'%';document.documentElement.style.setProperty('--topbar-h',((document.querySelector('.top')?.getBoundingClientRect().height||0))+'px');}
-function changeUiZoom(delta){uiZoom=Math.min(1.8,Math.max(0.7,Math.round((uiZoom+delta)*10)/10));localStorage.setItem('vehicleUiZoom',String(uiZoom));applyUiZoom();}
-function setupWeekScroll(){const hs=document.querySelector('.week-head-scroll'),bs=document.querySelector('.week-body-scroll');if(!hs||!bs)return;let syncing=false;bs.onscroll=()=>{if(syncing)return;syncing=true;hs.scrollLeft=bs.scrollLeft;syncing=false;};hs.onscroll=()=>{if(syncing)return;syncing=true;bs.scrollLeft=hs.scrollLeft;syncing=false;};const top=document.querySelector('.top');if(top)document.documentElement.style.setProperty('--topbar-h',(top.getBoundingClientRect().height||0)+'px');}
-window.addEventListener('resize',()=>{applyUiZoom();setupWeekScroll();});
-document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===view));document.getElementById('title').textContent=`${cur.getFullYear()}年${cur.getMonth()+1}月`;document.getElementById('sub').textContent=view==='month'?'週予定':view==='week'?'日予定':'月予定';document.getElementById('main').innerHTML=view==='month'?MONTH():view==='week'?WEEK():DAY();document.getElementById('secondary').innerHTML=view==='month'?WEEK():view==='week'?DAY():MONTH();status();}
+function render(){document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===view));document.getElementById('title').textContent=`${cur.getFullYear()}年${cur.getMonth()+1}月`;document.getElementById('sub').textContent=view==='month'?'週予定':view==='week'?'日予定':'月予定';document.getElementById('main').innerHTML=view==='month'?MONTH():view==='week'?WEEK():DAY();document.getElementById('secondary').innerHTML=view==='month'?WEEK():view==='week'?DAY():MONTH();status();}
 function status(){
   const bv=new Set(),bp=new Set();events.filter(e=>['plan','confirmed','work'].includes(e.kind)&&ON(e,cur)).forEach(e=>{(e.vehicles||[]).forEach(v=>bv.add(v));(e.people||[]).forEach(p=>bp.add(p));});
   document.getElementById('stitle').textContent='空き状況（'+K(cur)+'）';
   document.getElementById('status').innerHTML=VEH.map(v=>`<div>${E(v[0])}（${E(v[1])}） <span class="${bv.has(v[0])?'busy':'free'}">${bv.has(v[0])?'● 稼働':'○ 空き'}</span></div>`).join('')+PEOPLE.map(p=>`<div>${E(p)} <span class="${bp.has(p)?'busy':'free'}">${bp.has(p)?'● 稼働':'○ 空き'}</span></div>`).join('');
 }
 function rebuildChecks(){
+  const currentDesktopV=assignmentTouched.desktop?[...document.querySelectorAll('.v:checked')].map(x=>x.value):null;
+  const currentDesktopP=assignmentTouched.desktop?[...document.querySelectorAll('.p:checked')].map(x=>x.value):null;
   const currentMobileV=assignmentTouched.mobile?[...document.querySelectorAll('.mv:checked')].map(x=>x.value):null;
   const currentMobileP=assignmentTouched.mobile?[...document.querySelectorAll('.mp:checked')].map(x=>x.value):null;
-  const vbox=document.getElementById('mvs'), pbox=document.getElementById('mps');
-  if(vbox)vbox.innerHTML=VEH.map(v=>`<label class="check"><input class="mv" type="checkbox" value="${E(v[0])}"> ${E(v[0])} (${E(v[1])})</label>`).join('');
-  if(pbox)pbox.innerHTML=PEOPLE.map(p=>`<label class="check"><input class="mp" type="checkbox" value="${E(p)}"> ${E(p)}</label>`).join('');
+  document.getElementById('vs').innerHTML=VEH.map(v=>`<label class="check"><input class="v" type="checkbox" value="${E(v[0])}"> ${E(v[0])} (${E(v[1])})</label>`).join('');
+  document.getElementById('ps').innerHTML=PEOPLE.map(p=>`<label class="check"><input class="p" type="checkbox" value="${E(p)}"> ${E(p)}</label>`).join('');
+  document.getElementById('mvs').innerHTML=VEH.map(v=>`<label class="check"><input class="mv" type="checkbox" value="${E(v[0])}"> ${E(v[0])} (${E(v[1])})</label>`).join('');
+  document.getElementById('mps').innerHTML=PEOPLE.map(p=>`<label class="check"><input class="mp" type="checkbox" value="${E(p)}"> ${E(p)}</label>`).join('');
   const old=eid?events.find(x=>String(x.id)===String(eid)):null;
+  const dv=currentDesktopV??(old?(old.vehicles||[]):[]),dp=currentDesktopP??(old?(old.people||[]):[]);
   const mv=currentMobileV??(old?(old.vehicles||[]):[]),mp=currentMobileP??(old?(old.people||[]):[]);
+  document.querySelectorAll('.v').forEach(x=>x.checked=dv.includes(x.value));
+  document.querySelectorAll('.p').forEach(x=>x.checked=dp.includes(x.value));
   document.querySelectorAll('.mv').forEach(x=>x.checked=mv.includes(x.value));
   document.querySelectorAll('.mp').forEach(x=>x.checked=mp.includes(x.value));
 }
@@ -155,30 +156,38 @@ function toggleOvernight(prefix){const ot=document.getElementById(prefix+'overni
 
 function openEventModal(){document.getElementById('eventModal').classList.add('open');document.body.style.overflow='hidden';}
 function closeEventModal(){document.getElementById('eventModal').classList.remove('open');document.body.style.overflow='';}
-function newEvent(){eid=null;assignmentTouched={desktop:false,mobile:false};editAssignmentSnapshot=null;const blank={kind:'plan',site:'',work:'',date:K(cur),endDate:K(cur),start:'08:00',end:'16:00',vehicles:[],people:[]};setFormValues('m',blank);document.getElementById('mftitle').textContent='予定の追加';openEventModal();}
-function editEvent(id,d){assignmentTouched={desktop:false,mobile:false};const e=events.find(x=>String(x.id)===String(id));if(!e)return;cur=new Date(d+'T00:00');eid=e.id;editAssignmentSnapshot={vehicles:(e.vehicles||[]).map(String),people:(e.people||[]).map(String)};setFormValues('m',e);document.getElementById('mftitle').textContent='予定の編集';render();openEventModal();}
+function newEvent(){eid=null;assignmentTouched={desktop:false,mobile:false};editAssignmentSnapshot=null;const blank={kind:'plan',site:'',work:'',date:K(cur),endDate:K(cur),start:'08:00',end:'16:00',vehicles:[],people:[]};setFormValues('m',blank);setFormValues('',blank);document.getElementById('ftitle').textContent='予定の追加';document.getElementById('mftitle').textContent='予定の追加';openEventModal();}
+function editEvent(id,d){assignmentTouched={desktop:false,mobile:false};const e=events.find(x=>String(x.id)===String(id));if(!e)return;cur=new Date(d+'T00:00');eid=e.id;editAssignmentSnapshot={vehicles:(e.vehicles||[]).map(String),people:(e.people||[]).map(String)};setFormValues('m',e);setFormValues('',e);document.getElementById('ftitle').textContent='予定の編集';document.getElementById('mftitle').textContent='予定の編集';render();openEventModal();}
 function selectDay(d){cur=new Date(d+'T00:00');render();}
-function selectWeekDate(d,ev){if(ev)ev.stopPropagation();cur=new Date(d+'T00:00');render();}
+function selectWeekDate(d,ev){if(ev)ev.stopPropagation();cur=new Date(d+'T00:00');newEvent();}
 function markDirtyEvent(e,baseUpdatedAt,preserveAssignments=false){e.updatedAt=Number(e.updatedAt||baseUpdatedAt||0);const prev=dirtyEvents.get(String(e.id));dirtyEvents.set(String(e.id),{event:JSON.parse(JSON.stringify(e)),baseUpdatedAt:Number(baseUpdatedAt||0),preserveAssignments:!!preserveAssignments||!!(prev&&prev.preserveAssignments)});pendingDeletes.delete(String(e.id));}
 function sameAssignment(a,b){return JSON.stringify((a||[]).map(String).sort())===JSON.stringify((b||[]).map(String).sort());}
 function saveEvent(fromModal=false){
-  const prefix=fromModal?'m':'';const form=getFormValues(prefix);if(!form.date)return alert('開始日を入力してください');
-  const ot=document.getElementById(prefix+'overnight');if(ot)form.endDate=ot.checked?(form.endDate&&form.endDate!==form.date?form.endDate:addDays(form.date,1)):form.date;
+  // v47fix12: 保存はモーダルの内容を正本とし、編集開始時の割当を厳密に保持する。
+  const prefix=fromModal?'m':'';
+  const form=getFormValues(prefix);
+  if(!form.date)return alert('開始日を入力してください');
+  const ot=document.getElementById(prefix+'overnight');
+  if(ot)form.endDate=ot.checked?(form.endDate&&form.endDate!==form.date?form.endDate:addDays(form.date,1)):form.date;
   const old=eid?events.find(x=>String(x.id)===String(eid)):null;
   let preserveAssignments=false;
   if(old){
-    const snap=editAssignmentSnapshot||{vehicles:old.vehicles||[],people:old.people||[]};
-    // 区分・現場・日時だけを編集した場合は、車両・人員を絶対に変更しない。
-    // 実際にチェックを変更した時だけ、その変更内容（全解除も含む）を保存する。
-    const currentV=form.vehicles||[],currentP=form.people||[];
-    preserveAssignments=sameAssignment(currentV,snap.vehicles)&&sameAssignment(currentP,snap.people);
-    if(preserveAssignments){form.vehicles=(old.vehicles||[]).map(String);form.people=(old.people||[]).map(String);}
+    const snap=editAssignmentSnapshot||{vehicles:(old.vehicles||[]).map(String),people:(old.people||[]).map(String)};
+    // チェックボックスを触っていない編集では、フォーム再描画や共有読込に関係なくスナップショットを採用。
+    preserveAssignments=!(assignmentTouched.desktop||assignmentTouched.mobile);
+    if(preserveAssignments){
+      form.vehicles=snap.vehicles.slice();
+      form.people=snap.people.slice();
+    }
   }
-  const e=normalizeEvent(Object.assign({},old||{},form,{id:old?old.id:(Date.now()+'_'+Math.random().toString(36).slice(2))}));
+  const id=old?String(old.id):(Date.now()+'_'+Math.random().toString(36).slice(2));
+  const e=normalizeEvent(Object.assign({},old||{},form,{id}));
   if(e.kind==='off'){e.site='';e.work='';}
   if(old)markDirtyEvent(e,old.updatedAt,preserveAssignments);else markDirtyEvent(e,0,false);
-  if(old)events=events.map(x=>String(x.id)===String(old.id)?e:x);else events.push(e);
-  colorPreparedFor='';persistLocal();render();eid=null;editAssignmentSnapshot=null;if(fromModal)closeEventModal();
+  if(old)events=events.map(x=>String(x.id)===id?e:x);else events.push(e);
+  colorPreparedFor='';persistLocal();render();
+  if(fromModal)closeEventModal();
+  eid=null;editAssignmentSnapshot=null;assignmentTouched={desktop:false,mobile:false};
   queueCloudSave();
 }
 function delEvent(fromModal=false){if(!eid)return;if(!confirm('この予定を削除しますか？'))return;const old=events.find(x=>String(x.id)===String(eid));if(old){pendingDeletes.set(String(old.id),{id:String(old.id),baseUpdatedAt:Number(old.updatedAt||0)});dirtyEvents.delete(String(old.id));events=events.filter(x=>String(x.id)!==String(eid));persistLocal();queueCloudSave();}eid=null;if(fromModal)closeEventModal();render();}
@@ -244,7 +253,19 @@ async function postCloud(){
 
     if(sentMaster&&Number(server.masterUpdatedAt||0)>Number(sentMasterBase||0)&&Number(server.masterUpdatedAt||0)>0){cloudMasterUpdatedAt=Number(server.masterUpdatedAt);masterDirty=false;}
     mergeRemote(server,true);
-    accepted.forEach(id=>{const meta=sentIds.get(id),r=remoteById.get(id);if(r){const keep=meta&&meta.preserveAssignments;const rr=Object.assign({},r);if(keep&&meta.event){rr.vehicles=(meta.event.vehicles||[]).map(String);rr.people=(meta.event.people||[]).map(String);}events=events.map(e=>String(e.id)===id?normalizeEvent(rr):e);}});
+    accepted.forEach(id=>{
+      const r=remoteById.get(id);
+      const meta=sentIds.get(id);
+      if(r){
+        const acceptedEvent=Object.assign({},r);
+        if(meta&&meta.preserveAssignments){
+          acceptedEvent.vehicles=(meta.event.vehicles||[]).map(String);
+          acceptedEvent.people=(meta.event.people||[]).map(String);
+        }
+        events=events.map(e=>String(e.id)===id?normalizeEvent(acceptedEvent):e);
+        dirtyEvents.delete(id);
+      }
+    });
     sentDeletes.forEach((meta,id)=>{if(!pendingDeletes.has(id))events=events.filter(e=>String(e.id)!==id);});
     cloudMasterUpdatedAt=Number(server.masterUpdatedAt||cloudMasterUpdatedAt);
     persistLocal();
@@ -282,7 +303,7 @@ function removeVehicle(i){const v=vehicleList[i];if(!confirm(v.id+' を削除し
 // 起動は全関数・変数の初期化後に一度だけ行う。v47系で問題になった「関数定義前のrender/checks呼び出し」を排除。
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{view=b.dataset.v;render();});
 document.getElementById('prev').onclick=()=>shift(-1);document.getElementById('next').onclick=()=>shift(1);document.getElementById('today').onclick=()=>{cur=new Date();cur.setHours(0,0,0,0);render();};document.getElementById('subPrev').onclick=()=>shift(-1);document.getElementById('subNext').onclick=()=>shift(1);
-rebuildChecks();render();applyUiZoom();setupWeekScroll();loadCloud();
+rebuildChecks();render();loadCloud();
 setInterval(()=>{if(!cloudSaving&&!cloudLoading)loadCloud();},7000);
 
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;const b=document.getElementById('installBtn');if(b)b.style.display='';});

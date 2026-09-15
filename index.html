@@ -1,4 +1,4 @@
-<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=0.6,maximum-scale=3,user-scalable=yes"><title>車両・人員 配置管理</title>
+<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=0.5,maximum-scale=4,user-scalable=yes"><title>車両・人員 配置管理</title>
 <link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#101b31">
 <meta name="mobile-web-app-capable" content="yes">
@@ -17,7 +17,6 @@
 .settings{position:fixed;inset:0;background:rgba(10,18,35,.45);z-index:50;display:none;align-items:center;justify-content:center;padding:20px}.settings.open{display:flex}.settings-card{background:#fff;width:min(780px,96vw);max-height:90vh;overflow:auto;border-radius:8px;border:1px solid #cfd6e2}.settings-head{display:flex;align-items:center;padding:13px 16px;border-bottom:1px solid #d4dae4}.settings-head h2{margin:0}.settings-head button{margin-left:auto;border:0;background:#fff;font-size:22px}.manage-tabs{display:flex;border-bottom:1px solid #d4dae4}.manage-tabs button{flex:1;border:0;background:#f5f7fa;padding:10px;font-weight:900}.manage-tabs button.on{background:#1769e0;color:#fff}.manage-body{padding:14px}.manage-row{display:grid;grid-template-columns:1fr 120px 1.3fr auto auto;gap:6px;margin-bottom:7px}.manage-row.people{grid-template-columns:1fr auto auto}.manage-row input{width:100%;padding:7px;border:1px solid #cbd3df;border-radius:4px}.manage-row button{border:1px solid #dfa0a0;background:#fff;color:#c11;border-radius:4px;padding:6px 9px}.manage-add{display:flex;gap:6px;margin-top:12px}.manage-add input{flex:1;padding:8px;border:1px solid #cbd3df;border-radius:4px}.manage-add button{background:#1769e0;color:#fff;border:0;border-radius:4px;padding:8px 13px;font-weight:900}.settings{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px}.settings.open{display:flex}.settings-card{width:min(900px,96vw);max-height:90vh;overflow:auto;background:#fff;border-radius:8px;box-shadow:0 12px 40px rgba(0,0,0,.25)}.settings-head{display:flex;align-items:center;padding:14px 18px;border-bottom:1px solid #d3dae5}.settings-head h2{margin:0;font-size:18px}.settings-head button{margin-left:auto;border:0;background:transparent;font-size:26px;cursor:pointer}.manage-tabs{display:flex;border-bottom:1px solid #d3dae5}.manage-tabs button{flex:1;border:0;background:#f1f4f8;padding:11px;font-weight:900;cursor:pointer}.manage-tabs button.on{background:#1769e0;color:#fff}.manage-body{padding:16px}.manage-row{display:grid;grid-template-columns:110px 110px 1fr auto auto;gap:7px;margin:7px 0}.manage-row.people{grid-template-columns:1fr auto auto}.manage-row input,.manage-add input{min-width:0;padding:8px;border:1px solid #cbd3df;border-radius:4px}.manage-row button{padding:7px 10px;border:1px solid #b9c3d1;background:#fff;border-radius:4px;cursor:pointer}.manage-add{display:flex;gap:7px;margin-top:14px}.manage-add button{border:0;background:#1769e0;color:#fff;border-radius:4px;padding:8px 13px;font-weight:900;cursor:pointer}@media(max-width:700px){.manage-row{grid-template-columns:1fr 1fr}.manage-row.people{grid-template-columns:1fr auto auto}.manage-add{flex-wrap:wrap}.manage-add input{width:100%}}
 /* smartphone usability */
 @media(max-width:700px){
-  html{touch-action:pan-x pan-y pinch-zoom;}
   body{font-size:14px;overflow-x:hidden;-webkit-text-size-adjust:100%;}
   .top{height:auto;min-height:0;padding:7px 8px;gap:7px;flex-wrap:wrap;align-items:center;position:sticky;top:0;}
   .logo{display:none;}
@@ -79,8 +78,9 @@
 }
 @media(max-width:700px){.cloud-status{display:none}.top{padding:0 6px;gap:3px}.logo{font-size:14px;margin-right:3px}.tabs button{padding:8px 8px}.nav{gap:3px}.nav button{padding:8px 9px}.title{min-width:78px;font-size:16px}}
 /* v24 smartphone layout fix */
-.desktop-form{display:none!important;}
 .mobile-add{display:none;}
+/* v47fix12: 予定入力はモーダルだけにする */
+.desktop-form{display:none!important;}
 @media(max-width:700px){
   .mobile-add{display:block!important;background:#1769e0!important;color:#fff!important;}
   .app{display:flex!important;flex-direction:column!important;}
@@ -113,7 +113,6 @@
 
 /* v44 smartphone readability and touch usability */
 @media (max-width:1000px) and (pointer:coarse){
-  html{touch-action:pan-x pan-y pinch-zoom;}
   html,body{font-size:16px;}
   body{-webkit-text-size-adjust:100%;overflow-x:hidden;}
   .top{padding:8px 10px;gap:8px;position:sticky;top:0;}
@@ -141,11 +140,7 @@
   #main,#secondary{min-width:0;}
   .week{grid-template-columns:105px repeat(7,minmax(115px,1fr));min-width:910px;}
   .week>div{min-height:64px;padding:7px 6px;font-size:13px;}
-  /* スマホ週予定：日付行と人員別/車両別ボタンを縦スクロール時も固定。
-     横スクロール時は日付と一緒に動くため、左右の位置関係を維持する。 */
-  .week .week-switch,.week .week-date{position:sticky;top:0;z-index:30;background:#fff;}
-  .week .week-switch{box-shadow:0 1px 2px rgba(0,0,0,.08);}
-  .week .week-date{box-shadow:0 1px 2px rgba(0,0,0,.08);}
+  .wh{font-size:13px;}
   .week .person{font-size:14px;}
   .week-mode .wm{min-height:40px;padding:8px 10px;font-size:13px;}
   .wbar{min-height:38px;padding:8px 7px;font-size:12px;line-height:1.25;}
@@ -194,27 +189,6 @@
   .bar{font-size:9px;height:20px;}
   .checks{grid-template-columns:1fr;}
 }
-
-.week-shell{width:100%;}
-.week-head-scroll{position:sticky;top:var(--topbar-h,0px);z-index:40;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;background:#fff;}
-.week-head-scroll::-webkit-scrollbar{display:none;}
-.week-head-scroll .week{margin:0;}
-.week-body-scroll{overflow-x:auto;overflow-y:visible;-webkit-overflow-scrolling:touch;}
-.week-body-scroll .week{margin:0;}
-.mobile-zoom{display:none;align-items:center;gap:3px;background:#1d2943;color:#fff;border-radius:7px;padding:2px;}
-.mobile-zoom button{border:0;background:#fff;color:#172033;border-radius:5px;min-width:34px;min-height:34px;font-size:20px;font-weight:900;}
-.mobile-zoom span{min-width:48px;text-align:center;font-weight:900;font-size:12px;}
-@media (max-width:700px){
-  .mobile-zoom{display:inline-flex;}
-  .week-head-scroll{top:var(--topbar-h,0px);}
-  .week-body-scroll{overflow-x:auto;}
-  .week-header{min-width:910px;}
-  .week-body{min-width:910px;}
-  .week-head-scroll .week>div{min-height:64px;padding:7px 6px;font-size:13px;}
-  .week-head-scroll .week-switch{position:static!important;left:auto!important;}
-  .week-head-scroll .week-date{position:static!important;top:auto!important;left:auto!important;}
-  main>.panel{overflow:visible!important;}
-}
 </style><style>
 .overnight-toggle{display:flex!important;align-items:center!important;gap:10px!important;margin:10px 0!important;padding:10px 12px!important;border:2px solid #64748b!important;border-radius:8px!important;background:#f1f5f9!important;cursor:pointer!important;}
 .overnight-toggle input{width:22px!important;height:22px!important;flex:0 0 auto!important;}
@@ -224,11 +198,11 @@
 @media(max-width:700px){.overnight-toggle{min-height:58px!important;padding:11px 12px!important;margin:11px 0!important;}.overnight-toggle input{width:24px!important;height:24px!important;}.overnight-toggle b{font-size:16px;}.overnight-toggle small{font-size:12px;}}
 </style>
 <body>
-<header class="top"><div class="logo">🚚 車両・人員 配置管理</div><div class="tabs"><button data-v="day">日予定</button><button data-v="week">週予定</button><button data-v="month" class="on">月予定</button></div><div class="nav"><button id="prev">◀</button><div id="title" class="title"></div><span id="cloudStatus" class="cloud-status">共有確認中…</span><button id="cloudDiagBtn" type="button" onclick="openCloudDiag()">🔄 共有診断</button><button id="next">▶</button><button id="today">今日</button><button onclick="print()">🖨 印刷</button><button id="installBtn" type="button" onclick="installApp()" style="display:none">📱 アプリ追加</button><span class="mobile-zoom"><button type="button" onclick="changeUiZoom(-0.1)">−</button><span id="uiZoomValue">100%</span><button type="button" onclick="changeUiZoom(0.1)">＋</button></span><button class="mobile-add" type="button" onclick="newEvent()">＋ 予定</button><button id="settingsBtn" type="button" onclick="openSettings()">⚙ 設定</button></div></header>
+<header class="top"><div class="logo">🚚 車両・人員 配置管理</div><div class="tabs"><button data-v="day">日予定</button><button data-v="week">週予定</button><button data-v="month" class="on">月予定</button></div><div class="nav"><button id="prev">◀</button><div id="title" class="title"></div><span id="cloudStatus" class="cloud-status">共有確認中…</span><button id="cloudDiagBtn" type="button" onclick="openCloudDiag()">🔄 共有診断</button><button id="next">▶</button><button id="today">今日</button><button onclick="print()">🖨 印刷</button><button id="installBtn" type="button" onclick="installApp()" style="display:none">📱 アプリ追加</button><button class="mobile-add" type="button" onclick="newEvent()">＋ 予定</button><button id="settingsBtn" type="button" onclick="openSettings()">⚙ 設定</button></div></header>
 <div id="cloudDiag" class="cloud-diag"><div class="cloud-diag-card"><h3>🔄 共有診断</h3><pre id="cloudDiagText">確認中…</pre><div class="cloud-diag-actions"><button type="button" onclick="closeCloudDiag()">閉じる</button><button type="button" class="primary" onclick="runCloudDiag()">今すぐ確認</button></div></div></div><div class="color-note">現場ごとに色分け　｜　<span class="red-note">赤＝車両・人員のダブルブッキング</span>　｜　<span class="off-note">休み</span></div><div class="app"><main><section class="panel"><div id="main"></div></section>
-<section class="panel"><div class="head"><span id="sub"></span><button id="subPrev" onclick="shift(-1)">◀</button><button id="subNext" onclick="shift(1)">▶</button><button class="add" type="button" onclick="newEvent()">＋ 予定追加</button></div><div id="secondary"></div></section></main>
+<section class="panel"><div class="head"><span id="sub"></span><button id="subPrev" onclick="shift(-1)">◀</button><button id="subNext" onclick="shift(1)">▶</button><button class="add" onclick="newEvent()">＋ 予定追加</button></div><div id="secondary"></div></section></main>
 <aside class="side"><div class="box"><h3 id="stitle">空き状況</h3><div id="status" class="status"></div></div><div class="box"><h3>お知らせ</h3><div class="notice">・予定／確定をクリックして編集<br>・人員の「休み」を登録<br>・重複した車両／人員だけ赤色<br>・選択した日は青枠で表示</div></div>
-</aside></div>
+<div class="box form desktop-form"><h3 id="ftitle">予定の追加</h3><label>区分</label><select id="kind"><option value="plan">予定</option><option value="confirmed">確定</option><option value="off">休み</option></select><label>現場</label><input id="site" placeholder="現場A"><label>仕事内容</label><input id="work" placeholder="資材搬入など"><div class="two"><div><label>開始日</label><input id="sd" type="date"></div><div><label>開始</label><input id="st" type="time" value="08:00"></div></div><div class="two"><div><label>終了日</label><input id="ed" type="date"></div><div><label>終了</label><input id="et" type="time" value="16:00"></div></div><label class="overnight-toggle"><input id="overnight" type="checkbox" onchange="toggleOvernight('')"><span><b>🌙 日またぎ</b><small> 翌日まで続く予定</small></span></label><label>車両（複数選択可）</label><div id="vs" class="checks"></div><label>人員（複数選択可）</label><div id="ps" class="checks"></div><div class="actions"><button class="del" onclick="delEvent()">削除</button><button onclick="newEvent()">キャンセル</button><button class="save" onclick="saveEvent()">更新</button></div></div></aside></div>
 <div id="eventModal" class="event-modal" onclick="if(event.target===this)closeEventModal()">
   <div class="event-card">
     <div class="modal-head"><h2 id="mftitle">予定の追加</h2><button type="button" onclick="closeEventModal()">×</button></div>
@@ -405,28 +379,36 @@ function closeEventModal(){document.getElementById('eventModal').classList.remov
 function newEvent(){eid=null;assignmentTouched={desktop:false,mobile:false};editAssignmentSnapshot=null;const blank={kind:'plan',site:'',work:'',date:K(cur),endDate:K(cur),start:'08:00',end:'16:00',vehicles:[],people:[]};setFormValues('m',blank);setFormValues('',blank);document.getElementById('ftitle').textContent='予定の追加';document.getElementById('mftitle').textContent='予定の追加';openEventModal();}
 function editEvent(id,d){assignmentTouched={desktop:false,mobile:false};const e=events.find(x=>String(x.id)===String(id));if(!e)return;cur=new Date(d+'T00:00');eid=e.id;editAssignmentSnapshot={vehicles:(e.vehicles||[]).map(String),people:(e.people||[]).map(String)};setFormValues('m',e);setFormValues('',e);document.getElementById('ftitle').textContent='予定の編集';document.getElementById('mftitle').textContent='予定の編集';render();openEventModal();}
 function selectDay(d){cur=new Date(d+'T00:00');render();}
-function selectWeekDate(d,ev){if(ev)ev.stopPropagation();cur=new Date(d+'T00:00');render();}
+function selectWeekDate(d,ev){if(ev)ev.stopPropagation();cur=new Date(d+'T00:00');newEvent();}
 function markDirtyEvent(e,baseUpdatedAt,preserveAssignments=false){e.updatedAt=Number(e.updatedAt||baseUpdatedAt||0);const prev=dirtyEvents.get(String(e.id));dirtyEvents.set(String(e.id),{event:JSON.parse(JSON.stringify(e)),baseUpdatedAt:Number(baseUpdatedAt||0),preserveAssignments:!!preserveAssignments||!!(prev&&prev.preserveAssignments)});pendingDeletes.delete(String(e.id));}
 function sameAssignment(a,b){return JSON.stringify((a||[]).map(String).sort())===JSON.stringify((b||[]).map(String).sort());}
 function saveEvent(fromModal=false){
-  const prefix=fromModal?'m':'';const form=getFormValues(prefix);if(!form.date)return alert('開始日を入力してください');
-  const ot=document.getElementById(prefix+'overnight');if(ot)form.endDate=ot.checked?(form.endDate&&form.endDate!==form.date?form.endDate:addDays(form.date,1)):form.date;
+  // v47fix12: 保存はモーダルの内容を正本とし、編集開始時の割当を厳密に保持する。
+  const prefix=fromModal?'m':'';
+  const form=getFormValues(prefix);
+  if(!form.date)return alert('開始日を入力してください');
+  const ot=document.getElementById(prefix+'overnight');
+  if(ot)form.endDate=ot.checked?(form.endDate&&form.endDate!==form.date?form.endDate:addDays(form.date,1)):form.date;
   const old=eid?events.find(x=>String(x.id)===String(eid)):null;
   let preserveAssignments=false;
   if(old){
-    const snap=editAssignmentSnapshot||{vehicles:old.vehicles||[],people:old.people||[]};
-    // 区分・現場・日時だけを編集した場合は、車両・人員を絶対に変更しない。
-    // 実際にチェックを変更した時だけ、その変更内容（全解除も含む）を保存する。
-    const currentV=form.vehicles||[],currentP=form.people||[];
-    preserveAssignments=sameAssignment(currentV,snap.vehicles)&&sameAssignment(currentP,snap.people);
-    if(preserveAssignments){form.vehicles=(old.vehicles||[]).map(String);form.people=(old.people||[]).map(String);}
+    const snap=editAssignmentSnapshot||{vehicles:(old.vehicles||[]).map(String),people:(old.people||[]).map(String)};
+    // チェックボックスを触っていない編集では、フォーム再描画や共有読込に関係なくスナップショットを採用。
+    preserveAssignments=!(assignmentTouched.desktop||assignmentTouched.mobile);
+    if(preserveAssignments){
+      form.vehicles=snap.vehicles.slice();
+      form.people=snap.people.slice();
+    }
   }
-  const e=normalizeEvent(Object.assign({},old||{},form,{id:old?old.id:(Date.now()+'_'+Math.random().toString(36).slice(2))}));
+  const id=old?String(old.id):(Date.now()+'_'+Math.random().toString(36).slice(2));
+  const e=normalizeEvent(Object.assign({},old||{},form,{id}));
   if(e.kind==='off'){e.site='';e.work='';}
   if(old)markDirtyEvent(e,old.updatedAt,preserveAssignments);else markDirtyEvent(e,0,false);
-  if(old)events=events.map(x=>String(x.id)===String(old.id)?e:x);else events.push(e);
-  colorPreparedFor='';persistLocal();render();eid=null;editAssignmentSnapshot=null;if(fromModal)closeEventModal();
-  setFormValues('',{kind:'plan',site:'',work:'',date:K(cur),endDate:K(cur),start:'08:00',end:'16:00',vehicles:[],people:[]});queueCloudSave();
+  if(old)events=events.map(x=>String(x.id)===id?e:x);else events.push(e);
+  colorPreparedFor='';persistLocal();render();
+  if(fromModal)closeEventModal();
+  eid=null;editAssignmentSnapshot=null;assignmentTouched={desktop:false,mobile:false};
+  queueCloudSave();
 }
 function delEvent(fromModal=false){if(!eid)return;if(!confirm('この予定を削除しますか？'))return;const old=events.find(x=>String(x.id)===String(eid));if(old){pendingDeletes.set(String(old.id),{id:String(old.id),baseUpdatedAt:Number(old.updatedAt||0)});dirtyEvents.delete(String(old.id));events=events.filter(x=>String(x.id)!==String(eid));persistLocal();queueCloudSave();}eid=null;if(fromModal)closeEventModal();render();}
 function shift(n){if(view==='month')cur.setMonth(cur.getMonth()+n);else if(view==='week')cur.setDate(cur.getDate()+7*n);else cur.setDate(cur.getDate()+n);render();}
@@ -491,7 +473,19 @@ async function postCloud(){
 
     if(sentMaster&&Number(server.masterUpdatedAt||0)>Number(sentMasterBase||0)&&Number(server.masterUpdatedAt||0)>0){cloudMasterUpdatedAt=Number(server.masterUpdatedAt);masterDirty=false;}
     mergeRemote(server,true);
-    accepted.forEach(id=>{const r=remoteById.get(id);if(r)events=events.map(e=>String(e.id)===id?r:e);});
+    accepted.forEach(id=>{
+      const r=remoteById.get(id);
+      const meta=sentIds.get(id);
+      if(r){
+        const acceptedEvent=Object.assign({},r);
+        if(meta&&meta.preserveAssignments){
+          acceptedEvent.vehicles=(meta.event.vehicles||[]).map(String);
+          acceptedEvent.people=(meta.event.people||[]).map(String);
+        }
+        events=events.map(e=>String(e.id)===id?normalizeEvent(acceptedEvent):e);
+        dirtyEvents.delete(id);
+      }
+    });
     sentDeletes.forEach((meta,id)=>{if(!pendingDeletes.has(id))events=events.filter(e=>String(e.id)!==id);});
     cloudMasterUpdatedAt=Number(server.masterUpdatedAt||cloudMasterUpdatedAt);
     persistLocal();
