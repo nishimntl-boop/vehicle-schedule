@@ -15,6 +15,32 @@
 .manage-tabs{display:flex;border-bottom:1px solid #d4dae4}.manage-tabs button{flex:1;border:0;background:#f5f7fa;padding:10px;font-weight:900}.manage-tabs button.on{background:#1769e0;color:#fff}
 .manage-body{padding:14px}.manage-row{display:grid;grid-template-columns:1fr 120px 1.4fr auto;gap:7px;margin-bottom:7px}.manage-row.people{grid-template-columns:1fr auto}.manage-row input{width:100%;padding:7px;border:1px solid #cbd3df;border-radius:4px}.manage-row button{border:1px solid #e0a0a0;background:#fff;color:#c11;border-radius:4px;padding:6px 10px}.manage-add{display:flex;gap:7px;margin-top:12px}.manage-add input{flex:1;padding:8px;border:1px solid #cbd3df;border-radius:4px}.manage-add button{background:#1769e0;color:#fff;border:0;border-radius:4px;padding:8px 15px;font-weight:900}
 .settings{position:fixed;inset:0;background:rgba(10,18,35,.45);z-index:50;display:none;align-items:center;justify-content:center;padding:20px}.settings.open{display:flex}.settings-card{background:#fff;width:min(780px,96vw);max-height:90vh;overflow:auto;border-radius:8px;border:1px solid #cfd6e2}.settings-head{display:flex;align-items:center;padding:13px 16px;border-bottom:1px solid #d4dae4}.settings-head h2{margin:0}.settings-head button{margin-left:auto;border:0;background:#fff;font-size:22px}.manage-tabs{display:flex;border-bottom:1px solid #d4dae4}.manage-tabs button{flex:1;border:0;background:#f5f7fa;padding:10px;font-weight:900}.manage-tabs button.on{background:#1769e0;color:#fff}.manage-body{padding:14px}.manage-row{display:grid;grid-template-columns:1fr 120px 1.3fr auto auto;gap:6px;margin-bottom:7px}.manage-row.people{grid-template-columns:1fr auto auto}.manage-row input{width:100%;padding:7px;border:1px solid #cbd3df;border-radius:4px}.manage-row button{border:1px solid #dfa0a0;background:#fff;color:#c11;border-radius:4px;padding:6px 9px}.manage-add{display:flex;gap:6px;margin-top:12px}.manage-add input{flex:1;padding:8px;border:1px solid #cbd3df;border-radius:4px}.manage-add button{background:#1769e0;color:#fff;border:0;border-radius:4px;padding:8px 13px;font-weight:900}.settings{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px}.settings.open{display:flex}.settings-card{width:min(900px,96vw);max-height:90vh;overflow:auto;background:#fff;border-radius:8px;box-shadow:0 12px 40px rgba(0,0,0,.25)}.settings-head{display:flex;align-items:center;padding:14px 18px;border-bottom:1px solid #d3dae5}.settings-head h2{margin:0;font-size:18px}.settings-head button{margin-left:auto;border:0;background:transparent;font-size:26px;cursor:pointer}.manage-tabs{display:flex;border-bottom:1px solid #d3dae5}.manage-tabs button{flex:1;border:0;background:#f1f4f8;padding:11px;font-weight:900;cursor:pointer}.manage-tabs button.on{background:#1769e0;color:#fff}.manage-body{padding:16px}.manage-row{display:grid;grid-template-columns:110px 110px 1fr auto auto;gap:7px;margin:7px 0}.manage-row.people{grid-template-columns:1fr auto auto}.manage-row input,.manage-add input{min-width:0;padding:8px;border:1px solid #cbd3df;border-radius:4px}.manage-row button{padding:7px 10px;border:1px solid #b9c3d1;background:#fff;border-radius:4px;cursor:pointer}.manage-add{display:flex;gap:7px;margin-top:14px}.manage-add button{border:0;background:#1769e0;color:#fff;border-radius:4px;padding:8px 13px;font-weight:900;cursor:pointer}@media(max-width:700px){.manage-row{grid-template-columns:1fr 1fr}.manage-row.people{grid-template-columns:1fr auto auto}.manage-add{flex-wrap:wrap}.manage-add input{width:100%}}
+/* v47fix13: mobile week header follows the same horizontal axis as the resource axis */
+@media(max-width:700px){
+  .week-scroll-host{overflow-x:auto!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;position:relative;}
+  .week-scroll-host .week{position:relative;}
+  .week-scroll-host .week .wh{position:sticky;top:0;z-index:8;background:#f8fafc;}
+  .week-scroll-host .week .week-switch{position:sticky;left:0;top:0;z-index:12;background:#f8fafc;}
+  .week-scroll-host .week .person{position:sticky;left:0;z-index:7;background:#fbfcfe;}
+  .week-scroll-host .week .week-switch .week-mode{position:relative;z-index:13;}
+  .week-scroll-host .week .week-date{z-index:9;}
+  .week-scroll-host .week .week-switch{box-shadow:2px 2px 0 rgba(0,0,0,.05);}
+}
+/* v47fix13: month day cells can scroll their own event list */
+.day{display:flex;flex-direction:column;}
+.day-events{min-height:0;flex:1;overflow-y:auto;overflow-x:hidden;padding-right:2px;-webkit-overflow-scrolling:touch;}
+.day-events .bar{flex:0 0 auto;}
+@media(max-width:700px){
+  .day-events{max-height:calc(100% - 23px);scrollbar-width:thin;}
+}
+/* v47fix13: content zoom controls; fixed app header/settings remain at normal size */
+.mobile-zoom{display:none;}
+@media(max-width:700px){
+  .mobile-zoom{display:flex;align-items:center;gap:4px;position:fixed;right:7px;bottom:7px;z-index:1400;background:rgba(16,27,49,.94);padding:4px;border-radius:9px;box-shadow:0 4px 16px rgba(0,0,0,.25);}
+  .mobile-zoom button{min-width:40px;min-height:40px;border:0;border-radius:6px;background:#fff;font-weight:900;font-size:18px;}
+  .mobile-zoom .zoom-value{min-width:48px;text-align:center;color:#fff;font-size:12px;font-weight:900;}
+  #zoomContent{transform-origin:top left;}
+}
 /* smartphone usability */
 @media(max-width:700px){
   body{font-size:14px;overflow-x:hidden;-webkit-text-size-adjust:100%;}
@@ -199,10 +225,10 @@
 </style>
 <body>
 <header class="top"><div class="logo">🚚 車両・人員 配置管理</div><div class="tabs"><button data-v="day">日予定</button><button data-v="week">週予定</button><button data-v="month" class="on">月予定</button></div><div class="nav"><button id="prev">◀</button><div id="title" class="title"></div><span id="cloudStatus" class="cloud-status">共有確認中…</span><button id="cloudDiagBtn" type="button" onclick="openCloudDiag()">🔄 共有診断</button><button id="next">▶</button><button id="today">今日</button><button onclick="print()">🖨 印刷</button><button id="installBtn" type="button" onclick="installApp()" style="display:none">📱 アプリ追加</button><button class="mobile-add" type="button" onclick="newEvent()">＋ 予定</button><button id="settingsBtn" type="button" onclick="openSettings()">⚙ 設定</button></div></header>
-<div id="cloudDiag" class="cloud-diag"><div class="cloud-diag-card"><h3>🔄 共有診断</h3><pre id="cloudDiagText">確認中…</pre><div class="cloud-diag-actions"><button type="button" onclick="closeCloudDiag()">閉じる</button><button type="button" class="primary" onclick="runCloudDiag()">今すぐ確認</button></div></div></div><div class="color-note">現場ごとに色分け　｜　<span class="red-note">赤＝車両・人員のダブルブッキング</span>　｜　<span class="off-note">休み</span></div><div class="app"><main><section class="panel"><div id="main"></div></section>
+<div id="cloudDiag" class="cloud-diag"><div class="cloud-diag-card"><h3>🔄 共有診断</h3><pre id="cloudDiagText">確認中…</pre><div class="cloud-diag-actions"><button type="button" onclick="closeCloudDiag()">閉じる</button><button type="button" class="primary" onclick="runCloudDiag()">今すぐ確認</button></div></div></div><div id="zoomContent"><div class="color-note">現場ごとに色分け　｜　<span class="red-note">赤＝車両・人員のダブルブッキング</span>　｜　<span class="off-note">休み</span></div><div class="app"><main><section class="panel"><div id="main"></div></section>
 <section class="panel"><div class="head"><span id="sub"></span><button id="subPrev" onclick="shift(-1)">◀</button><button id="subNext" onclick="shift(1)">▶</button><button class="add" onclick="newEvent()">＋ 予定追加</button></div><div id="secondary"></div></section></main>
 <aside class="side"><div class="box"><h3 id="stitle">空き状況</h3><div id="status" class="status"></div></div><div class="box"><h3>お知らせ</h3><div class="notice">・予定／確定をクリックして編集<br>・人員の「休み」を登録<br>・重複した車両／人員だけ赤色<br>・選択した日は青枠で表示</div></div>
-<div class="box form desktop-form"><h3 id="ftitle">予定の追加</h3><label>区分</label><select id="kind"><option value="plan">予定</option><option value="confirmed">確定</option><option value="off">休み</option></select><label>現場</label><input id="site" placeholder="現場A"><label>仕事内容</label><input id="work" placeholder="資材搬入など"><div class="two"><div><label>開始日</label><input id="sd" type="date"></div><div><label>開始</label><input id="st" type="time" value="08:00"></div></div><div class="two"><div><label>終了日</label><input id="ed" type="date"></div><div><label>終了</label><input id="et" type="time" value="16:00"></div></div><label class="overnight-toggle"><input id="overnight" type="checkbox" onchange="toggleOvernight('')"><span><b>🌙 日またぎ</b><small> 翌日まで続く予定</small></span></label><label>車両（複数選択可）</label><div id="vs" class="checks"></div><label>人員（複数選択可）</label><div id="ps" class="checks"></div><div class="actions"><button class="del" onclick="delEvent()">削除</button><button onclick="newEvent()">キャンセル</button><button class="save" onclick="saveEvent()">更新</button></div></div></aside></div>
+<div class="box form desktop-form"><h3 id="ftitle">予定の追加</h3><label>区分</label><select id="kind"><option value="plan">予定</option><option value="confirmed">確定</option><option value="off">休み</option></select><label>現場</label><input id="site" placeholder="現場A"><label>仕事内容</label><input id="work" placeholder="資材搬入など"><div class="two"><div><label>開始日</label><input id="sd" type="date"></div><div><label>開始</label><input id="st" type="time" value="08:00"></div></div><div class="two"><div><label>終了日</label><input id="ed" type="date"></div><div><label>終了</label><input id="et" type="time" value="16:00"></div></div><label class="overnight-toggle"><input id="overnight" type="checkbox" onchange="toggleOvernight('')"><span><b>🌙 日またぎ</b><small> 翌日まで続く予定</small></span></label><label>車両（複数選択可）</label><div id="vs" class="checks"></div><label>人員（複数選択可）</label><div id="ps" class="checks"></div><div class="actions"><button class="del" onclick="delEvent()">削除</button><button onclick="newEvent()">キャンセル</button><button class="save" onclick="saveEvent()">更新</button></div></div></aside></div></div>
 <div id="eventModal" class="event-modal" onclick="if(event.target===this)closeEventModal()">
   <div class="event-card">
     <div class="modal-head"><h2 id="mftitle">予定の追加</h2><button type="button" onclick="closeEventModal()">×</button></div>
@@ -218,6 +244,7 @@
     </div>
   </div>
 </div>
+<div class="mobile-zoom" aria-label="表示倍率"><button type="button" onclick="changeZoom(-0.1)">−</button><span id="zoomValue" class="zoom-value">100%</span><button type="button" onclick="changeZoom(0.1)">＋</button></div>
 <script>
 const DEFAULT_VEH=[['001','2t'],['002','4t'],['003','2t'],['004','4t'],['005','2t'],['006','4t'],['007','2t']];
 const DEFAULT_PEOPLE=['田中','鈴木','佐藤','山田','高橋','伊藤','渡辺','小林'];
@@ -317,7 +344,7 @@ function BAR(e,d){const night=nightOnDay(e,d),bg=BG(e,d);return `<button class="
 function MONTH(){
   const y=cur.getFullYear(),m=cur.getMonth(),s=new Date(y,m,1);s.setDate(1-((s.getDay()+6)%7));const end=new Date(s);end.setDate(end.getDate()+41);prepareColors(s,end);
   let h='<div class="month">';['月','火','水','木','金','土','日'].forEach(x=>h+=`<div class="dow">${x}</div>`);
-  for(let i=0;i<42;i++){const d=new Date(s);d.setDate(s.getDate()+i);const cn='day '+(d.getMonth()!=m?'out ':'')+(K(d)===K(cur)?'selected':'');const dn=d.getDay()===0?'sun':d.getDay()===6?'sat':'';h+=`<div class="${cn}" onclick="selectDay('${K(d)}')"><div class="date ${dn}">${d.getDate()}</div>${events.filter(e=>ON(e,d)).slice(0,6).map(e=>BAR(e,d)).join('')}</div>`;}return h+'</div>';
+  for(let i=0;i<42;i++){const d=new Date(s);d.setDate(s.getDate()+i);const cn='day '+(d.getMonth()!=m?'out ':'')+(K(d)===K(cur)?'selected':'');const dn=d.getDay()===0?'sun':d.getDay()===6?'sat':'';h+=`<div class="${cn}" onclick="selectDay('${K(d)}')"><div class="date ${dn}">${d.getDate()}</div><div class="day-events">${events.filter(e=>ON(e,d)).map(e=>BAR(e,d)).join('')}</div></div>`;}return h+'</div>';
 }
 function WEEK(){
   const s=new Date(cur);s.setDate(s.getDate()-((s.getDay()+6)%7));const end=new Date(s);end.setDate(end.getDate()+6);prepareColors(s,end);
@@ -346,7 +373,16 @@ function DAY(){
   events.filter(e=>ON(e,cur)).forEach(e=>{const seg=SEG(e,cur);if(!seg)return;let[a,b]=seg,sh=DH(a,cur),eh=DH(b,cur),l=Math.max(0,(sh-6)/24)*100,r=Math.min(100,(eh-6)/24*100);if(r<=0||l>=100)return;const w=Math.max(1,r-l),night=nightOnDay(e,cur);h+=`<div class="trow"><div class="who">${E((e.vehicles||[]).join(', '))}<br>${E((e.people||[]).join(', '))}</div><div class="track"><button class="tbar ${e.kind==='off'?'off':e.kind==='plan'?'plan':''} ${CF(e)?'conflict':''} ${night?'overnight':''}" style="left:${l}%;width:${w}%;background:${BG(e,cur)}" onclick="editEvent('${E(e.id)}','${K(cur)}')">${E(e.kind==='off'?'休み':(night?'🌙 ':'')+(e.kind==='plan'?'予定 ':'')+(e.site||'未設定')+' '+e.start+'～'+e.end)}</button></div></div>`;});
   return h+'</div>';
 }
-function render(){document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===view));document.getElementById('title').textContent=`${cur.getFullYear()}年${cur.getMonth()+1}月`;document.getElementById('sub').textContent=view==='month'?'週予定':view==='week'?'日予定':'月予定';document.getElementById('main').innerHTML=view==='month'?MONTH():view==='week'?WEEK():DAY();document.getElementById('secondary').innerHTML=view==='month'?WEEK():view==='week'?DAY():MONTH();status();}
+let uiZoom=Number(localStorage.getItem('vehicleUiZoom')||1);
+function applyZoom(){
+  if(uiZoom<0.6)uiZoom=0.6;if(uiZoom>1.5)uiZoom=1.5;
+  const z=document.getElementById('zoomContent');if(z){z.style.transform='scale('+uiZoom+')';z.style.width=(100/uiZoom)+'%';}
+  const v=document.getElementById('zoomValue');if(v)v.textContent=Math.round(uiZoom*100)+'%';
+  localStorage.setItem('vehicleUiZoom',String(uiZoom));
+}
+function changeZoom(delta){uiZoom=Math.round((uiZoom+delta)*10)/10;applyZoom();}
+
+function render(){document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===view));document.getElementById('title').textContent=`${cur.getFullYear()}年${cur.getMonth()+1}月`;document.getElementById('sub').textContent=view==='month'?'週予定':view==='week'?'日予定':'月予定';document.getElementById('main').innerHTML=view==='month'?MONTH():view==='week'?'<div class="week-scroll-host">'+WEEK()+'</div>':DAY();document.getElementById('secondary').innerHTML=view==='month'?'<div class="week-scroll-host">'+WEEK()+'</div>':view==='week'?DAY():MONTH();status();}
 function status(){
   const bv=new Set(),bp=new Set();events.filter(e=>['plan','confirmed','work'].includes(e.kind)&&ON(e,cur)).forEach(e=>{(e.vehicles||[]).forEach(v=>bv.add(v));(e.people||[]).forEach(p=>bp.add(p));});
   document.getElementById('stitle').textContent='空き状況（'+K(cur)+'）';
@@ -406,6 +442,7 @@ function saveEvent(fromModal=false){
   if(old)markDirtyEvent(e,old.updatedAt,preserveAssignments);else markDirtyEvent(e,0,false);
   if(old)events=events.map(x=>String(x.id)===id?e:x);else events.push(e);
   colorPreparedFor='';persistLocal();render();
+applyZoom();
   if(fromModal)closeEventModal();
   eid=null;editAssignmentSnapshot=null;assignmentTouched={desktop:false,mobile:false};
   queueCloudSave();
