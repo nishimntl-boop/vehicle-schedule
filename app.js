@@ -3,7 +3,7 @@ const DEFAULT_VEH=[['001','2t'],['002','4t'],['003','2t'],['004','4t'],['005','2
 const DEFAULT_PEOPLE=['田中','鈴木','佐藤','山田','高橋','伊藤','渡辺','小林'];
 // 赤系は競合表示専用にするため、通常色には使わない。
 const COL=['#2563eb','#0891b2','#0f766e','#15803d','#65a30d','#ca8a04','#d97706','#ea580c','#c026d3','#9333ea','#7c3aed','#4f46e5','#4338ca','#1d4ed8','#0369a1','#0e7490','#166534','#365314','#4d7c0f','#854d0e','#a16207','#57534e','#475569','#334155','#0f3d56','#14532d','#6b21a8','#1e3a8a','#164e63','#312e81'];
-const GAS_URL='https://script.google.com/macros/s/AKfycbw6NI9FHyRj1afnCuPneuUZCcFGP3n0n0OIlMEvlSrridqC1FcQl6166th9gGSmtzTP/exec';
+const GAS_URL='https://script.google.com/macros/s/AKfycbywG4OiBm2s5onSo1jAkF4uDpChps_do99lPsSDuD-RNN_ABU9cvaooG__WSGHjsHvs/exec';
 const CLIENT_ID=localStorage.getItem('vehicleClientId')||((crypto.randomUUID&&crypto.randomUUID())||('client_'+Date.now()+'_'+Math.random().toString(36).slice(2)));
 localStorage.setItem('vehicleClientId',CLIENT_ID);
 
