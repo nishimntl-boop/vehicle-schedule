@@ -190,20 +190,7 @@
   .checks{grid-template-columns:1fr;}
 }
 </style><style>
-/* v47fix14: 月予定の1日セル内スクロール + ヘッダー非拡大ズーム */
-.day{display:flex;flex-direction:column;min-height:0;overflow:hidden;}
-.day-events{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding-right:2px;}
-.day-events .bar{margin:2px 0;}
-.zoom-tools{display:flex;align-items:center;gap:2px;margin-left:4px;flex:0 0 auto;}
-.zoom-tools button{border:1px solid #cbd3df;border-radius:5px;background:#fff;color:#172033;font-weight:900;min-width:32px;height:34px;padding:0 7px;line-height:1;}
-.zoom-tools .zoom-value{min-width:52px;font-size:11px;}
-#zoomContent{transform-origin:top left;width:100%;}
-/* カスタム倍率はこの領域だけ。上の固定ヘッダーは絶対に倍率変更しない。 */
-@media(max-width:700px){
-  .zoom-tools{margin-left:2px;}
-  .zoom-tools button{min-width:34px;height:36px;padding:0 6px;}
-  .zoom-tools .zoom-value{min-width:50px;font-size:11px;}
-}
+/* v47fix16: 月予定全件スクロール + 週予定全体表示 */
 </style><style>
 .overnight-toggle{display:flex!important;align-items:center!important;gap:10px!important;margin:10px 0!important;padding:10px 12px!important;border:2px solid #64748b!important;border-radius:8px!important;background:#f1f5f9!important;cursor:pointer!important;}
 .overnight-toggle input{width:22px!important;height:22px!important;flex:0 0 auto!important;}
@@ -213,7 +200,7 @@
 @media(max-width:700px){.overnight-toggle{min-height:58px!important;padding:11px 12px!important;margin:11px 0!important;}.overnight-toggle input{width:24px!important;height:24px!important;}.overnight-toggle b{font-size:16px;}.overnight-toggle small{font-size:12px;}}
 </style>
 <body>
-<header class="top"><div class="logo">🚚 車両・人員 配置管理</div><div class="tabs"><button data-v="day">日予定</button><button data-v="week">週予定</button><button data-v="month" class="on">月予定</button></div><div class="nav"><button id="prev">◀</button><div id="title" class="title"></div><span id="cloudStatus" class="cloud-status">共有確認中…</span><button id="cloudDiagBtn" type="button" onclick="openCloudDiag()">🔄 共有診断</button><button id="next">▶</button><button id="today">今日</button><button onclick="print()">🖨 印刷</button><button id="installBtn" type="button" onclick="installApp()" style="display:none">📱 アプリ追加</button><button class="mobile-add" type="button" onclick="newEvent()">＋ 予定</button><button id="settingsBtn" type="button" onclick="openSettings()">⚙ 設定</button></div><div class="zoom-tools" aria-label="表示倍率"><button type="button" onclick="changeZoom(-0.1)" aria-label="縮小">−</button><button type="button" class="zoom-value" id="zoomValue" onclick="resetZoom()">100%</button><button type="button" onclick="changeZoom(0.1)" aria-label="拡大">＋</button></div></header>
+<header class="top"><div class="logo">🚚 車両・人員 配置管理</div><div class="tabs"><button data-v="day">日予定</button><button data-v="week">週予定</button><button data-v="month" class="on">月予定</button></div><div class="nav"><button id="prev">◀</button><div id="title" class="title"></div><span id="cloudStatus" class="cloud-status">共有確認中…</span><button id="cloudDiagBtn" type="button" onclick="openCloudDiag()">🔄 共有診断</button><button id="next">▶</button><button id="today">今日</button><button onclick="print()">🖨 印刷</button><button id="installBtn" type="button" onclick="installApp()" style="display:none">📱 アプリ追加</button><button class="mobile-add" type="button" onclick="newEvent()">＋ 予定</button><button id="settingsBtn" type="button" onclick="openSettings()">⚙ 設定</button></div></header>
 <div id="cloudDiag" class="cloud-diag"><div class="cloud-diag-card"><h3>🔄 共有診断</h3><pre id="cloudDiagText">確認中…</pre><div class="cloud-diag-actions"><button type="button" onclick="closeCloudDiag()">閉じる</button><button type="button" class="primary" onclick="runCloudDiag()">今すぐ確認</button></div></div></div><div id="zoomContent"><div class="color-note">現場ごとに色分け　｜　<span class="red-note">赤＝車両・人員のダブルブッキング</span>　｜　<span class="off-note">休み</span></div><div class="app"><main><section class="panel"><div id="main"></div></section>
 <section class="panel"><div class="head"><span id="sub"></span><button id="subPrev" onclick="shift(-1)">◀</button><button id="subNext" onclick="shift(1)">▶</button><button class="add" onclick="newEvent()">＋ 予定追加</button></div><div id="secondary"></div></section></main>
 <aside class="side"><div class="box"><h3 id="stitle">空き状況</h3><div id="status" class="status"></div></div><div class="box"><h3>お知らせ</h3><div class="notice">・予定／確定をクリックして編集<br>・人員の「休み」を登録<br>・重複した車両／人員だけ赤色<br>・選択した日は青枠で表示</div></div>
@@ -361,26 +348,6 @@ function DAY(){
   events.filter(e=>ON(e,cur)).forEach(e=>{const seg=SEG(e,cur);if(!seg)return;const[a,b]=seg;const dayStart=new Date(K(cur)+'T00:00');const nextDay=new Date(dayStart);nextDay.setDate(nextDay.getDate()+1);const sh=Math.max(0,Math.min(24,(a-dayStart)/3600000));const eh=Math.max(0,Math.min(24,(b-dayStart)/3600000));const l=(sh/24)*100,r=(eh/24)*100;if(r<=0||l>=100||r<=l)return;const w=Math.max(1,r-l),night=nightOnDay(e,cur);h+=`<div class="trow"><div class="who">${E((e.vehicles||[]).join(', '))}<br>${E((e.people||[]).join(', '))}</div><div class="track"><button class="tbar ${e.kind==='off'?'off':e.kind==='plan'?'plan':''} ${CF(e)?'conflict':''} ${night?'overnight':''}" style="left:${l}%;width:${w}%;background:${BG(e,cur)}" onclick="editEvent('${E(e.id)}','${K(cur)}')">${E(e.kind==='off'?'休み':(night?'🌙 ':'')+(e.kind==='plan'?'予定 ':'')+(e.site||'未設定')+' '+e.start+'～'+e.end)}</button></div></div>`;});
   return h+'</div>';
 }
-let appZoom=Number(localStorage.getItem('vehicleAppZoom')||'1');
-function applyZoom(){
-  appZoom=Math.max(0.6,Math.min(1.6,Math.round(appZoom*10)/10));
-  const z=document.getElementById('zoomContent');
-  if(z){
-    z.style.transformOrigin='top left';
-    z.style.transform=`scale(${appZoom})`;
-    z.style.width=`${100/appZoom}%`;
-    requestAnimationFrame(()=>{
-      const h=z.scrollHeight;
-      z.style.minHeight='0';
-      z.style.marginBottom=`${Math.max(0,h*(appZoom-1))}px`;
-    });
-  }
-  const v=document.getElementById('zoomValue');
-  if(v)v.textContent=Math.round(appZoom*100)+'%';
-  localStorage.setItem('vehicleAppZoom',String(appZoom));
-}
-function changeZoom(delta){appZoom=Math.round((appZoom+delta)*10)/10;applyZoom();}
-function resetZoom(){appZoom=1;applyZoom();}
 
 function render(){document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===view));document.getElementById('title').textContent=`${cur.getFullYear()}年${cur.getMonth()+1}月`;document.getElementById('sub').textContent=view==='month'?'週予定':view==='week'?'日予定':'月予定';document.getElementById('main').innerHTML=view==='month'?MONTH():view==='week'?WEEK():DAY();document.getElementById('secondary').innerHTML=view==='month'?WEEK():view==='week'?DAY():MONTH();status();}
 function status(){
