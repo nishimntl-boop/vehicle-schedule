@@ -194,6 +194,27 @@
   .bar{font-size:9px;height:20px;}
   .checks{grid-template-columns:1fr;}
 }
+
+.week-shell{width:100%;}
+.week-head-scroll{position:sticky;top:var(--topbar-h,0px);z-index:40;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;background:#fff;}
+.week-head-scroll::-webkit-scrollbar{display:none;}
+.week-head-scroll .week{margin:0;}
+.week-body-scroll{overflow-x:auto;overflow-y:visible;-webkit-overflow-scrolling:touch;}
+.week-body-scroll .week{margin:0;}
+.mobile-zoom{display:none;align-items:center;gap:3px;background:#1d2943;color:#fff;border-radius:7px;padding:2px;}
+.mobile-zoom button{border:0;background:#fff;color:#172033;border-radius:5px;min-width:34px;min-height:34px;font-size:20px;font-weight:900;}
+.mobile-zoom span{min-width:48px;text-align:center;font-weight:900;font-size:12px;}
+@media (max-width:700px){
+  .mobile-zoom{display:inline-flex;}
+  .week-head-scroll{top:var(--topbar-h,0px);}
+  .week-body-scroll{overflow-x:auto;}
+  .week-header{min-width:910px;}
+  .week-body{min-width:910px;}
+  .week-head-scroll .week>div{min-height:64px;padding:7px 6px;font-size:13px;}
+  .week-head-scroll .week-switch{position:static!important;left:auto!important;}
+  .week-head-scroll .week-date{position:static!important;top:auto!important;left:auto!important;}
+  main>.panel{overflow:visible!important;}
+}
 </style><style>
 .overnight-toggle{display:flex!important;align-items:center!important;gap:10px!important;margin:10px 0!important;padding:10px 12px!important;border:2px solid #64748b!important;border-radius:8px!important;background:#f1f5f9!important;cursor:pointer!important;}
 .overnight-toggle input{width:22px!important;height:22px!important;flex:0 0 auto!important;}
@@ -203,11 +224,11 @@
 @media(max-width:700px){.overnight-toggle{min-height:58px!important;padding:11px 12px!important;margin:11px 0!important;}.overnight-toggle input{width:24px!important;height:24px!important;}.overnight-toggle b{font-size:16px;}.overnight-toggle small{font-size:12px;}}
 </style>
 <body>
-<header class="top"><div class="logo">🚚 車両・人員 配置管理</div><div class="tabs"><button data-v="day">日予定</button><button data-v="week">週予定</button><button data-v="month" class="on">月予定</button></div><div class="nav"><button id="prev">◀</button><div id="title" class="title"></div><span id="cloudStatus" class="cloud-status">共有確認中…</span><button id="cloudDiagBtn" type="button" onclick="openCloudDiag()">🔄 共有診断</button><button id="next">▶</button><button id="today">今日</button><button onclick="print()">🖨 印刷</button><button id="installBtn" type="button" onclick="installApp()" style="display:none">📱 アプリ追加</button><button class="mobile-add" type="button" onclick="newEvent()">＋ 予定</button><button id="settingsBtn" type="button" onclick="openSettings()">⚙ 設定</button></div></header>
+<header class="top"><div class="logo">🚚 車両・人員 配置管理</div><div class="tabs"><button data-v="day">日予定</button><button data-v="week">週予定</button><button data-v="month" class="on">月予定</button></div><div class="nav"><button id="prev">◀</button><div id="title" class="title"></div><span id="cloudStatus" class="cloud-status">共有確認中…</span><button id="cloudDiagBtn" type="button" onclick="openCloudDiag()">🔄 共有診断</button><button id="next">▶</button><button id="today">今日</button><button onclick="print()">🖨 印刷</button><button id="installBtn" type="button" onclick="installApp()" style="display:none">📱 アプリ追加</button><span class="mobile-zoom"><button type="button" onclick="changeUiZoom(-0.1)">−</button><span id="uiZoomValue">100%</span><button type="button" onclick="changeUiZoom(0.1)">＋</button></span><button class="mobile-add" type="button" onclick="newEvent()">＋ 予定</button><button id="settingsBtn" type="button" onclick="openSettings()">⚙ 設定</button></div></header>
 <div id="cloudDiag" class="cloud-diag"><div class="cloud-diag-card"><h3>🔄 共有診断</h3><pre id="cloudDiagText">確認中…</pre><div class="cloud-diag-actions"><button type="button" onclick="closeCloudDiag()">閉じる</button><button type="button" class="primary" onclick="runCloudDiag()">今すぐ確認</button></div></div></div><div class="color-note">現場ごとに色分け　｜　<span class="red-note">赤＝車両・人員のダブルブッキング</span>　｜　<span class="off-note">休み</span></div><div class="app"><main><section class="panel"><div id="main"></div></section>
-<section class="panel"><div class="head"><span id="sub"></span><button id="subPrev" onclick="shift(-1)">◀</button><button id="subNext" onclick="shift(1)">▶</button><button class="add" onclick="newEvent()">＋ 予定追加</button></div><div id="secondary"></div></section></main>
+<section class="panel"><div class="head"><span id="sub"></span><button id="subPrev" onclick="shift(-1)">◀</button><button id="subNext" onclick="shift(1)">▶</button><button class="add" type="button" onclick="newEvent()">＋ 予定追加</button></div><div id="secondary"></div></section></main>
 <aside class="side"><div class="box"><h3 id="stitle">空き状況</h3><div id="status" class="status"></div></div><div class="box"><h3>お知らせ</h3><div class="notice">・予定／確定をクリックして編集<br>・人員の「休み」を登録<br>・重複した車両／人員だけ赤色<br>・選択した日は青枠で表示</div></div>
-<div class="box form desktop-form"><h3 id="ftitle">予定の追加</h3><label>区分</label><select id="kind"><option value="plan">予定</option><option value="confirmed">確定</option><option value="off">休み</option></select><label>現場</label><input id="site" placeholder="現場A"><label>仕事内容</label><input id="work" placeholder="資材搬入など"><div class="two"><div><label>開始日</label><input id="sd" type="date"></div><div><label>開始</label><input id="st" type="time" value="08:00"></div></div><div class="two"><div><label>終了日</label><input id="ed" type="date"></div><div><label>終了</label><input id="et" type="time" value="16:00"></div></div><label class="overnight-toggle"><input id="overnight" type="checkbox" onchange="toggleOvernight('')"><span><b>🌙 日またぎ</b><small> 翌日まで続く予定</small></span></label><label>車両（複数選択可）</label><div id="vs" class="checks"></div><label>人員（複数選択可）</label><div id="ps" class="checks"></div><div class="actions"><button class="del" onclick="delEvent()">削除</button><button onclick="newEvent()">キャンセル</button><button class="save" onclick="saveEvent()">更新</button></div></div></aside></div>
+</aside></div>
 <div id="eventModal" class="event-modal" onclick="if(event.target===this)closeEventModal()">
   <div class="event-card">
     <div class="modal-head"><h2 id="mftitle">予定の追加</h2><button type="button" onclick="closeEventModal()">×</button></div>
