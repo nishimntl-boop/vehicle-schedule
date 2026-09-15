@@ -1,4 +1,3 @@
-
 const DEFAULT_VEH=[['001','2t'],['002','4t'],['003','2t'],['004','4t'],['005','2t'],['006','4t'],['007','2t']];
 const DEFAULT_PEOPLE=['田中','鈴木','佐藤','山田','高橋','伊藤','渡辺','小林'];
 // 赤系は競合表示専用にするため、通常色には使わない。
@@ -26,6 +25,8 @@ let cur=new Date();cur.setHours(0,0,0,0);
 let view='month',eid=null,weekMode=localStorage.getItem('vehicleWeekMode')||'people';
 let dirtyEvents=new Map();
 let pendingDeletes=new Map();
+let assignmentTouched={desktop:false,mobile:false};
+let editAssignmentSnapshot=null;
 let masterDirty=false;
 let cloudSaving=false,cloudLoading=false,cloudTimer=null;
 let cloudMasterUpdatedAt=Number(localStorage.getItem('vehicleCloudMasterUpdatedAt')||0);
@@ -54,11 +55,12 @@ function setCloudStatus(t){const el=document.getElementById('cloudStatus');if(el
 function hash(s){let h=2166136261;for(let i=0;i<String(s).length;i++){h^=String(s).charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
 function rgb(hex){return [parseInt(hex.slice(1,3),16),parseInt(hex.slice(3,5),16),parseInt(hex.slice(5,7),16)];}
 function colorDist(a,b){const x=rgb(a),y=rgb(b);return Math.sqrt((x[0]-y[0])**2+(x[1]-y[1])**2+(x[2]-y[2])**2);}
+function siteColorKey(site){return String(site||'未設定').trim().replace(/\s+/g,' ')||'未設定';}
 function prepareColors(startDate,endDate){
-  const key=events.map(e=>`${e.id}:${e.site}:${e.kind}:${e.date}:${e.endDate}`).join(';');
+  const key=events.map(e=>`${e.id}:${siteColorKey(e.site)}:${e.kind}:${e.date}:${e.endDate}`).join(';');
   if(colorPreparedFor===key)return;
   colorCache.clear();
-  const sites=[...new Set(events.filter(e=>e.kind==='confirmed'&&e.site).map(e=>String(e.site)))];
+  const sites=[...new Set(events.filter(e=>['confirmed','work'].includes(e.kind)&&siteColorKey(e.site)!=='未設定').map(e=>siteColorKey(e.site)))];
   const assigned=new Map();
   const used=[];
   sites.sort((a,b)=>hash(a)-hash(b));
@@ -76,7 +78,7 @@ function prepareColors(startDate,endDate){
   colorPreparedFor=key;
 }
 function C(site,date){
-  const name=String(site||'未設定');
+  const name=siteColorKey(site);
   if(!colorCache.has('site|'+name))prepareColors(cur,cur);
   return colorCache.get('site|'+name)||COL[hash(name)%COL.length];
 }
@@ -89,7 +91,7 @@ function ON(e,d){const day=new Date(K(d)+'T00:00'),next=new Date(day);next.setDa
 function SEG(e,d){const day=new Date(K(d)+'T00:00'),next=new Date(day);next.setDate(next.getDate()+1);const[a,b]=R(e),s=a<day?day:a,t=b>next?next:b;return t>s?[s,t]:null;}
 function nightOnDay(e,d){const day=K(d);return e.date!==day||String(e.endDate||e.date)!==String(e.date)||R(e)[1].getTime()>new Date(day+'T23:59:59').getTime();}
 function BG(e,d){if(e.kind==='plan')return '#9ca3af';if(e.kind==='off')return '#f7d8e6';if(CF(e))return '#dc2626';return C(e.site||'未設定',d);}
-function WTXT(e,d){if(e.kind==='off')return '休み';const night=nightOnDay(e,d);return (e.kind==='plan'?'予定 ':'')+(night?'🌙 ':'')+(e.site||'未設定')+' '+e.start+'-'+e.end;}
+function WTXT(e,d){return e.kind==='off'?'休み':(nightOnDay(e,d)?'🌙 ':'')+(e.kind==='plan'?'予定 ':'')+(e.site||'未設定')+' '+e.start+'-'+e.end;}
 function BAR(e,d){const night=nightOnDay(e,d),bg=BG(e,d);return `<button class="bar ${e.kind==='off'?'off ':e.kind==='plan'?'plan ':''}${CF(e)?'conf ':''}${night?'overnight':''}" style="background:${bg}" onclick="editEvent('${E(e.id)}','${K(d)}');event.stopPropagation()">${E(WTXT(e,d))}</button>`;}
 function MONTH(){
   const y=cur.getFullYear(),m=cur.getMonth(),s=new Date(y,m,1);s.setDate(1-((s.getDay()+6)%7));const end=new Date(s);end.setDate(end.getDate()+41);prepareColors(s,end);
@@ -99,7 +101,7 @@ function MONTH(){
 function WEEK(){
   const s=new Date(cur);s.setDate(s.getDate()-((s.getDay()+6)%7));const end=new Date(s);end.setDate(end.getDate()+6);prepareColors(s,end);
   let h='<div class="week"><div class="wh week-switch"><span>週予定</span><div class="week-mode"><button class="wm '+(weekMode==='people'?'on':'')+'" onclick="setWeekMode(\'people\',event)">人員別</button><button class="wm '+(weekMode==='vehicle'?'on':'')+'" onclick="setWeekMode(\'vehicle\',event)">車両別</button></div></div>';
-  for(let i=0;i<7;i++){const d=new Date(s);d.setDate(s.getDate()+i);h+='<div class="wh week-date" onclick="selectWeekDate(\''+K(d)+'\',event)">'+(d.getMonth()+1)+'/'+d.getDate()+'（'+'日月火水木金土'[d.getDay()]+'）</div>';}
+  for(let i=0;i<7;i++){const d=new Date(s);d.setDate(s.getDate()+i);h+='<div class="wh week-date '+(K(d)===K(cur)?'selected':'')+'" onclick="selectDay(\''+K(d)+'\')">'+(d.getMonth()+1)+'/'+d.getDate()+'（'+'日月火水木金土'[d.getDay()]+'）</div>'; }
   const rows=weekMode==='vehicle'?VEH.map(v=>({label:v[0]+'（'+v[1]+'）',id:v[0],field:'vehicles'})):PEOPLE.map(p=>({label:p,id:p,field:'people'}));
   rows.forEach(r=>{
     h+='<div class="person">'+E(r.label)+'</div>';
@@ -120,7 +122,7 @@ function DH(dt,day){let h=dt.getHours()+dt.getMinutes()/60;if(K(dt)!==K(day)||h<
 function DAY(){
   const start=new Date(cur);start.setDate(start.getDate()-1);const end=new Date(cur);end.setDate(end.getDate()+1);prepareColors(start,end);
   let h='<div class="timeline"><div class="times"><div>車両 / 人員</div>'+[6,8,10,12,14,16,18,20,22,24,2,4,6].map(x=>`<div>${x}:00</div>`).join('')+'</div>';
-  events.filter(e=>ON(e,cur)).forEach(e=>{const seg=SEG(e,cur);if(!seg)return;let[a,b]=seg,sh=DH(a,cur),eh=DH(b,cur),l=Math.max(0,(sh-6)/24)*100,r=Math.min(100,(eh-6)/24*100);if(r<=0||l>=100)return;const w=Math.max(1,r-l),night=nightOnDay(e,cur);h+=`<div class="trow"><div class="who">${E((e.vehicles||[]).join(', '))}<br>${E((e.people||[]).join(', '))}</div><div class="track"><button class="tbar ${e.kind==='off'?'off':e.kind==='plan'?'plan':''} ${CF(e)?'conflict':''} ${night?'overnight':''}" style="left:${l}%;width:${w}%;background:${BG(e,cur)}" onclick="editEvent('${E(e.id)}','${K(cur)}')">${E(e.kind==='off'?'休み':(e.kind==='plan'?'予定 ':'')+(night?'🌙 ':'')+(e.site||'未設定')+' '+e.start+'～'+e.end)}</button></div></div>`;});
+  events.filter(e=>ON(e,cur)).forEach(e=>{const seg=SEG(e,cur);if(!seg)return;let[a,b]=seg,sh=DH(a,cur),eh=DH(b,cur),l=Math.max(0,(sh-6)/24)*100,r=Math.min(100,(eh-6)/24*100);if(r<=0||l>=100)return;const w=Math.max(1,r-l),night=nightOnDay(e,cur);h+=`<div class="trow"><div class="who">${E((e.vehicles||[]).join(', '))}<br>${E((e.people||[]).join(', '))}</div><div class="track"><button class="tbar ${e.kind==='off'?'off':e.kind==='plan'?'plan':''} ${CF(e)?'conflict':''} ${night?'overnight':''}" style="left:${l}%;width:${w}%;background:${BG(e,cur)}" onclick="editEvent('${E(e.id)}','${K(cur)}')">${E(e.kind==='off'?'休み':(night?'🌙 ':'')+(e.kind==='plan'?'予定 ':'')+(e.site||'未設定')+' '+e.start+'～'+e.end)}</button></div></div>`;});
   return h+'</div>';
 }
 function render(){document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===view));document.getElementById('title').textContent=`${cur.getFullYear()}年${cur.getMonth()+1}月`;document.getElementById('sub').textContent=view==='month'?'週予定':view==='week'?'日予定':'月予定';document.getElementById('main').innerHTML=view==='month'?MONTH():view==='week'?WEEK():DAY();document.getElementById('secondary').innerHTML=view==='month'?WEEK():view==='week'?DAY():MONTH();status();}
@@ -130,10 +132,21 @@ function status(){
   document.getElementById('status').innerHTML=VEH.map(v=>`<div>${E(v[0])}（${E(v[1])}） <span class="${bv.has(v[0])?'busy':'free'}">${bv.has(v[0])?'● 稼働':'○ 空き'}</span></div>`).join('')+PEOPLE.map(p=>`<div>${E(p)} <span class="${bp.has(p)?'busy':'free'}">${bp.has(p)?'● 稼働':'○ 空き'}</span></div>`).join('');
 }
 function rebuildChecks(){
+  const currentDesktopV=assignmentTouched.desktop?[...document.querySelectorAll('.v:checked')].map(x=>x.value):null;
+  const currentDesktopP=assignmentTouched.desktop?[...document.querySelectorAll('.p:checked')].map(x=>x.value):null;
+  const currentMobileV=assignmentTouched.mobile?[...document.querySelectorAll('.mv:checked')].map(x=>x.value):null;
+  const currentMobileP=assignmentTouched.mobile?[...document.querySelectorAll('.mp:checked')].map(x=>x.value):null;
   document.getElementById('vs').innerHTML=VEH.map(v=>`<label class="check"><input class="v" type="checkbox" value="${E(v[0])}"> ${E(v[0])} (${E(v[1])})</label>`).join('');
   document.getElementById('ps').innerHTML=PEOPLE.map(p=>`<label class="check"><input class="p" type="checkbox" value="${E(p)}"> ${E(p)}</label>`).join('');
   document.getElementById('mvs').innerHTML=VEH.map(v=>`<label class="check"><input class="mv" type="checkbox" value="${E(v[0])}"> ${E(v[0])} (${E(v[1])})</label>`).join('');
   document.getElementById('mps').innerHTML=PEOPLE.map(p=>`<label class="check"><input class="mp" type="checkbox" value="${E(p)}"> ${E(p)}</label>`).join('');
+  const old=eid?events.find(x=>String(x.id)===String(eid)):null;
+  const dv=currentDesktopV??(old?(old.vehicles||[]):[]),dp=currentDesktopP??(old?(old.people||[]):[]);
+  const mv=currentMobileV??(old?(old.vehicles||[]):[]),mp=currentMobileP??(old?(old.people||[]):[]);
+  document.querySelectorAll('.v').forEach(x=>x.checked=dv.includes(x.value));
+  document.querySelectorAll('.p').forEach(x=>x.checked=dp.includes(x.value));
+  document.querySelectorAll('.mv').forEach(x=>x.checked=mv.includes(x.value));
+  document.querySelectorAll('.mp').forEach(x=>x.checked=mp.includes(x.value));
 }
 function setFormValues(prefix,e){document.getElementById(prefix+'kind').value=e.kind||'plan';document.getElementById(prefix+'site').value=e.site||'';document.getElementById(prefix+'work').value=e.work||'';document.getElementById(prefix+'sd').value=e.date||K(cur);document.getElementById(prefix+'ed').value=e.endDate||e.date||K(cur);document.getElementById(prefix+'st').value=e.start||'08:00';document.getElementById(prefix+'et').value=e.end||'16:00';document.querySelectorAll('.'+(prefix==='m'?'mv':'v')).forEach(x=>x.checked=(e.vehicles||[]).includes(x.value));document.querySelectorAll('.'+(prefix==='m'?'mp':'p')).forEach(x=>x.checked=(e.people||[]).includes(x.value));;const ot=document.getElementById(prefix+'overnight');if(ot)ot.checked=(e.endDate||e.date)!==e.date;}
 function getFormValues(prefix){return {kind:document.getElementById(prefix+'kind').value,site:document.getElementById(prefix+'site').value,work:document.getElementById(prefix+'work').value,date:document.getElementById(prefix+'sd').value,endDate:document.getElementById(prefix+'ed').value,start:document.getElementById(prefix+'st').value,end:document.getElementById(prefix+'et').value,vehicles:[...document.querySelectorAll('.'+(prefix==='m'?'mv':'v')+':checked')].map(x=>x.value),people:[...document.querySelectorAll('.'+(prefix==='m'?'mp':'p')+':checked')].map(x=>x.value)};}
@@ -142,27 +155,31 @@ function toggleOvernight(prefix){const ot=document.getElementById(prefix+'overni
 
 function openEventModal(){document.getElementById('eventModal').classList.add('open');document.body.style.overflow='hidden';}
 function closeEventModal(){document.getElementById('eventModal').classList.remove('open');document.body.style.overflow='';}
-function newEvent(){eid=null;const blank={kind:'plan',site:'',work:'',date:K(cur),endDate:K(cur),start:'08:00',end:'16:00',vehicles:[],people:[]};setFormValues('m',blank);setFormValues('',blank);document.getElementById('ftitle').textContent='予定の追加';document.getElementById('mftitle').textContent='予定の追加';openEventModal();}
-function editEvent(id,d){const e=events.find(x=>String(x.id)===String(id));if(!e)return;cur=new Date(d+'T00:00');eid=e.id;setFormValues('m',e);setFormValues('',e);document.getElementById('ftitle').textContent='予定の編集';document.getElementById('mftitle').textContent='予定の編集';render();openEventModal();}
+function newEvent(){eid=null;assignmentTouched={desktop:false,mobile:false};editAssignmentSnapshot=null;const blank={kind:'plan',site:'',work:'',date:K(cur),endDate:K(cur),start:'08:00',end:'16:00',vehicles:[],people:[]};setFormValues('m',blank);setFormValues('',blank);document.getElementById('ftitle').textContent='予定の追加';document.getElementById('mftitle').textContent='予定の追加';openEventModal();}
+function editEvent(id,d){assignmentTouched={desktop:false,mobile:false};const e=events.find(x=>String(x.id)===String(id));if(!e)return;cur=new Date(d+'T00:00');eid=e.id;editAssignmentSnapshot={vehicles:(e.vehicles||[]).map(String),people:(e.people||[]).map(String)};setFormValues('m',e);setFormValues('',e);document.getElementById('ftitle').textContent='予定の編集';document.getElementById('mftitle').textContent='予定の編集';render();openEventModal();}
 function selectDay(d){cur=new Date(d+'T00:00');render();}
-function selectWeekDate(d,ev){if(ev)ev.stopPropagation();cur=new Date(d+'T00:00');newEvent();}
-function markDirtyEvent(e,baseUpdatedAt){e.updatedAt=Number(e.updatedAt||baseUpdatedAt||0);dirtyEvents.set(String(e.id),{event:JSON.parse(JSON.stringify(e)),baseUpdatedAt:Number(baseUpdatedAt||0)});pendingDeletes.delete(String(e.id));}
+function selectWeekDate(d,ev){if(ev)ev.stopPropagation();cur=new Date(d+'T00:00');render();}
+function markDirtyEvent(e,baseUpdatedAt,preserveAssignments=false){e.updatedAt=Number(e.updatedAt||baseUpdatedAt||0);const prev=dirtyEvents.get(String(e.id));dirtyEvents.set(String(e.id),{event:JSON.parse(JSON.stringify(e)),baseUpdatedAt:Number(baseUpdatedAt||0),preserveAssignments:!!preserveAssignments||!!(prev&&prev.preserveAssignments)});pendingDeletes.delete(String(e.id));}
+function sameAssignment(a,b){return JSON.stringify((a||[]).map(String).sort())===JSON.stringify((b||[]).map(String).sort());}
 function saveEvent(fromModal=false){
-  const prefix=fromModal?'m':'';const form=getFormValues(prefix);if(!form.date)return alert('開始日を入力してください'); const ot=document.getElementById(prefix+'overnight'); if(ot) form.endDate=ot.checked?(form.endDate&&form.endDate!==form.date?form.endDate:addDays(form.date,1)):form.date;
+  const prefix=fromModal?'m':'';const form=getFormValues(prefix);if(!form.date)return alert('開始日を入力してください');
+  const ot=document.getElementById(prefix+'overnight');if(ot)form.endDate=ot.checked?(form.endDate&&form.endDate!==form.date?form.endDate:addDays(form.date,1)):form.date;
   const old=eid?events.find(x=>String(x.id)===String(eid)):null;
+  let preserveAssignments=false;
   if(old){
-    // 区分だけ変更した場合など、車両・人員欄に触っていない編集では既存割当を必ず保持。
-    const otherPrefix=prefix==='m'?'':'m';
-    const otherForm=getFormValues(otherPrefix);
-    const assignmentChanged=JSON.stringify(form.vehicles)!==JSON.stringify(old.vehicles||[])||JSON.stringify(form.people)!==JSON.stringify(old.people||[]);
-    const otherAssignmentChanged=JSON.stringify(otherForm.vehicles)!==JSON.stringify(old.vehicles||[])||JSON.stringify(otherForm.people)!==JSON.stringify(old.people||[]);
-    if(!assignmentChanged&&!otherAssignmentChanged){form.vehicles=(old.vehicles||[]).slice();form.people=(old.people||[]).slice();}
+    const snap=editAssignmentSnapshot||{vehicles:old.vehicles||[],people:old.people||[]};
+    // 区分・現場・日時だけを編集した場合は、車両・人員を絶対に変更しない。
+    // 実際にチェックを変更した時だけ、その変更内容（全解除も含む）を保存する。
+    const currentV=form.vehicles||[],currentP=form.people||[];
+    preserveAssignments=sameAssignment(currentV,snap.vehicles)&&sameAssignment(currentP,snap.people);
+    if(preserveAssignments){form.vehicles=(old.vehicles||[]).map(String);form.people=(old.people||[]).map(String);}
   }
   const e=normalizeEvent(Object.assign({},old||{},form,{id:old?old.id:(Date.now()+'_'+Math.random().toString(36).slice(2))}));
   if(e.kind==='off'){e.site='';e.work='';}
-  if(old)markDirtyEvent(e,old.updatedAt);else markDirtyEvent(e,0);
+  if(old)markDirtyEvent(e,old.updatedAt,preserveAssignments);else markDirtyEvent(e,0,false);
   if(old)events=events.map(x=>String(x.id)===String(old.id)?e:x);else events.push(e);
-  colorPreparedFor='';persistLocal();render();eid=null;if(fromModal)closeEventModal();setFormValues('',{kind:'plan',site:'',work:'',date:K(cur),endDate:K(cur),start:'08:00',end:'16:00',vehicles:[],people:[]});queueCloudSave();
+  colorPreparedFor='';persistLocal();render();eid=null;editAssignmentSnapshot=null;if(fromModal)closeEventModal();
+  setFormValues('',{kind:'plan',site:'',work:'',date:K(cur),endDate:K(cur),start:'08:00',end:'16:00',vehicles:[],people:[]});queueCloudSave();
 }
 function delEvent(fromModal=false){if(!eid)return;if(!confirm('この予定を削除しますか？'))return;const old=events.find(x=>String(x.id)===String(eid));if(old){pendingDeletes.set(String(old.id),{id:String(old.id),baseUpdatedAt:Number(old.updatedAt||0)});dirtyEvents.delete(String(old.id));events=events.filter(x=>String(x.id)!==String(eid));persistLocal();queueCloudSave();}eid=null;if(fromModal)closeEventModal();render();}
 function shift(n){if(view==='month')cur.setMonth(cur.getMonth()+n);else if(view==='week')cur.setDate(cur.getDate()+7*n);else cur.setDate(cur.getDate()+n);render();}
@@ -175,6 +192,7 @@ function restoreDirty(){
   masterDirty=localStorage.getItem('vehicleMasterDirty')==='1';
 }
 restoreDirty();
+document.addEventListener('change',e=>{if(e.target.classList.contains('v')||e.target.classList.contains('p'))assignmentTouched.desktop=true;if(e.target.classList.contains('mv')||e.target.classList.contains('mp'))assignmentTouched.mobile=true;});
 
 let jsonpSeq=0;
 function jsonpGet(timeout=15000){return new Promise((resolve,reject)=>{const cb='__vehicleScheduleJsonp_'+Date.now()+'_'+(++jsonpSeq),script=document.createElement('script');let done=false;const timer=setTimeout(()=>finish(new Error('GAS読み込みタイムアウト')),timeout);function finish(err,data){if(done)return;done=true;clearTimeout(timer);if(script.parentNode)script.parentNode.removeChild(script);try{delete window[cb]}catch(e){window[cb]=undefined}err?reject(err):resolve(data);}window[cb]=data=>finish(null,data);script.onerror=()=>finish(new Error('GAS読み込みエラー'));script.src=GAS_URL+'?api=1&nocache=1&prefix='+encodeURIComponent(cb)+'&_='+Date.now();document.head.appendChild(script);});}
@@ -185,7 +203,7 @@ async function postCloud(){
   if(cloudSaving||(!dirtyEvents.size&&!pendingDeletes.size&&!masterDirty))return;
   cloudSaving=true;setCloudStatus('共有保存中…');
   const patch=buildPatch();
-  const sentIds=new Map([...dirtyEvents].map(([id,x])=>[id,{baseUpdatedAt:Number(x.baseUpdatedAt||0),event:x.event}]));
+  const sentIds=new Map([...dirtyEvents].map(([id,x])=>[id,{baseUpdatedAt:Number(x.baseUpdatedAt||0),event:x.event,preserveAssignments:!!x.preserveAssignments}]));
   const sentDeletes=new Map([...pendingDeletes]);
   const sentMaster=masterDirty, sentMasterBase=cloudMasterUpdatedAt;
   let retry=false;
@@ -199,7 +217,10 @@ async function postCloud(){
     sentIds.forEach((meta,id)=>{
       const r=remoteById.get(id);
       if(r&&String(r.updatedBy||'')===CLIENT_ID&&Number(r.updatedAt||0)>meta.baseUpdatedAt){
-        events=events.map(e=>String(e.id)===id?r:e);dirtyEvents.delete(id);accepted.push(id);
+        const acceptedEvent=Object.assign({},r);
+        // ステータス変更だけで保存した予定は、サーバー応答でも元の割当を優先して保持。
+        if(meta.preserveAssignments){acceptedEvent.vehicles=(meta.event.vehicles||[]).map(String);acceptedEvent.people=(meta.event.people||[]).map(String);}
+        events=events.map(e=>String(e.id)===id?normalizeEvent(acceptedEvent):e);dirtyEvents.delete(id);accepted.push(id);
       }
     });
     const remoteDeleted=server.deleted||{};
@@ -267,5 +288,5 @@ setInterval(()=>{if(!cloudSaving&&!cloudLoading)loadCloud();},7000);
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;const b=document.getElementById('installBtn');if(b)b.style.display='';});
 window.addEventListener('appinstalled',()=>{deferredInstallPrompt=null;const b=document.getElementById('installBtn');if(b)b.style.display='none';});
 async function installApp(){if(deferredInstallPrompt){deferredInstallPrompt.prompt();try{await deferredInstallPrompt.userChoice;}catch(e){}deferredInstallPrompt=null;const b=document.getElementById('installBtn');if(b)b.style.display='none';return;}alert('iPhone/iPad：共有ボタン →「ホーム画面に追加」\nAndroid：ブラウザの「アプリをインストール」または「ホーム画面に追加」から登録してください。');}
-if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=47fix3').catch(err=>console.warn('PWA登録失敗',err)));
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=47fix8').catch(err=>console.warn('PWA登録失敗',err)));
 

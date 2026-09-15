@@ -187,13 +187,20 @@
   .bar{font-size:9px;height:20px;}
   .checks{grid-template-columns:1fr;}
 }
+</style><style>
+.overnight-toggle{display:flex!important;align-items:center!important;gap:10px!important;margin:10px 0!important;padding:10px 12px!important;border:2px solid #64748b!important;border-radius:8px!important;background:#f1f5f9!important;cursor:pointer!important;}
+.overnight-toggle input{width:22px!important;height:22px!important;flex:0 0 auto!important;}
+.overnight-toggle span{display:flex;flex-direction:column;line-height:1.25;}
+.overnight-toggle b{font-size:15px;}
+.overnight-toggle small{font-size:11px;color:#475569;font-weight:700;margin-top:2px;}
+@media(max-width:700px){.overnight-toggle{min-height:58px!important;padding:11px 12px!important;margin:11px 0!important;}.overnight-toggle input{width:24px!important;height:24px!important;}.overnight-toggle b{font-size:16px;}.overnight-toggle small{font-size:12px;}}
 </style>
 <body>
 <header class="top"><div class="logo">🚚 車両・人員 配置管理</div><div class="tabs"><button data-v="day">日予定</button><button data-v="week">週予定</button><button data-v="month" class="on">月予定</button></div><div class="nav"><button id="prev">◀</button><div id="title" class="title"></div><span id="cloudStatus" class="cloud-status">共有確認中…</span><button id="cloudDiagBtn" type="button" onclick="openCloudDiag()">🔄 共有診断</button><button id="next">▶</button><button id="today">今日</button><button onclick="print()">🖨 印刷</button><button id="installBtn" type="button" onclick="installApp()" style="display:none">📱 アプリ追加</button><button class="mobile-add" type="button" onclick="newEvent()">＋ 予定</button><button id="settingsBtn" type="button" onclick="openSettings()">⚙ 設定</button></div></header>
 <div id="cloudDiag" class="cloud-diag"><div class="cloud-diag-card"><h3>🔄 共有診断</h3><pre id="cloudDiagText">確認中…</pre><div class="cloud-diag-actions"><button type="button" onclick="closeCloudDiag()">閉じる</button><button type="button" class="primary" onclick="runCloudDiag()">今すぐ確認</button></div></div></div><div class="color-note">現場ごとに色分け　｜　<span class="red-note">赤＝車両・人員のダブルブッキング</span>　｜　<span class="off-note">休み</span></div><div class="app"><main><section class="panel"><div id="main"></div></section>
 <section class="panel"><div class="head"><span id="sub"></span><button id="subPrev" onclick="shift(-1)">◀</button><button id="subNext" onclick="shift(1)">▶</button><button class="add" onclick="newEvent()">＋ 予定追加</button></div><div id="secondary"></div></section></main>
 <aside class="side"><div class="box"><h3 id="stitle">空き状況</h3><div id="status" class="status"></div></div><div class="box"><h3>お知らせ</h3><div class="notice">・予定／確定をクリックして編集<br>・人員の「休み」を登録<br>・重複した車両／人員だけ赤色<br>・選択した日は青枠で表示</div></div>
-<div class="box form desktop-form"><h3 id="ftitle">予定の追加</h3><label>区分</label><select id="kind"><option value="plan">予定</option><option value="confirmed">確定</option><option value="off">休み</option></select><label>現場</label><input id="site" placeholder="現場A"><label>仕事内容</label><input id="work" placeholder="資材搬入など"><div class="two"><div><label>開始日</label><input id="sd" type="date"></div><div><label>開始</label><input id="st" type="time" value="08:00"></div></div><div class="two"><div><label>終了日</label><input id="ed" type="date"></div><div><label>終了</label><input id="et" type="time" value="16:00"></div></div><label class="overnight-toggle"><input id="overnight" type="checkbox" onchange="toggleOvernight('')"> 🌙 日またぎ</label><label>車両（複数選択可）</label><div id="vs" class="checks"></div><label>人員（複数選択可）</label><div id="ps" class="checks"></div><div class="actions"><button class="del" onclick="delEvent()">削除</button><button onclick="newEvent()">キャンセル</button><button class="save" onclick="saveEvent()">更新</button></div></div></aside></div>
+<div class="box form desktop-form"><h3 id="ftitle">予定の追加</h3><label>区分</label><select id="kind"><option value="plan">予定</option><option value="confirmed">確定</option><option value="off">休み</option></select><label>現場</label><input id="site" placeholder="現場A"><label>仕事内容</label><input id="work" placeholder="資材搬入など"><div class="two"><div><label>開始日</label><input id="sd" type="date"></div><div><label>開始</label><input id="st" type="time" value="08:00"></div></div><div class="two"><div><label>終了日</label><input id="ed" type="date"></div><div><label>終了</label><input id="et" type="time" value="16:00"></div></div><label class="overnight-toggle"><input id="overnight" type="checkbox" onchange="toggleOvernight('')"><span><b>🌙 日またぎ</b><small> 翌日まで続く予定</small></span></label><label>車両（複数選択可）</label><div id="vs" class="checks"></div><label>人員（複数選択可）</label><div id="ps" class="checks"></div><div class="actions"><button class="del" onclick="delEvent()">削除</button><button onclick="newEvent()">キャンセル</button><button class="save" onclick="saveEvent()">更新</button></div></div></aside></div>
 <div id="eventModal" class="event-modal" onclick="if(event.target===this)closeEventModal()">
   <div class="event-card">
     <div class="modal-head"><h2 id="mftitle">予定の追加</h2><button type="button" onclick="closeEventModal()">×</button></div>
@@ -202,7 +209,7 @@
       <label>現場</label><input id="msite" placeholder="現場A">
       <label>仕事内容</label><input id="mwork" placeholder="資材搬入など">
       <div class="two"><div><label>開始日</label><input id="msd" type="date"></div><div><label>開始</label><input id="mst" type="time" value="08:00"></div></div>
-      <div class="two"><div><label>終了日</label><input id="med" type="date"></div><div><label>終了</label><input id="met" type="time" value="16:00"></div></div><label class="overnight-toggle"><input id="movernight" type="checkbox" onchange="toggleOvernight('m')"> 🌙 日またぎ</label>
+      <div class="two"><div><label>終了日</label><input id="med" type="date"></div><div><label>終了</label><input id="met" type="time" value="16:00"></div></div><label class="overnight-toggle"><input id="movernight" type="checkbox" onchange="toggleOvernight('m')"><span><b>🌙 日またぎ</b><small> 翌日まで続く予定</small></span></label>
       <label>車両（複数選択可）</label><div id="mvs" class="checks"></div>
       <label>人員（複数選択可）</label><div id="mps" class="checks"></div>
       <div class="actions"><button class="del" type="button" onclick="delEvent(true)">削除</button><button type="button" onclick="closeEventModal()">キャンセル</button><button class="save" type="button" onclick="saveEvent(true)">保存</button></div>
@@ -238,6 +245,7 @@ let view='month',eid=null,weekMode=localStorage.getItem('vehicleWeekMode')||'peo
 let dirtyEvents=new Map();
 let pendingDeletes=new Map();
 let assignmentTouched={desktop:false,mobile:false};
+let editAssignmentSnapshot=null;
 let masterDirty=false;
 let cloudSaving=false,cloudLoading=false,cloudTimer=null;
 let cloudMasterUpdatedAt=Number(localStorage.getItem('vehicleCloudMasterUpdatedAt')||0);
@@ -366,24 +374,31 @@ function toggleOvernight(prefix){const ot=document.getElementById(prefix+'overni
 
 function openEventModal(){document.getElementById('eventModal').classList.add('open');document.body.style.overflow='hidden';}
 function closeEventModal(){document.getElementById('eventModal').classList.remove('open');document.body.style.overflow='';}
-function newEvent(){eid=null;assignmentTouched={desktop:false,mobile:false};const blank={kind:'plan',site:'',work:'',date:K(cur),endDate:K(cur),start:'08:00',end:'16:00',vehicles:[],people:[]};setFormValues('m',blank);setFormValues('',blank);document.getElementById('ftitle').textContent='予定の追加';document.getElementById('mftitle').textContent='予定の追加';openEventModal();}
-function editEvent(id,d){assignmentTouched={desktop:false,mobile:false};const e=events.find(x=>String(x.id)===String(id));if(!e)return;cur=new Date(d+'T00:00');eid=e.id;setFormValues('m',e);setFormValues('',e);document.getElementById('ftitle').textContent='予定の編集';document.getElementById('mftitle').textContent='予定の編集';render();openEventModal();}
+function newEvent(){eid=null;assignmentTouched={desktop:false,mobile:false};editAssignmentSnapshot=null;const blank={kind:'plan',site:'',work:'',date:K(cur),endDate:K(cur),start:'08:00',end:'16:00',vehicles:[],people:[]};setFormValues('m',blank);setFormValues('',blank);document.getElementById('ftitle').textContent='予定の追加';document.getElementById('mftitle').textContent='予定の追加';openEventModal();}
+function editEvent(id,d){assignmentTouched={desktop:false,mobile:false};const e=events.find(x=>String(x.id)===String(id));if(!e)return;cur=new Date(d+'T00:00');eid=e.id;editAssignmentSnapshot={vehicles:(e.vehicles||[]).map(String),people:(e.people||[]).map(String)};setFormValues('m',e);setFormValues('',e);document.getElementById('ftitle').textContent='予定の編集';document.getElementById('mftitle').textContent='予定の編集';render();openEventModal();}
 function selectDay(d){cur=new Date(d+'T00:00');render();}
-function selectWeekDate(d,ev){if(ev)ev.stopPropagation();cur=new Date(d+'T00:00');newEvent();}
-function markDirtyEvent(e,baseUpdatedAt){e.updatedAt=Number(e.updatedAt||baseUpdatedAt||0);dirtyEvents.set(String(e.id),{event:JSON.parse(JSON.stringify(e)),baseUpdatedAt:Number(baseUpdatedAt||0)});pendingDeletes.delete(String(e.id));}
+function selectWeekDate(d,ev){if(ev)ev.stopPropagation();cur=new Date(d+'T00:00');render();}
+function markDirtyEvent(e,baseUpdatedAt,preserveAssignments=false){e.updatedAt=Number(e.updatedAt||baseUpdatedAt||0);const prev=dirtyEvents.get(String(e.id));dirtyEvents.set(String(e.id),{event:JSON.parse(JSON.stringify(e)),baseUpdatedAt:Number(baseUpdatedAt||0),preserveAssignments:!!preserveAssignments||!!(prev&&prev.preserveAssignments)});pendingDeletes.delete(String(e.id));}
+function sameAssignment(a,b){return JSON.stringify((a||[]).map(String).sort())===JSON.stringify((b||[]).map(String).sort());}
 function saveEvent(fromModal=false){
-  const prefix=fromModal?'m':'';const form=getFormValues(prefix);if(!form.date)return alert('開始日を入力してください'); const ot=document.getElementById(prefix+'overnight'); if(ot) form.endDate=ot.checked?(form.endDate&&form.endDate!==form.date?form.endDate:addDays(form.date,1)):form.date;
+  const prefix=fromModal?'m':'';const form=getFormValues(prefix);if(!form.date)return alert('開始日を入力してください');
+  const ot=document.getElementById(prefix+'overnight');if(ot)form.endDate=ot.checked?(form.endDate&&form.endDate!==form.date?form.endDate:addDays(form.date,1)):form.date;
   const old=eid?events.find(x=>String(x.id)===String(eid)):null;
+  let preserveAssignments=false;
   if(old){
-    // 区分だけ変更した場合など、車両・人員欄に触っていない編集では既存割当を必ず保持。
-    const touched=prefix==='m'?assignmentTouched.mobile:assignmentTouched.desktop;
-    if(!touched){form.vehicles=(old.vehicles||[]).slice();form.people=(old.people||[]).slice();}
+    const snap=editAssignmentSnapshot||{vehicles:old.vehicles||[],people:old.people||[]};
+    // 区分・現場・日時だけを編集した場合は、車両・人員を絶対に変更しない。
+    // 実際にチェックを変更した時だけ、その変更内容（全解除も含む）を保存する。
+    const currentV=form.vehicles||[],currentP=form.people||[];
+    preserveAssignments=sameAssignment(currentV,snap.vehicles)&&sameAssignment(currentP,snap.people);
+    if(preserveAssignments){form.vehicles=(old.vehicles||[]).map(String);form.people=(old.people||[]).map(String);}
   }
   const e=normalizeEvent(Object.assign({},old||{},form,{id:old?old.id:(Date.now()+'_'+Math.random().toString(36).slice(2))}));
   if(e.kind==='off'){e.site='';e.work='';}
-  if(old)markDirtyEvent(e,old.updatedAt);else markDirtyEvent(e,0);
+  if(old)markDirtyEvent(e,old.updatedAt,preserveAssignments);else markDirtyEvent(e,0,false);
   if(old)events=events.map(x=>String(x.id)===String(old.id)?e:x);else events.push(e);
-  colorPreparedFor='';persistLocal();render();eid=null;if(fromModal)closeEventModal();setFormValues('',{kind:'plan',site:'',work:'',date:K(cur),endDate:K(cur),start:'08:00',end:'16:00',vehicles:[],people:[]});queueCloudSave();
+  colorPreparedFor='';persistLocal();render();eid=null;editAssignmentSnapshot=null;if(fromModal)closeEventModal();
+  setFormValues('',{kind:'plan',site:'',work:'',date:K(cur),endDate:K(cur),start:'08:00',end:'16:00',vehicles:[],people:[]});queueCloudSave();
 }
 function delEvent(fromModal=false){if(!eid)return;if(!confirm('この予定を削除しますか？'))return;const old=events.find(x=>String(x.id)===String(eid));if(old){pendingDeletes.set(String(old.id),{id:String(old.id),baseUpdatedAt:Number(old.updatedAt||0)});dirtyEvents.delete(String(old.id));events=events.filter(x=>String(x.id)!==String(eid));persistLocal();queueCloudSave();}eid=null;if(fromModal)closeEventModal();render();}
 function shift(n){if(view==='month')cur.setMonth(cur.getMonth()+n);else if(view==='week')cur.setDate(cur.getDate()+7*n);else cur.setDate(cur.getDate()+n);render();}
@@ -407,7 +422,7 @@ async function postCloud(){
   if(cloudSaving||(!dirtyEvents.size&&!pendingDeletes.size&&!masterDirty))return;
   cloudSaving=true;setCloudStatus('共有保存中…');
   const patch=buildPatch();
-  const sentIds=new Map([...dirtyEvents].map(([id,x])=>[id,{baseUpdatedAt:Number(x.baseUpdatedAt||0),event:x.event}]));
+  const sentIds=new Map([...dirtyEvents].map(([id,x])=>[id,{baseUpdatedAt:Number(x.baseUpdatedAt||0),event:x.event,preserveAssignments:!!x.preserveAssignments}]));
   const sentDeletes=new Map([...pendingDeletes]);
   const sentMaster=masterDirty, sentMasterBase=cloudMasterUpdatedAt;
   let retry=false;
@@ -421,7 +436,10 @@ async function postCloud(){
     sentIds.forEach((meta,id)=>{
       const r=remoteById.get(id);
       if(r&&String(r.updatedBy||'')===CLIENT_ID&&Number(r.updatedAt||0)>meta.baseUpdatedAt){
-        events=events.map(e=>String(e.id)===id?r:e);dirtyEvents.delete(id);accepted.push(id);
+        const acceptedEvent=Object.assign({},r);
+        // ステータス変更だけで保存した予定は、サーバー応答でも元の割当を優先して保持。
+        if(meta.preserveAssignments){acceptedEvent.vehicles=(meta.event.vehicles||[]).map(String);acceptedEvent.people=(meta.event.people||[]).map(String);}
+        events=events.map(e=>String(e.id)===id?normalizeEvent(acceptedEvent):e);dirtyEvents.delete(id);accepted.push(id);
       }
     });
     const remoteDeleted=server.deleted||{};
@@ -489,7 +507,7 @@ setInterval(()=>{if(!cloudSaving&&!cloudLoading)loadCloud();},7000);
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;const b=document.getElementById('installBtn');if(b)b.style.display='';});
 window.addEventListener('appinstalled',()=>{deferredInstallPrompt=null;const b=document.getElementById('installBtn');if(b)b.style.display='none';});
 async function installApp(){if(deferredInstallPrompt){deferredInstallPrompt.prompt();try{await deferredInstallPrompt.userChoice;}catch(e){}deferredInstallPrompt=null;const b=document.getElementById('installBtn');if(b)b.style.display='none';return;}alert('iPhone/iPad：共有ボタン →「ホーム画面に追加」\nAndroid：ブラウザの「アプリをインストール」または「ホーム画面に追加」から登録してください。');}
-if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=47fix7').catch(err=>console.warn('PWA登録失敗',err)));
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=47fix8').catch(err=>console.warn('PWA登録失敗',err)));
 
 </script>
 <div id="settings" class="settings" onclick="if(event.target===this)closeSettings()">
