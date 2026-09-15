@@ -1,5 +1,10 @@
-const CACHE_NAME='vehicle-schedule-v47fix14';
-const STATIC_ASSETS=['./manifest.json','./icons/icon-192.png','./icons/icon-512.png','./icons/apple-touch-icon.png'];
+const CACHE_NAME='vehicle-schedule-v47fix24-pwa';
+const STATIC_ASSETS=[
+  '/vehicle-schedule/manifest.json',
+  '/vehicle-schedule/icons/icon-192.png',
+  '/vehicle-schedule/icons/icon-512.png',
+  '/vehicle-schedule/icons/apple-touch-icon.png'
+];
 self.addEventListener('install', event=>{
   event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(STATIC_ASSETS)).then(()=>self.skipWaiting()));
 });
@@ -11,7 +16,7 @@ self.addEventListener('fetch', event=>{
   if(req.method!=='GET') return;
   const isNavigation=req.mode==='navigate' || (req.headers.get('accept')||'').includes('text/html');
   if(isNavigation){
-    event.respondWith(fetch(req,{cache:'no-store'}).catch(()=>caches.match(req).then(r=>r||caches.match('./index.html'))));
+    event.respondWith(fetch(req,{cache:'no-store'}).catch(()=>caches.match(req).then(r=>r||caches.match('/vehicle-schedule/index.html'))));
     return;
   }
   event.respondWith(fetch(req).then(res=>{
