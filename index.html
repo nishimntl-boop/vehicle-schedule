@@ -1,4 +1,4 @@
-<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>車両・人員 配置管理</title>
+<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=0.6,maximum-scale=3,user-scalable=yes"><title>車両・人員 配置管理</title>
 <link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#101b31">
 <meta name="mobile-web-app-capable" content="yes">
@@ -17,6 +17,7 @@
 .settings{position:fixed;inset:0;background:rgba(10,18,35,.45);z-index:50;display:none;align-items:center;justify-content:center;padding:20px}.settings.open{display:flex}.settings-card{background:#fff;width:min(780px,96vw);max-height:90vh;overflow:auto;border-radius:8px;border:1px solid #cfd6e2}.settings-head{display:flex;align-items:center;padding:13px 16px;border-bottom:1px solid #d4dae4}.settings-head h2{margin:0}.settings-head button{margin-left:auto;border:0;background:#fff;font-size:22px}.manage-tabs{display:flex;border-bottom:1px solid #d4dae4}.manage-tabs button{flex:1;border:0;background:#f5f7fa;padding:10px;font-weight:900}.manage-tabs button.on{background:#1769e0;color:#fff}.manage-body{padding:14px}.manage-row{display:grid;grid-template-columns:1fr 120px 1.3fr auto auto;gap:6px;margin-bottom:7px}.manage-row.people{grid-template-columns:1fr auto auto}.manage-row input{width:100%;padding:7px;border:1px solid #cbd3df;border-radius:4px}.manage-row button{border:1px solid #dfa0a0;background:#fff;color:#c11;border-radius:4px;padding:6px 9px}.manage-add{display:flex;gap:6px;margin-top:12px}.manage-add input{flex:1;padding:8px;border:1px solid #cbd3df;border-radius:4px}.manage-add button{background:#1769e0;color:#fff;border:0;border-radius:4px;padding:8px 13px;font-weight:900}.settings{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px}.settings.open{display:flex}.settings-card{width:min(900px,96vw);max-height:90vh;overflow:auto;background:#fff;border-radius:8px;box-shadow:0 12px 40px rgba(0,0,0,.25)}.settings-head{display:flex;align-items:center;padding:14px 18px;border-bottom:1px solid #d3dae5}.settings-head h2{margin:0;font-size:18px}.settings-head button{margin-left:auto;border:0;background:transparent;font-size:26px;cursor:pointer}.manage-tabs{display:flex;border-bottom:1px solid #d3dae5}.manage-tabs button{flex:1;border:0;background:#f1f4f8;padding:11px;font-weight:900;cursor:pointer}.manage-tabs button.on{background:#1769e0;color:#fff}.manage-body{padding:16px}.manage-row{display:grid;grid-template-columns:110px 110px 1fr auto auto;gap:7px;margin:7px 0}.manage-row.people{grid-template-columns:1fr auto auto}.manage-row input,.manage-add input{min-width:0;padding:8px;border:1px solid #cbd3df;border-radius:4px}.manage-row button{padding:7px 10px;border:1px solid #b9c3d1;background:#fff;border-radius:4px;cursor:pointer}.manage-add{display:flex;gap:7px;margin-top:14px}.manage-add button{border:0;background:#1769e0;color:#fff;border-radius:4px;padding:8px 13px;font-weight:900;cursor:pointer}@media(max-width:700px){.manage-row{grid-template-columns:1fr 1fr}.manage-row.people{grid-template-columns:1fr auto auto}.manage-add{flex-wrap:wrap}.manage-add input{width:100%}}
 /* smartphone usability */
 @media(max-width:700px){
+  html{touch-action:pan-x pan-y pinch-zoom;}
   body{font-size:14px;overflow-x:hidden;-webkit-text-size-adjust:100%;}
   .top{height:auto;min-height:0;padding:7px 8px;gap:7px;flex-wrap:wrap;align-items:center;position:sticky;top:0;}
   .logo{display:none;}
@@ -78,6 +79,7 @@
 }
 @media(max-width:700px){.cloud-status{display:none}.top{padding:0 6px;gap:3px}.logo{font-size:14px;margin-right:3px}.tabs button{padding:8px 8px}.nav{gap:3px}.nav button{padding:8px 9px}.title{min-width:78px;font-size:16px}}
 /* v24 smartphone layout fix */
+.desktop-form{display:none!important;}
 .mobile-add{display:none;}
 @media(max-width:700px){
   .mobile-add{display:block!important;background:#1769e0!important;color:#fff!important;}
@@ -111,6 +113,7 @@
 
 /* v44 smartphone readability and touch usability */
 @media (max-width:1000px) and (pointer:coarse){
+  html{touch-action:pan-x pan-y pinch-zoom;}
   html,body{font-size:16px;}
   body{-webkit-text-size-adjust:100%;overflow-x:hidden;}
   .top{padding:8px 10px;gap:8px;position:sticky;top:0;}
@@ -138,7 +141,11 @@
   #main,#secondary{min-width:0;}
   .week{grid-template-columns:105px repeat(7,minmax(115px,1fr));min-width:910px;}
   .week>div{min-height:64px;padding:7px 6px;font-size:13px;}
-  .wh{font-size:13px;}
+  /* スマホ週予定：日付行と人員別/車両別ボタンを縦スクロール時も固定。
+     横スクロール時は日付と一緒に動くため、左右の位置関係を維持する。 */
+  .week .week-switch,.week .week-date{position:sticky;top:0;z-index:30;background:#fff;}
+  .week .week-switch{box-shadow:0 1px 2px rgba(0,0,0,.08);}
+  .week .week-date{box-shadow:0 1px 2px rgba(0,0,0,.08);}
   .week .person{font-size:14px;}
   .week-mode .wm{min-height:40px;padding:8px 10px;font-size:13px;}
   .wbar{min-height:38px;padding:8px 7px;font-size:12px;line-height:1.25;}
