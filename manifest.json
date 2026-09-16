@@ -10,9 +10,29 @@
   "theme_color": "#101b31",
   "description": "車両と人員の予定・配置・休みを共有管理するWebアプリ",
   "icons": [
-    {"src":"/vehicle-schedule/icons/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any"},
-    {"src":"/vehicle-schedule/icons/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any"},
-    {"src":"/vehicle-schedule/icons/icon-192.png","sizes":"192x192","type":"image/png","purpose":"maskable"},
-    {"src":"/vehicle-schedule/icons/icon-512.png","sizes":"512x512","type":"image/png","purpose":"maskable"}
+    {
+      "src": "/vehicle-schedule/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/vehicle-schedule/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/vehicle-schedule/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/vehicle-schedule/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }

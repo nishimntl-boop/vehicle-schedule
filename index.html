@@ -1,7 +1,7 @@
 <!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"><title>車両・人員 配置管理</title>
 <link rel="manifest" href="/vehicle-schedule/manifest.json">
-<link rel="icon" type="image/png" sizes="192x192" href="/vehicle-schedule/icons/icon-192.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/vehicle-schedule/icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/vehicle-schedule/icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/vehicle-schedule/apple-touch-icon.png">
 <meta name="theme-color" content="#101b31">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -611,7 +611,7 @@ setInterval(()=>{if(!cloudSaving&&!cloudLoading)loadCloud();},7000);
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;const b=document.getElementById('installBtn');if(b)b.style.display='';});
 window.addEventListener('appinstalled',()=>{deferredInstallPrompt=null;const b=document.getElementById('installBtn');if(b)b.style.display='none';});
 async function installApp(){if(deferredInstallPrompt){deferredInstallPrompt.prompt();try{await deferredInstallPrompt.userChoice;}catch(e){}deferredInstallPrompt=null;const b=document.getElementById('installBtn');if(b)b.style.display='none';return;}alert('iPhone/iPad：共有ボタン →「ホーム画面に追加」\nAndroid：ブラウザの「アプリをインストール」または「ホーム画面に追加」から登録してください。');}
-if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/vehicle-schedule/sw.js?v=47fix24-pwa').catch(err=>console.warn('PWA登録失敗',err)));
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/vehicle-schedule/sw.js?v=47fix24-android-icon').catch(err=>console.warn('PWA登録失敗',err)));
 
 </script>
 <div id="settings" class="settings" onclick="if(event.target===this)closeSettings()">

@@ -1,9 +1,9 @@
-const CACHE_NAME='vehicle-schedule-v47fix24-pwa';
+const CACHE_NAME='vehicle-schedule-v47fix24-android-icon';
 const STATIC_ASSETS=[
   '/vehicle-schedule/manifest.json',
-  '/vehicle-schedule/icons/icon-192.png',
-  '/vehicle-schedule/icons/icon-512.png',
-  '/vehicle-schedule/icons/apple-touch-icon.png'
+  '/vehicle-schedule/icon-192.png',
+  '/vehicle-schedule/icon-512.png',
+  '/vehicle-schedule/apple-touch-icon.png'
 ];
 self.addEventListener('install', event=>{
   event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(STATIC_ASSETS)).then(()=>self.skipWaiting()));

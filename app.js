@@ -309,5 +309,5 @@ setInterval(()=>{if(!cloudSaving&&!cloudLoading)loadCloud();},7000);
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;const b=document.getElementById('installBtn');if(b)b.style.display='';});
 window.addEventListener('appinstalled',()=>{deferredInstallPrompt=null;const b=document.getElementById('installBtn');if(b)b.style.display='none';});
 async function installApp(){if(deferredInstallPrompt){deferredInstallPrompt.prompt();try{await deferredInstallPrompt.userChoice;}catch(e){}deferredInstallPrompt=null;const b=document.getElementById('installBtn');if(b)b.style.display='none';return;}alert('iPhone/iPad：共有ボタン →「ホーム画面に追加」\nAndroid：ブラウザの「アプリをインストール」または「ホーム画面に追加」から登録してください。');}
-if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=47fix8').catch(err=>console.warn('PWA登録失敗',err)));
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/vehicle-schedule/sw.js?v=47fix24-android-icon').catch(err=>console.warn('PWA登録失敗',err)));
 
