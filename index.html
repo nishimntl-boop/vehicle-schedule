@@ -305,6 +305,11 @@ let cloudSaving=false,cloudLoading=false,cloudTimer=null;
 let cloudMasterUpdatedAt=Number(localStorage.getItem('vehicleCloudMasterUpdatedAt')||0);
 let colorCache=new Map();
 let colorPreparedFor='';
+let siteColorMap=new Map();
+try{
+  const saved=JSON.parse(localStorage.getItem('vehicleSiteColorMap')||'{}');
+  if(saved&&typeof saved==='object') siteColorMap=new Map(Object.entries(saved).filter(([k,v])=>COL.includes(v)));
+}catch(e){siteColorMap=new Map();}
 let deferredInstallPrompt=null;
 
 function normalizeEvent(e){
@@ -320,6 +325,7 @@ function normalizeEvent(e){
   if(!x.date)x.date=K(cur); if(!x.endDate)x.endDate=x.date;
   x.updatedAt=Number(x.updatedAt||0);
   x.updatedBy=String(x.updatedBy||'');
+  if(x.siteColor && !COL.includes(x.siteColor)) delete x.siteColor;
   return x;
 }
 function K(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`;}
@@ -328,31 +334,109 @@ function setCloudStatus(t){const el=document.getElementById('cloudStatus');if(el
 function hash(s){let h=2166136261;for(let i=0;i<String(s).length;i++){h^=String(s).charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
 function rgb(hex){return [parseInt(hex.slice(1,3),16),parseInt(hex.slice(3,5),16),parseInt(hex.slice(5,7),16)];}
 function colorDist(a,b){const x=rgb(a),y=rgb(b);return Math.sqrt((x[0]-y[0])**2+(x[1]-y[1])**2+(x[2]-y[2])**2);}
+function rgbHue(hex){
+  const [r0,g0,b0]=rgb(hex).map(v=>v/255),max=Math.max(r0,g0,b0),min=Math.min(r0,g0,b0),d=max-min;
+  if(d===0)return null;
+  let h=0;
+  if(max===r0)h=((g0-b0)/d)%6; else if(max===g0)h=(b0-r0)/d+2; else h=(r0-g0)/d+4;
+  return (h*60+360)%360;
+}
+function hueDist(a,b){
+  const ha=rgbHue(a),hb=rgbHue(b);
+  if(ha===null||hb===null)return 0;
+  const d=Math.abs(ha-hb);return Math.min(d,360-d);
+}
 function siteColorKey(site){return String(site||'未設定').trim().replace(/\s+/g,' ')||'未設定';}
+function colorDate(ds){return new Date(String(ds||K(cur))+'T00:00');}
+function dayDistance(a,b){return Math.abs(Math.round((colorDate(a)-colorDate(b))/86400000));}
+function saveSiteColorMap(){localStorage.setItem('vehicleSiteColorMap',JSON.stringify(Object.fromEntries(siteColorMap)));}
+function siteEvents(site){const name=siteColorKey(site);return events.filter(e=>siteColorKey(e.site)===name&&['confirmed','work'].includes(e.kind));}
+function siteColorFromEvents(site){
+  const name=siteColorKey(site);
+  const found=events.find(e=>siteColorKey(e.site)===name&&COL.includes(e.siteColor));
+  return found?found.siteColor:null;
+}
+function colorContextScore(color,site,anchorDate,usedColors){
+  const name=siteColorKey(site), anchor=String(anchorDate||K(cur));
+  let score=0;
+  const nearby=new Map();
+  events.filter(e=>['confirmed','work'].includes(e.kind)&&siteColorKey(e.site)!==name&&COL.includes(e.siteColor)).forEach(e=>{
+    const dd=dayDistance(anchor,e.date);
+    if(dd>3)return;
+    const weight=dd===0?100:dd===1?45:dd===2?20:8;
+    const prev=nearby.get(e.siteColor)||0;
+    nearby.set(e.siteColor,Math.max(prev,weight));
+  });
+  nearby.forEach((weight,c)=>{
+    // 同日を最優先。色相差を主軸にして「似た緑・似た青」の連続を避ける。
+    score += hueDist(color,c)*weight*2.0 + colorDist(color,c)*weight*0.15;
+  });
+  if(usedColors.includes(color))score-=100000;
+  usedColors.forEach(c=>{score += hueDist(color,c)*0.20 + colorDist(color,c)*0.05;});
+  return score;
+}
+function chooseSiteColor(site,anchorDate,excludeSet=new Set()){
+  const used=[...new Set([...siteColorMap.values(),...events.map(e=>e.siteColor).filter(c=>COL.includes(c))])];
+  let best=null,bestScore=-Infinity;
+  COL.forEach(c=>{
+    if(excludeSet.has(c))return;
+    const score=colorContextScore(c,site,anchorDate,used);
+    if(score>bestScore){bestScore=score;best=c;}
+  });
+  return best||COL[hash(site)%COL.length];
+}
+function assignSiteColor(site,anchorDate){
+  const name=siteColorKey(site);
+  if(name==='未設定')return null;
+  const existing=siteColorMap.get(name)||siteColorFromEvents(name);
+  if(existing){siteColorMap.set(name,existing);return existing;}
+  const color=chooseSiteColor(name,anchorDate);
+  siteColorMap.set(name,color);
+  return color;
+}
 function prepareColors(startDate,endDate){
-  const key=events.map(e=>`${e.id}:${siteColorKey(e.site)}:${e.kind}:${e.date}:${e.endDate}`).join(';');
+  // 一度決まった現場色は固定。まだ色が無い現場だけ、同日＋前後3日の色を避けて割り当てる。
+  const key=events.map(e=>`${e.id}:${siteColorKey(e.site)}:${e.kind}:${e.date}:${e.endDate}:${e.siteColor||''}`).join(';');
   if(colorPreparedFor===key)return;
   colorCache.clear();
   const sites=[...new Set(events.filter(e=>['confirmed','work'].includes(e.kind)&&siteColorKey(e.site)!=='未設定').map(e=>siteColorKey(e.site)))];
-  const assigned=new Map();
-  const used=[];
-  sites.sort((a,b)=>hash(a)-hash(b));
+
+  // GASから取得した既存色を最優先で正本として採用。
   sites.forEach(site=>{
-    let best=null,bestScore=-1e9;
-    COL.forEach(c=>{
-      if(used.includes(c))return;
-      const score=used.length?Math.min(...used.map(u=>colorDist(c,u))):999;
-      if(score>bestScore){bestScore=score;best=c;}
-    });
-    if(!best)best=COL[hash(site)%COL.length];
-    assigned.set(site,best);used.push(best);
+    const saved=siteColorMap.get(site)||siteColorFromEvents(site);
+    if(saved)siteColorMap.set(site,saved);
   });
-  assigned.forEach((color,site)=>colorCache.set('site|'+site,color));
-  colorPreparedFor=key;
+
+  // 色がまだ無い現場は、最初に登場する日→現場名の順で処理するため、端末が違っても同じデータなら同じ結果になる。
+  const missing=sites.filter(site=>!siteColorMap.has(site));
+  missing.sort((a,b)=>{
+    const ea=siteEvents(a).slice().sort((x,y)=>String(x.date).localeCompare(String(y.date)))[0];
+    const eb=siteEvents(b).slice().sort((x,y)=>String(x.date).localeCompare(String(y.date)))[0];
+    return String(ea?.date||'9999-99-99').localeCompare(String(eb?.date||'9999-99-99')) || a.localeCompare(b,'ja');
+  });
+  missing.forEach(site=>{
+    const first=siteEvents(site).slice().sort((a,b)=>String(a.date).localeCompare(String(b.date)))[0];
+    assignSiteColor(site,first?.date||K(cur));
+  });
+
+  // 予定データにも色を反映。新規/編集保存時はこの色がGASへ渡るのでPC・スマホ間でも共有される。
+  events.forEach(e=>{
+    const name=siteColorKey(e.site);
+    if(['confirmed','work'].includes(e.kind)&&name!=='未設定'){
+      const c=siteColorMap.get(name);
+      if(c)e.siteColor=c;
+    }
+  });
+  sites.forEach(site=>colorCache.set('site|'+site,siteColorMap.get(site)||COL[hash(site)%COL.length]));
+  saveSiteColorMap();
+  colorPreparedFor=events.map(e=>`${e.id}:${siteColorKey(e.site)}:${e.kind}:${e.date}:${e.endDate}:${e.siteColor||''}`).join(';');
 }
 function C(site,date){
   const name=siteColorKey(site);
-  if(!colorCache.has('site|'+name))prepareColors(cur,cur);
+  if(!colorCache.has('site|'+name)){
+    const c=assignSiteColor(name,date||K(cur));
+    if(c){colorCache.set('site|'+name,c);saveSiteColorMap();}
+  }
   return colorCache.get('site|'+name)||COL[hash(name)%COL.length];
 }
 function R(e){let a=DT(e.date,e.start),b=DT(e.endDate||e.date,e.end);if(b<=a)b=new Date(a.getTime()+3600000);return[a,b];}
