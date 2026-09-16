@@ -374,11 +374,16 @@ function SEG(e,d){const day=new Date(K(d)+'T00:00'),next=new Date(day);next.setD
 function nightOnDay(e,d){const day=K(d);return e.date!==day||String(e.endDate||e.date)!==String(e.date)||R(e)[1].getTime()>new Date(day+'T23:59:59').getTime();}
 function BG(e,d){if(e.kind==='plan')return '#9ca3af';if(e.kind==='off')return '#f7d8e6';if(CF(e))return '#dc2626';return C(e.site||'未設定',d);}
 function WTXT(e,d){return e.kind==='off'?((e.people||[]).join(', ')+' 休み').trim():(nightOnDay(e,d)?'🌙 ':'')+(e.kind==='plan'?'予定 ':'')+(e.site||'未設定')+' '+e.start+'-'+e.end;}
-function BAR(e,d){const night=nightOnDay(e,d),bg=BG(e,d);return `<button class="bar ${e.kind==='off'?'off ':e.kind==='plan'?'plan ':''}${CF(e)?'conf ':''}${night?'overnight':''}" style="background:${bg}" onclick="editEvent('${E(e.id)}','${K(d)}');event.stopPropagation()">${E(WTXT(e,d))}</button>`;}
+// v47fix32: 1件の壊れた/不完全な予定データで月・週・日表示全体が止まらないようにする。
+function safeON(e,d){try{return !!e&&ON(e,d);}catch(err){console.warn('予定判定をスキップ',e,err);return false;}}
+function safeCF(e){try{return !!e&&CF(e);}catch(err){console.warn('重複判定をスキップ',e,err);return false;}}
+function safeBG(e,d){try{return BG(e,d);}catch(err){console.warn('色判定をスキップ',e,err);return e&&e.kind==='off'?'#f7d8e6':e&&e.kind==='plan'?'#9ca3af':'#64748b';}}
+function safeWTXT(e,d){try{return WTXT(e,d);}catch(err){console.warn('予定文字をスキップ',e,err);return e&&e.site?String(e.site):'予定';}}
+function BAR(e,d){const night=(()=>{try{return nightOnDay(e,d)}catch(err){return false}})(),bg=safeBG(e,d);return `<button class="bar ${e.kind==='off'?'off ':e.kind==='plan'?'plan ':''}${safeCF(e)?'conf ':''}${night?'overnight':''}" style="background:${bg}" onclick="editEvent('${E(e.id)}','${K(d)}');event.stopPropagation()">${E(safeWTXT(e,d))}</button>`;}
 function MONTH(){
   const y=cur.getFullYear(),m=cur.getMonth(),s=new Date(y,m,1);s.setDate(1-((s.getDay()+6)%7));const end=new Date(s);end.setDate(end.getDate()+41);prepareColors(s,end);
   let h='<div class="month">';['月','火','水','木','金','土','日'].forEach(x=>h+=`<div class="dow">${x}</div>`);
-  for(let i=0;i<42;i++){const d=new Date(s);d.setDate(s.getDate()+i);const cn='day '+(d.getMonth()!=m?'out ':'')+(K(d)===K(cur)?'selected':'');const dn=d.getDay()===0?'sun':d.getDay()===6?'sat':'';const dayEvents=events.filter(e=>ON(e,d));h+=`<div class="${cn}" onclick="selectDay('${K(d)}')"><div class="date ${dn}">${d.getDate()}</div><div class="day-events">${dayEvents.map(e=>BAR(e,d)).join('')}</div></div>`;}return h+'</div>';
+  for(let i=0;i<42;i++){const d=new Date(s);d.setDate(s.getDate()+i);const cn='day '+(d.getMonth()!=m?'out ':'')+(K(d)===K(cur)?'selected':'');const dn=d.getDay()===0?'sun':d.getDay()===6?'sat':'';const dayEvents=events.filter(e=>safeON(e,d));h+=`<div class="${cn}" onclick="selectDay('${K(d)}')"><div class="date ${dn}">${d.getDate()}</div><div class="day-events">${dayEvents.map(e=>BAR(e,d)).join('')}</div></div>`;}return h+'</div>';
 }
 function WEEK(){
   const s=new Date(cur);s.setDate(s.getDate()-((s.getDay()+6)%7));const end=new Date(s);end.setDate(end.getDate()+6);prepareColors(s,end);
@@ -388,23 +393,23 @@ function WEEK(){
   rows.forEach(r=>{
     h+='<div class="person">'+E(r.label)+'</div>';
     for(let i=0;i<7;i++){
-      const d=new Date(s);d.setDate(s.getDate()+i);const es=events.filter(e=>ON(e,d)&&(e[r.field]||[]).includes(r.id));
+      const d=new Date(s);d.setDate(s.getDate()+i);const es=events.filter(e=>safeON(e,d)&&(e[r.field]||[]).includes(r.id));
       let cell='';
-      es.forEach(e=>{cell+='<button class="wbar '+(e.kind==='off'?'off':e.kind==='plan'?'plan':'')+' '+(CF(e)?'conf ':'')+' '+(nightOnDay(e,d)?'overnight':'')+'" style="background:'+BG(e,d)+'" onclick="editEvent(\''+E(e.id)+'\',\''+K(d)+'\');event.stopPropagation()">'+E(WTXT(e,d))+'</button>';});
+      es.forEach(e=>{cell+='<button class="wbar '+(e.kind==='off'?'off':e.kind==='plan'?'plan':'')+' '+(safeCF(e)?'conf ':'')+' '+(nightOnDay(e,d)?'overnight':'')+'" style="background:'+BG(e,d)+'" onclick="editEvent(\''+E(e.id)+'\',\''+K(d)+'\');event.stopPropagation()">'+E(WTXT(e,d))+'</button>';});
       h+='<div>'+(cell||'－')+'</div>';
     }
   });
   // 割当なし予定も専用行で表示し、スマホでも未割当を見落とさない。
   const field=weekMode==='vehicle'?'vehicles':'people';
   h+='<div class="person">未割当</div>';
-  for(let i=0;i<7;i++){const d=new Date(s);d.setDate(s.getDate()+i);const es=events.filter(e=>ON(e,d)&&!(e[field]||[]).length);let cell='';es.forEach(e=>{cell+='<button class="wbar '+(e.kind==='off'?'off':e.kind==='plan'?'plan':'')+' '+(CF(e)?'conf ':'')+' '+(nightOnDay(e,d)?'overnight':'')+'" style="background:'+BG(e,d)+'" onclick="editEvent(\''+E(e.id)+'\',\''+K(d)+'\');event.stopPropagation()">'+E(WTXT(e,d))+'</button>';});h+='<div>'+(cell||'－')+'</div>';}
+  for(let i=0;i<7;i++){const d=new Date(s);d.setDate(s.getDate()+i);const es=events.filter(e=>safeON(e,d)&&!(e[field]||[]).length);let cell='';es.forEach(e=>{cell+='<button class="wbar '+(e.kind==='off'?'off':e.kind==='plan'?'plan':'')+' '+(safeCF(e)?'conf ':'')+' '+(nightOnDay(e,d)?'overnight':'')+'" style="background:'+BG(e,d)+'" onclick="editEvent(\''+E(e.id)+'\',\''+K(d)+'\');event.stopPropagation()">'+E(WTXT(e,d))+'</button>';});h+='<div>'+(cell||'－')+'</div>';}
   return h+'</div>';
 }
 function DAY(){
   const start=new Date(cur);start.setDate(start.getDate()-1);const end=new Date(cur);end.setDate(end.getDate()+1);prepareColors(start,end);
   const labels=Array.from({length:24},(_,i)=>String(i).padStart(2,'0')+':00');
   let h='<div class="timeline"><div class="times"><div>車両 / 人員</div>'+labels.map(x=>`<div>${x}</div>`).join('')+'<div class="time-end"><span>24:00</span></div></div>';
-  events.filter(e=>ON(e,cur)).forEach(e=>{const seg=SEG(e,cur);if(!seg)return;const[a,b]=seg;const dayStart=new Date(K(cur)+'T00:00');const nextDay=new Date(dayStart);nextDay.setDate(nextDay.getDate()+1);const sh=Math.max(0,Math.min(24,(a-dayStart)/3600000));const eh=Math.max(0,Math.min(24,(b-dayStart)/3600000));const l=(sh/24)*100,r=(eh/24)*100;if(r<=0||l>=100||r<=l)return;const w=Math.max(1,r-l),night=nightOnDay(e,cur);h+=`<div class="trow"><div class="who">${E((e.vehicles||[]).join(', '))}<br>${E((e.people||[]).join(', '))}</div><div class="track"><button class="tbar ${e.kind==='off'?'off':e.kind==='plan'?'plan':''} ${CF(e)?'conflict':''} ${night?'overnight':''}" style="left:${l}%;width:${w}%;background:${BG(e,cur)}" onclick="editEvent('${E(e.id)}','${K(cur)}')">${E(e.kind==='off'?(((e.people||[]).join(', ')+' 休み').trim()):((night?'🌙 ':'')+(e.kind==='plan'?'予定 ':'')+(e.site||'未設定')+' '+e.start+'～'+e.end))}</button></div></div>`;});
+  events.filter(e=>safeON(e,cur)).forEach(e=>{let seg=null;try{seg=SEG(e,cur)}catch(err){console.warn('日予定の区間をスキップ',e,err);return;}if(!seg)return;const[a,b]=seg;const dayStart=new Date(K(cur)+'T00:00');const nextDay=new Date(dayStart);nextDay.setDate(nextDay.getDate()+1);const sh=Math.max(0,Math.min(24,(a-dayStart)/3600000));const eh=Math.max(0,Math.min(24,(b-dayStart)/3600000));const l=(sh/24)*100,r=(eh/24)*100;if(r<=0||l>=100||r<=l)return;const w=Math.max(1,r-l),night=nightOnDay(e,cur);h+=`<div class="trow"><div class="who">${E((e.vehicles||[]).join(', '))}<br>${E((e.people||[]).join(', '))}</div><div class="track"><button class="tbar ${e.kind==='off'?'off':e.kind==='plan'?'plan':''} ${CF(e)?'conflict':''} ${night?'overnight':''}" style="left:${l}%;width:${w}%;background:${safeBG(e,cur)}" onclick="editEvent('${E(e.id)}','${K(cur)}')">${E(e.kind==='off'?(((e.people||[]).join(', ')+' 休み').trim()):((night?'🌙 ':'')+(e.kind==='plan'?'予定 ':'')+(e.site||'未設定')+' '+e.start+'～'+e.end))}</button></div></div>`;});
   return h+'</div>';
 }
 let appZoom=Number(localStorage.getItem('vehicleAppZoom')||'1');
@@ -437,7 +442,16 @@ function resetZoom(){appZoom=1;applyZoom();}
   document.addEventListener('touchmove',e=>{if(!pinch.el||e.touches.length!==2)return;const d=dist(e.touches);if(!d)return;const scale=Math.max(.55,Math.min(1.25,pinch.startScale*d/pinch.startDist));pinch.el.style.setProperty('--week-scale',String(Math.round(scale*100)/100));e.preventDefault();},{passive:false});
   document.addEventListener('touchend',e=>{if(e.touches.length<2)pinch.el=null;},{passive:true});
 })();
-function render(){document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===view));document.getElementById('title').textContent=`${cur.getFullYear()}年${cur.getMonth()+1}月`;document.getElementById('sub').textContent=view==='month'?'週予定':view==='week'?'日予定':'月予定';document.getElementById('main').innerHTML=view==='month'?MONTH():view==='week'?WEEK():DAY();document.getElementById('secondary').innerHTML=view==='month'?WEEK():view==='week'?DAY():MONTH();status();}
+function render(){
+  document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===view));
+  document.getElementById('title').textContent=`${cur.getFullYear()}年${cur.getMonth()+1}月`;
+  document.getElementById('sub').textContent=view==='month'?'週予定':view==='week'?'日予定':'月予定';
+  try{document.getElementById('main').innerHTML=view==='month'?MONTH():view==='week'?WEEK():DAY();}
+  catch(err){console.error('メイン表示エラー',err);document.getElementById('main').innerHTML='<div style="padding:24px;color:#b91c1c;font-weight:700">表示処理中に一部データを読み込めませんでした。共有データは保持されています。</div>';}
+  try{document.getElementById('secondary').innerHTML=view==='month'?WEEK():view==='week'?DAY():MONTH();}
+  catch(err){console.error('サブ表示エラー',err);document.getElementById('secondary').innerHTML='<div style="padding:16px;color:#b91c1c">この期間の予定表示を一部スキップしました。</div>';}
+  try{status();}catch(err){console.error('空き状況表示エラー',err);}
+}
 function status(){
   const bv=new Set(),bp=new Set(),op=new Set();events.filter(e=>['plan','confirmed','work'].includes(e.kind)&&ON(e,cur)).forEach(e=>{(e.vehicles||[]).forEach(v=>bv.add(v));(e.people||[]).forEach(p=>bp.add(p));});events.filter(e=>e.kind==='off'&&ON(e,cur)).forEach(e=>(e.people||[]).forEach(p=>op.add(p)));
   document.getElementById('stitle').textContent='空き状況（'+K(cur)+'）';
