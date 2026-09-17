@@ -601,10 +601,10 @@ async function postCloud(){
   finally{cloudSaving=false;if(retry&& (dirtyEvents.size||pendingDeletes.size||masterDirty)){if(cloudTimer)clearTimeout(cloudTimer);cloudTimer=setTimeout(postCloud,5000);}}
 }
 function mergeRemote(d,fromSave=false){
-  const remote=Array.isArray(d.events)?d.events.map(normalizeEvent):[];const localById=new Map(events.map(e=>[String(e.id),e]));const remoteById=new Map(remote.map(e=>[String(e.id),e]));
+  const remote=Array.isArray(d.events)?d.events.map(normalizeEvent):[];const remoteDeleted=d&&d.deleted&&typeof d.deleted==='object'?d.deleted:{};const localById=new Map(events.map(e=>[String(e.id),e]));const remoteById=new Map(remote.map(e=>[String(e.id),e]));
   const merged=[];
   remoteById.forEach((r,id)=>{if(pendingDeletes.has(id))return;const dirty=dirtyEvents.get(id);const l=localById.get(id);if(dirty){merged.push(l||dirty.event);return;}if(!l||Number(r.updatedAt||0)>=Number(l.updatedAt||0))merged.push(r);else merged.push(l);});
-  localById.forEach((l,id)=>{if(!remoteById.has(id)&&!pendingDeletes.has(id)){merged.push(l);}});
+  localById.forEach((l,id)=>{if(remoteById.has(id)||pendingDeletes.has(id))return;const tomb=remoteDeleted[id];if(tomb&&Number(tomb.updatedAt||tomb.deletedAt||0)>=Number(l.updatedAt||0))return;merged.push(l);});
   events=merged; cloudMasterUpdatedAt=Number(d.masterUpdatedAt||cloudMasterUpdatedAt||0); if(Array.isArray(d.people)&&d.people.length&&!masterDirty)peopleList=d.people.map(String); if(Array.isArray(d.vehicles)&&d.vehicles.length&&!masterDirty)vehicleList=d.vehicles.map(v=>({id:String(v.id||''),detail:String(v.detail||'2t'),memo:String(v.memo||'')})).filter(v=>v.id); syncMaster();rebuildChecks();colorPreparedFor='';if(!fromSave)persistLocal();
 }
 async function loadCloud(){if(cloudLoading||cloudSaving)return;cloudLoading=true;setCloudStatus('共有読込中…');try{const d=await jsonpGet(15000);if(d&&d.hasData){mergeRemote(d);render();setCloudStatus(dirtyEvents.size||pendingDeletes.size||masterDirty?'共有同期済み・未保存あり':'共有同期済み');if(dirtyEvents.size||pendingDeletes.size||masterDirty)queueCloudSave();}else if(d){setCloudStatus('共有データなし');if(events.length||vehicleList.length||peopleList.length)queueCloudSave();}else setCloudStatus('共有接続エラー');}catch(err){console.warn(err);setCloudStatus('共有接続エラー')}finally{cloudLoading=false;}}
