@@ -200,6 +200,7 @@
   #vehicleMatrixModal .vehicle-matrix-head button{display:none!important}
   #vehicleMatrixModal .vehicle-matrix-head h2{font-size:16px!important}
   #vehicleMatrixModal .vehicle-matrix-wrap{overflow:visible!important;max-height:none!important}
+  #vehicleMatrixModal .vehicle-matrix-scale{transform:none!important;width:100%!important;margin:0!important}
   #vehicleMatrixModal .vehicle-matrix{width:100%!important;min-width:0!important;font-size:9px!important}
   #vehicleMatrixModal .vehicle-matrix th,#vehicleMatrixModal .vehicle-matrix td{padding:3px!important}
   #vehicleMatrixModal .vehicle-matrix thead th{position:static!important;min-width:0!important;width:auto!important}
@@ -214,21 +215,17 @@
   @page{size:landscape;margin:8mm}
 }
 </style><style>
+/* v47fix40: 車両別一覧だけを拡大・縮小。固定ヘッダーや通常画面には影響しない。 */
+.vm-zoom-tools,.vm-print-tools{display:flex;align-items:center;gap:3px;flex:0 0 auto;}
+.vm-zoom-tools button,.vm-print-tools button{border:1px solid #cbd3df;border-radius:5px;background:#fff;color:#172033;font-weight:900;height:34px;padding:0 8px;line-height:1;}
+.vm-zoom-tools .vm-zoom-value{min-width:52px;font-size:11px;}
+#vehicleMatrixBody{overflow:auto;}
+#vehicleMatrixBody .vehicle-matrix-scale{transform-origin:top left;width:100%;}
+@media(max-width:700px){.vm-zoom-tools button,.vm-print-tools button{height:36px;font-size:14px;padding:0 7px}.vm-zoom-tools .vm-zoom-value{min-width:58px;font-size:12px}.vehicle-matrix-head{flex-wrap:wrap;gap:5px}.vehicle-matrix-head h2{flex:1 1 auto;min-width:130px}}
 /* v47fix14: 月予定の1日セル内スクロール + ヘッダー非拡大ズーム */
 .day{display:flex;flex-direction:column;min-height:0;overflow:hidden;}
 .day-events{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding-right:2px;}
 .day-events .bar{margin:2px 0;}
-.zoom-tools{display:flex;align-items:center;gap:2px;margin-left:4px;flex:0 0 auto;}
-.zoom-tools button{border:1px solid #cbd3df;border-radius:5px;background:#fff;color:#172033;font-weight:900;min-width:32px;height:34px;padding:0 7px;line-height:1;}
-.zoom-tools .zoom-value{min-width:52px;font-size:11px;}
-#zoomContent{transform-origin:top left;width:100%;}
-/* カスタム倍率はこの領域だけ。上の固定ヘッダーは絶対に倍率変更しない。 */
-@media(max-width:700px){
-  /* v47fix39: スマホでも表示倍率を操作できるようにする。固定ヘッダー自体は拡大縮小しない。 */
-  .zoom-tools{display:flex!important;order:3;width:100%;justify-content:center;margin:0;padding:2px 0 1px;gap:4px;}
-  .zoom-tools button{min-width:42px;height:38px;font-size:18px;}
-  .zoom-tools .zoom-value{min-width:64px;font-size:12px;}
-}
 </style><style>
 /* v47fix18: スマホ週予定の左軸を本当に固定。既存の月予定セル内スクロールは触らない。 */
 @media(max-width:700px){
@@ -280,7 +277,7 @@
 .person-list-card{width:min(900px,96vw)!important;max-height:90vh;overflow:auto}.person-list-tools{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid #dce3eb;font-weight:800}.person-list-tools select{padding:9px 12px;border:1px solid #bfc9d6;border-radius:6px;min-width:180px}.person-list-body{padding:12px 16px 18px}.person-list-row{display:grid;grid-template-columns:110px 1fr;gap:10px;align-items:start;border-bottom:1px solid #e5e7eb;padding:10px 0}.person-list-date{font-weight:800;color:#334155}.person-list-item{border:1px solid #d8dee8;border-radius:6px;padding:7px 9px;margin-bottom:6px;background:#fff}.person-list-item.off{background:#fff0f5;border-color:#efb5cb;color:#a11}.person-list-item .kind{font-size:11px;font-weight:800;margin-right:6px}.person-list-item .meta{font-size:12px;color:#64748b;margin-top:3px}.person-list-empty{padding:20px;text-align:center;color:#64748b}.person-list-open{cursor:pointer}@media(max-width:700px){.person-list-card{width:96vw!important}.person-list-tools{flex-wrap:wrap}.person-list-tools select{flex:1;min-width:160px}.person-list-row{grid-template-columns:82px 1fr;gap:7px}.person-list-body{padding:10px}}
 </style>
 <body>
-<header class="top"><div class="logo">🚚 車両・人員 配置管理</div><div class="tabs"><button data-v="day">日予定</button><button data-v="week">週予定</button><button data-v="month" class="on">月予定</button></div><div class="nav"><button id="prev">◀</button><div id="title" class="title"></div><span id="cloudStatus" class="cloud-status">共有確認中…</span><button id="cloudDiagBtn" type="button" onclick="openCloudDiag()">🔄 共有診断</button><button id="next">▶</button><button id="today">今日</button><button type="button" onclick="openPersonList()">👤 人員一覧</button><button type="button" onclick="openVehicleMatrix()">🚚 車両別一覧</button><button onclick="print()">🖨 印刷</button><button id="installBtn" type="button" onclick="installApp()" style="display:none">📱 アプリ追加</button><button class="mobile-add" type="button" onclick="newEvent()">＋ 予定</button><button id="settingsBtn" type="button" onclick="openSettings()">⚙ 設定</button></div><div class="zoom-tools" aria-label="表示倍率"><button type="button" onclick="changeZoom(-0.1)" aria-label="縮小">−</button><button type="button" class="zoom-value" id="zoomValue" onclick="resetZoom()">100%</button><button type="button" onclick="changeZoom(0.1)" aria-label="拡大">＋</button></div></header>
+<header class="top"><div class="logo">🚚 車両・人員 配置管理</div><div class="tabs"><button data-v="day">日予定</button><button data-v="week">週予定</button><button data-v="month" class="on">月予定</button></div><div class="nav"><button id="prev">◀</button><div id="title" class="title"></div><span id="cloudStatus" class="cloud-status">共有確認中…</span><button id="cloudDiagBtn" type="button" onclick="openCloudDiag()">🔄 共有診断</button><button id="next">▶</button><button id="today">今日</button><button type="button" onclick="openPersonList()">👤 人員一覧</button><button type="button" onclick="openVehicleMatrix()">🚚 車両別一覧</button><button onclick="print()">🖨 印刷</button><button id="installBtn" type="button" onclick="installApp()" style="display:none">📱 アプリ追加</button><button class="mobile-add" type="button" onclick="newEvent()">＋ 予定</button><button id="settingsBtn" type="button" onclick="openSettings()">⚙ 設定</button></div></header>
 <div id="cloudDiag" class="cloud-diag"><div class="cloud-diag-card"><h3>🔄 共有診断</h3><pre id="cloudDiagText">確認中…</pre><div class="cloud-diag-actions"><button type="button" onclick="closeCloudDiag()">閉じる</button><button type="button" class="primary" onclick="runCloudDiag()">今すぐ確認</button></div></div></div><div id="zoomContent"><div class="color-note">現場ごとに色分け　｜　<span class="red-note">赤＝車両・人員のダブルブッキング</span>　｜　<span class="off-note">休み</span></div><div class="app"><main><section class="panel"><div id="main"></div></section>
 <section class="panel"><div class="head"><span id="sub"></span><button id="subPrev" onclick="shift(-1)">◀</button><button id="subNext" onclick="shift(1)">▶</button><button class="add" onclick="newEvent()">＋ 予定追加</button></div><div id="secondary"></div></section></main>
 <aside class="side"><div class="box"><h3 id="stitle">空き状況</h3><div id="status" class="status"></div></div><div class="box"><h3>お知らせ</h3><div class="notice">・予定／確定をクリックして編集<br>・人員の「休み」を登録<br>・重複した車両／人員だけ赤色<br>・選択した日は青枠で表示</div></div>
@@ -311,7 +308,7 @@
 </div>
 <div id="vehicleMatrixModal" class="event-modal" onclick="if(event.target===this)closeVehicleMatrix()">
   <div class="event-card vehicle-matrix-card">
-    <div class="vehicle-matrix-head"><button type="button" onclick="shiftVehicleMatrix(-1)">◀</button><h2 id="vehicleMatrixTitle">🚚 日付別・車両別一覧</h2><button type="button" onclick="shiftVehicleMatrix(1)">▶</button><button type="button" onclick="printVehicleMatrix()">🖨 印刷</button><button type="button" onclick="closeVehicleMatrix()">×</button></div>
+    <div class="vehicle-matrix-head"><button type="button" onclick="shiftVehicleMatrix(-1)">◀</button><h2 id="vehicleMatrixTitle">🚚 日付別・車両別一覧</h2><button type="button" onclick="shiftVehicleMatrix(1)">▶</button><div class="vm-zoom-tools" aria-label="車両別一覧の表示倍率"><button type="button" onclick="changeVehicleMatrixZoom(-0.1)" aria-label="縮小">−</button><button type="button" class="vm-zoom-value" id="vehicleMatrixZoomValue" onclick="resetVehicleMatrixZoom()">100%</button><button type="button" onclick="changeVehicleMatrixZoom(0.1)" aria-label="拡大">＋</button></div><div class="vm-print-tools"><button type="button" onclick="printVehicleMatrix('portrait')">🖨 縦</button><button type="button" onclick="printVehicleMatrix('landscape')">🖨 横</button></div><button type="button" onclick="closeVehicleMatrix()">×</button></div>
     <div id="vehicleMatrixBody" class="vehicle-matrix-wrap"></div>
   </div>
 </div>
@@ -457,27 +454,6 @@ function DAY(){
   events.filter(e=>safeON(e,cur)).forEach(e=>{let seg=null;try{seg=SEG(e,cur)}catch(err){console.warn('日予定の区間をスキップ',e,err);return;}if(!seg)return;const[a,b]=seg;const dayStart=new Date(K(cur)+'T00:00');const nextDay=new Date(dayStart);nextDay.setDate(nextDay.getDate()+1);const sh=Math.max(0,Math.min(24,(a-dayStart)/3600000));const eh=Math.max(0,Math.min(24,(b-dayStart)/3600000));const l=(sh/24)*100,r=(eh/24)*100;if(r<=0||l>=100||r<=l)return;const w=Math.max(1,r-l),night=nightOnDay(e,cur);h+=`<div class="trow"><div class="who">${E((e.vehicles||[]).join(', '))}<br>${E((e.people||[]).join(', '))}</div><div class="track"><button class="tbar ${e.kind==='off'?'off':e.kind==='plan'?'plan':''} ${CF(e)?'conflict':''} ${night?'overnight':''}" style="left:${l}%;width:${w}%;background:${safeBG(e,cur)}" onclick="editEvent('${E(e.id)}','${K(cur)}')">${E(e.kind==='off'?(((e.people||[]).join(', ')+' 休み').trim()):((night?'🌙 ':'')+(e.kind==='plan'?'予定 ':'')+(e.site||'未設定')+' '+e.start+'～'+e.end))}</button></div></div>`;});
   return h+'</div>';
 }
-let appZoom=Number(localStorage.getItem('vehicleAppZoom')||'1');
-function applyZoom(){
-  appZoom=Math.max(0.4,Math.min(1.6,Math.round(appZoom*10)/10));
-  const z=document.getElementById('zoomContent');
-  if(z){
-    z.style.transformOrigin='top left';
-    z.style.transform=`scale(${appZoom})`;
-    z.style.width=`${100/appZoom}%`;
-    requestAnimationFrame(()=>{
-      const h=z.scrollHeight;
-      z.style.minHeight='0';
-      z.style.marginBottom=`${Math.max(0,h*(appZoom-1))}px`;
-    });
-  }
-  const v=document.getElementById('zoomValue');
-  if(v)v.textContent=Math.round(appZoom*100)+'%';
-  localStorage.setItem('vehicleAppZoom',String(appZoom));
-}
-function changeZoom(delta){appZoom=Math.round((appZoom+delta)*10)/10;applyZoom();}
-function resetZoom(){appZoom=1;applyZoom();}
-
 /* v47fix18: 週予定だけの2本指ピンチ縮小/拡大。固定ヘッダー・月予定・日予定には影響しない。 */
 (function(){
   let pinch={el:null,startDist:0,startScale:1};
@@ -564,8 +540,27 @@ function renderVehicleMatrix(){
     h+='</tr>';
   }
   h+='</tbody></table>';
-  box.innerHTML=h;
+  box.innerHTML=`<div class="vehicle-matrix-scale">${h}</div>`;
+  applyVehicleMatrixZoom();
 }
+let vehicleMatrixZoom=Number(localStorage.getItem('vehicleMatrixZoom')||'1');
+function applyVehicleMatrixZoom(){
+  vehicleMatrixZoom=Math.max(0.4,Math.min(1.6,Math.round(vehicleMatrixZoom*10)/10));
+  const z=document.querySelector('#vehicleMatrixBody .vehicle-matrix-scale');
+  if(z){z.style.transform=`scale(${vehicleMatrixZoom})`;z.style.width=`${100/vehicleMatrixZoom}%`;z.style.marginBottom=`${Math.max(0,(z.scrollHeight||0)*(vehicleMatrixZoom-1))}px`;}
+  const v=document.getElementById('vehicleMatrixZoomValue');if(v)v.textContent=Math.round(vehicleMatrixZoom*100)+'%';
+  localStorage.setItem('vehicleMatrixZoom',String(vehicleMatrixZoom));
+}
+function changeVehicleMatrixZoom(delta){vehicleMatrixZoom=Math.round((vehicleMatrixZoom+delta)*10)/10;applyVehicleMatrixZoom();}
+function resetVehicleMatrixZoom(){vehicleMatrixZoom=1;applyVehicleMatrixZoom();}
+function printVehicleMatrix(orientation='landscape'){
+  const m=document.getElementById('vehicleMatrixModal');if(!m||!m.classList.contains('open'))return;
+  let st=document.getElementById('vmPrintStyle');if(!st){st=document.createElement('style');st.id='vmPrintStyle';document.head.appendChild(st);}
+  st.textContent=`@media print{ @page{size:${orientation};margin:8mm} }`;
+  window.print();
+  setTimeout(()=>{if(st)st.textContent='';},1200);
+}
+
 function openVehicleMatrix(){
   const modal=document.getElementById('vehicleMatrixModal'); if(!modal)return;
   renderVehicleMatrix();
@@ -576,7 +571,6 @@ function closeVehicleMatrix(){
   if(!document.getElementById('eventModal').classList.contains('open')&&!document.getElementById('personListModal').classList.contains('open'))document.body.style.overflow='';
 }
 function shiftVehicleMatrix(n){cur.setMonth(cur.getMonth()+n);render();renderVehicleMatrix();}
-function printVehicleMatrix(){const m=document.getElementById('vehicleMatrixModal');if(!m||!m.classList.contains('open'))return;window.print();}
 function openPersonList(){
   const modal=document.getElementById('personListModal'); if(!modal)return;
   const sel=document.getElementById('personListSelect');
