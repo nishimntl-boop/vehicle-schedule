@@ -191,6 +191,28 @@
   .bar{font-size:9px;height:20px;}
   .checks{grid-template-columns:1fr;}
 }
+@media print{
+  body{background:#fff!important;overflow:visible!important}
+  body>*:not(#vehicleMatrixModal){display:none!important}
+  #vehicleMatrixModal{display:block!important;position:static!important;inset:auto!important;width:auto!important;height:auto!important;background:#fff!important;padding:0!important;overflow:visible!important}
+  #vehicleMatrixModal .vehicle-matrix-card{display:block!important;width:100%!important;max-width:none!important;max-height:none!important;height:auto!important;padding:0!important;margin:0!important;border:0!important;box-shadow:none!important;border-radius:0!important}
+  #vehicleMatrixModal .vehicle-matrix-head{padding:0 0 8px!important;margin:0 0 8px!important;border-bottom:1px solid #999!important}
+  #vehicleMatrixModal .vehicle-matrix-head button{display:none!important}
+  #vehicleMatrixModal .vehicle-matrix-head h2{font-size:16px!important}
+  #vehicleMatrixModal .vehicle-matrix-wrap{overflow:visible!important;max-height:none!important}
+  #vehicleMatrixModal .vehicle-matrix{width:100%!important;min-width:0!important;font-size:9px!important}
+  #vehicleMatrixModal .vehicle-matrix th,#vehicleMatrixModal .vehicle-matrix td{padding:3px!important}
+  #vehicleMatrixModal .vehicle-matrix thead th{position:static!important;min-width:0!important;width:auto!important}
+  #vehicleMatrixModal .vehicle-matrix thead th:first-child,#vehicleMatrixModal .vehicle-matrix tbody th{position:static!important;min-width:0!important;width:58px!important}
+  #vehicleMatrixModal .vehicle-matrix .vm-cell{min-width:0!important;height:auto!important}
+  #vehicleMatrixModal .vehicle-matrix .vm-event{padding:3px 4px!important;margin-bottom:2px!important;font-size:8px!important;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)!important}
+  #vehicleMatrixModal .vehicle-matrix .vm-site{font-size:8px!important}
+  #vehicleMatrixModal .vehicle-matrix .vm-time,#vehicleMatrixModal .vehicle-matrix .vm-people{font-size:7px!important}
+  #vehicleMatrixModal .vehicle-matrix .vm-kind{font-size:6px!important}
+  #vehicleMatrixModal .vehicle-matrix .rest-label{font-size:7px!important}
+  #vehicleMatrixModal .vehicle-matrix .vm-empty{padding-top:5px!important;font-size:8px!important}
+  @page{size:landscape;margin:8mm}
+}
 </style><style>
 /* v47fix14: 月予定の1日セル内スクロール + ヘッダー非拡大ズーム */
 .day{display:flex;flex-direction:column;min-height:0;overflow:hidden;}
@@ -285,7 +307,7 @@
 </div>
 <div id="vehicleMatrixModal" class="event-modal" onclick="if(event.target===this)closeVehicleMatrix()">
   <div class="event-card vehicle-matrix-card">
-    <div class="vehicle-matrix-head"><button type="button" onclick="shiftVehicleMatrix(-1)">◀</button><h2 id="vehicleMatrixTitle">🚚 日付別・車両別一覧</h2><button type="button" onclick="shiftVehicleMatrix(1)">▶</button><button type="button" onclick="closeVehicleMatrix()">×</button></div>
+    <div class="vehicle-matrix-head"><button type="button" onclick="shiftVehicleMatrix(-1)">◀</button><h2 id="vehicleMatrixTitle">🚚 日付別・車両別一覧</h2><button type="button" onclick="shiftVehicleMatrix(1)">▶</button><button type="button" onclick="printVehicleMatrix()">🖨 印刷</button><button type="button" onclick="closeVehicleMatrix()">×</button></div>
     <div id="vehicleMatrixBody" class="vehicle-matrix-wrap"></div>
   </div>
 </div>
@@ -550,6 +572,7 @@ function closeVehicleMatrix(){
   if(!document.getElementById('eventModal').classList.contains('open')&&!document.getElementById('personListModal').classList.contains('open'))document.body.style.overflow='';
 }
 function shiftVehicleMatrix(n){cur.setMonth(cur.getMonth()+n);render();renderVehicleMatrix();}
+function printVehicleMatrix(){const m=document.getElementById('vehicleMatrixModal');if(!m||!m.classList.contains('open'))return;window.print();}
 function openPersonList(){
   const modal=document.getElementById('personListModal'); if(!modal)return;
   const sel=document.getElementById('personListSelect');
