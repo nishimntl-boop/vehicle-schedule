@@ -589,23 +589,38 @@ function fitVehicleMatrixForPrint(){
   const pageW=(orientation==='portrait'?297:420)-margin*2;
   const pageH=(orientation==='portrait'?420:297)-margin*2;
   const availW=pageW*mmToPx,availH=pageH*mmToPx;
-  const oldTransform=scale.style.transform,oldWidth=scale.style.width,oldVar=box.style.getPropertyValue('--vm-print-scale');
-  scale.style.transform='none';scale.style.width='100%';box.style.setProperty('--vm-print-scale','1');
+  // 印刷時は画面幅ではなく「A3の印刷可能領域」に合わせて実寸を測る。
+  const oldTransform=scale.style.transform,oldWidth=scale.style.width,oldHeight=scale.style.height,oldMargin=scale.style.marginBottom,oldVar=box.style.getPropertyValue('--vm-print-scale');
+  scale.style.transform='none';scale.style.width='max-content';scale.style.height='auto';scale.style.marginBottom='0';box.style.setProperty('--vm-print-scale','1');
   const r=table.getBoundingClientRect(),w=Math.max(r.width,table.scrollWidth),h=Math.max(r.height,table.scrollHeight);
   const fit=Math.max(.05,Math.min(1,availW/w,availH/h));
+  // transform は見た目だけを縮小するため、レイアウト上の高さも縮小後の値にする。
+  // これでA3縦1ページを超える余分なページが発生しない。
+  scale.style.width=w+'px';
+  scale.style.height=h+'px';
+  scale.style.transformOrigin='top left';
+  scale.style.transform=`scale(${fit})`;
+  scale.style.marginBottom=Math.max(0,h*fit-h)+'px';
   box.style.setProperty('--vm-print-scale',String(fit));
-  scale.style.transform=oldTransform;scale.style.width=oldWidth;
-  if(oldVar)box.style.setProperty('--vm-print-scale',oldVar);
+  scale.dataset.printFit='1';
   return fit;
 }
 function printVehicleMatrix(orientation='landscape'){
   const m=document.getElementById('vehicleMatrixModal');if(!m||!m.classList.contains('open'))return;
   let st=document.getElementById('vmPrintStyle');if(!st){st=document.createElement('style');st.id='vmPrintStyle';document.head.appendChild(st);}
   document.body.dataset.vmPrintOrientation=orientation;
-  st.textContent=`@media print{ @page{size:A3 ${orientation};margin:8mm} }`;
-  fitVehicleMatrixForPrint();
+  st.textContent=`@media print{ @page{size:A3 ${orientation};margin:8mm} #vehicleMatrixBody .vehicle-matrix-scale{transform:var(--vm-print-transform)!important;width:var(--vm-print-width)!important;height:var(--vm-print-height)!important;margin-bottom:var(--vm-print-margin-bottom)!important;} }`;
+  const box=document.getElementById('vehicleMatrixBody'),scale=document.querySelector('#vehicleMatrixBody .vehicle-matrix-scale');
+  const fit=fitVehicleMatrixForPrint();
+  if(box&&scale){
+    const w=parseFloat(scale.style.width)||0,h=parseFloat(scale.style.height)||0;
+    box.style.setProperty('--vm-print-transform',`scale(${fit})`);
+    box.style.setProperty('--vm-print-width',w+'px');
+    box.style.setProperty('--vm-print-height',h+'px');
+    box.style.setProperty('--vm-print-margin-bottom',Math.max(0,h*fit-h)+'px');
+  }
   window.print();
-  setTimeout(()=>{if(st)st.textContent='';document.body.removeAttribute('data-vm-print-orientation');const b=document.getElementById('vehicleMatrixBody');if(b)b.style.removeProperty('--vm-print-scale');},1200);
+  setTimeout(()=>{if(st)st.textContent='';document.body.removeAttribute('data-vm-print-orientation');if(box){box.style.removeProperty('--vm-print-scale');box.style.removeProperty('--vm-print-transform');box.style.removeProperty('--vm-print-width');box.style.removeProperty('--vm-print-height');box.style.removeProperty('--vm-print-margin-bottom');}if(scale){scale.style.transform='';scale.style.width='';scale.style.height='';scale.style.marginBottom='';scale.style.transformOrigin='';delete scale.dataset.printFit;}},1500);
 }
 
 
