@@ -248,9 +248,11 @@
 .overnight-toggle b{font-size:15px;}
 .overnight-toggle small{font-size:11px;color:#475569;font-weight:700;margin-top:2px;}
 @media(max-width:700px){.overnight-toggle{min-height:58px!important;padding:11px 12px!important;margin:11px 0!important;}.overnight-toggle input{width:24px!important;height:24px!important;}.overnight-toggle b{font-size:16px;}.overnight-toggle small{font-size:12px;}}
+
+.person-list-card{width:min(900px,96vw)!important;max-height:90vh;overflow:auto}.person-list-tools{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid #dce3eb;font-weight:800}.person-list-tools select{padding:9px 12px;border:1px solid #bfc9d6;border-radius:6px;min-width:180px}.person-list-body{padding:12px 16px 18px}.person-list-row{display:grid;grid-template-columns:110px 1fr;gap:10px;align-items:start;border-bottom:1px solid #e5e7eb;padding:10px 0}.person-list-date{font-weight:800;color:#334155}.person-list-item{border:1px solid #d8dee8;border-radius:6px;padding:7px 9px;margin-bottom:6px;background:#fff}.person-list-item.off{background:#fff0f5;border-color:#efb5cb;color:#a11}.person-list-item .kind{font-size:11px;font-weight:800;margin-right:6px}.person-list-item .meta{font-size:12px;color:#64748b;margin-top:3px}.person-list-empty{padding:20px;text-align:center;color:#64748b}.person-list-open{cursor:pointer}@media(max-width:700px){.person-list-card{width:96vw!important}.person-list-tools{flex-wrap:wrap}.person-list-tools select{flex:1;min-width:160px}.person-list-row{grid-template-columns:82px 1fr;gap:7px}.person-list-body{padding:10px}}
 </style>
 <body>
-<header class="top"><div class="logo">🚚 車両・人員 配置管理</div><div class="tabs"><button data-v="day">日予定</button><button data-v="week">週予定</button><button data-v="month" class="on">月予定</button></div><div class="nav"><button id="prev">◀</button><div id="title" class="title"></div><span id="cloudStatus" class="cloud-status">共有確認中…</span><button id="cloudDiagBtn" type="button" onclick="openCloudDiag()">🔄 共有診断</button><button id="next">▶</button><button id="today">今日</button><button onclick="print()">🖨 印刷</button><button id="installBtn" type="button" onclick="installApp()" style="display:none">📱 アプリ追加</button><button class="mobile-add" type="button" onclick="newEvent()">＋ 予定</button><button id="settingsBtn" type="button" onclick="openSettings()">⚙ 設定</button></div><div class="zoom-tools" aria-label="表示倍率"><button type="button" onclick="changeZoom(-0.1)" aria-label="縮小">−</button><button type="button" class="zoom-value" id="zoomValue" onclick="resetZoom()">100%</button><button type="button" onclick="changeZoom(0.1)" aria-label="拡大">＋</button></div></header>
+<header class="top"><div class="logo">🚚 車両・人員 配置管理</div><div class="tabs"><button data-v="day">日予定</button><button data-v="week">週予定</button><button data-v="month" class="on">月予定</button></div><div class="nav"><button id="prev">◀</button><div id="title" class="title"></div><span id="cloudStatus" class="cloud-status">共有確認中…</span><button id="cloudDiagBtn" type="button" onclick="openCloudDiag()">🔄 共有診断</button><button id="next">▶</button><button id="today">今日</button><button type="button" onclick="openPersonList()">👤 人員一覧</button><button onclick="print()">🖨 印刷</button><button id="installBtn" type="button" onclick="installApp()" style="display:none">📱 アプリ追加</button><button class="mobile-add" type="button" onclick="newEvent()">＋ 予定</button><button id="settingsBtn" type="button" onclick="openSettings()">⚙ 設定</button></div><div class="zoom-tools" aria-label="表示倍率"><button type="button" onclick="changeZoom(-0.1)" aria-label="縮小">−</button><button type="button" class="zoom-value" id="zoomValue" onclick="resetZoom()">100%</button><button type="button" onclick="changeZoom(0.1)" aria-label="拡大">＋</button></div></header>
 <div id="cloudDiag" class="cloud-diag"><div class="cloud-diag-card"><h3>🔄 共有診断</h3><pre id="cloudDiagText">確認中…</pre><div class="cloud-diag-actions"><button type="button" onclick="closeCloudDiag()">閉じる</button><button type="button" class="primary" onclick="runCloudDiag()">今すぐ確認</button></div></div></div><div id="zoomContent"><div class="color-note">現場ごとに色分け　｜　<span class="red-note">赤＝車両・人員のダブルブッキング</span>　｜　<span class="off-note">休み</span></div><div class="app"><main><section class="panel"><div id="main"></div></section>
 <section class="panel"><div class="head"><span id="sub"></span><button id="subPrev" onclick="shift(-1)">◀</button><button id="subNext" onclick="shift(1)">▶</button><button class="add" onclick="newEvent()">＋ 予定追加</button></div><div id="secondary"></div></section></main>
 <aside class="side"><div class="box"><h3 id="stitle">空き状況</h3><div id="status" class="status"></div></div><div class="box"><h3>お知らせ</h3><div class="notice">・予定／確定をクリックして編集<br>・人員の「休み」を登録<br>・重複した車両／人員だけ赤色<br>・選択した日は青枠で表示</div></div>
@@ -266,8 +268,17 @@
       <div class="two"><div><label>終了日</label><input id="med" type="date"></div><div><label>終了</label><input id="met" type="time" value="16:00"></div></div><label class="overnight-toggle"><input id="movernight" type="checkbox" onchange="toggleOvernight('m')"><span><b>🌙 日またぎ</b><small> 翌日まで続く予定</small></span></label>
       <label>車両（複数選択可）</label><div id="mvs" class="checks"></div>
       <label>人員（複数選択可）</label><div id="mps" class="checks"></div>
-      <div class="actions"><button class="del" type="button" onclick="delEvent(true)">削除</button><button type="button" onclick="closeEventModal()">キャンセル</button><button class="save" type="button" onclick="saveEvent(true)">保存</button></div>
+      <div class="actions"><button class="del" type="button" onclick="delEvent(true)">削除</button><button id="copyEventBtn" type="button" onclick="copyEventToDate()" style="display:none">📋 別日にコピー</button><button type="button" onclick="closeEventModal()">キャンセル</button><button class="save" type="button" onclick="saveEvent(true)">保存</button></div>
     </div>
+  </div>
+</div>
+<div id="personListModal" class="event-modal" onclick="if(event.target===this)closePersonList()">
+  <div class="event-card person-list-card">
+    <div class="modal-head"><h2>👤 人員別 予定・休み一覧</h2><button type="button" onclick="closePersonList()">×</button></div>
+    <div class="person-list-tools">
+      <label>人員</label><select id="personListSelect" onchange="renderPersonList()"></select>
+    </div>
+    <div id="personListBody" class="person-list-body"></div>
   </div>
 </div>
 <script>
@@ -481,8 +492,61 @@ function toggleOvernight(prefix){const ot=document.getElementById(prefix+'overni
 
 function openEventModal(){document.getElementById('eventModal').classList.add('open');document.body.style.overflow='hidden';}
 function closeEventModal(){document.getElementById('eventModal').classList.remove('open');document.body.style.overflow='';}
-function newEvent(){eid=null;assignmentTouched={desktop:false,mobile:false};editAssignmentSnapshot=null;const blank={kind:'plan',site:'',work:'',date:K(cur),endDate:K(cur),start:'08:00',end:'16:00',vehicles:[],people:[]};setFormValues('m',blank);document.getElementById('ftitle').textContent='予定の追加';document.getElementById('mftitle').textContent='予定の追加';openEventModal();}
-function editEvent(id,d){assignmentTouched={desktop:false,mobile:false};const e=events.find(x=>String(x.id)===String(id));if(!e)return;cur=new Date(d+'T00:00');eid=e.id;editAssignmentSnapshot={vehicles:(e.vehicles||[]).map(String),people:(e.people||[]).map(String)};setFormValues('m',e);document.getElementById('ftitle').textContent='予定の編集';document.getElementById('mftitle').textContent='予定の編集';render();openEventModal();}
+function openPersonList(){
+  const modal=document.getElementById('personListModal'); if(!modal)return;
+  const sel=document.getElementById('personListSelect');
+  const prev=sel.value;
+  sel.innerHTML=PEOPLE.map(p=>`<option value="${E(p)}">${E(p)}</option>`).join('');
+  if(prev&&PEOPLE.includes(prev))sel.value=prev;
+  else if(PEOPLE.length)sel.value=PEOPLE[0];
+  renderPersonList();
+  modal.classList.add('open');document.body.style.overflow='hidden';
+}
+function closePersonList(){const m=document.getElementById('personListModal');if(m)m.classList.remove('open');if(!document.getElementById('eventModal').classList.contains('open'))document.body.style.overflow='';}
+function renderPersonList(){
+  const p=document.getElementById('personListSelect')?.value, box=document.getElementById('personListBody');
+  if(!box)return;
+  if(!p){box.innerHTML='<div class="person-list-empty">人員がありません。</div>';return;}
+  const rows=events.filter(e=>(e.people||[]).includes(p)).sort((a,b)=>{const x=String(a.date||'');const y=String(b.date||'');return x.localeCompare(y)||String(a.start||'').localeCompare(String(b.start||''));});
+  if(!rows.length){box.innerHTML=`<div class="person-list-empty">${E(p)}さんの予定・休みはありません。</div>`;return;}
+  const groups=new Map();
+  rows.forEach(e=>{const key=String(e.date||'');if(!groups.has(key))groups.set(key,[]);groups.get(key).push(e);});
+  let html='';
+  for(const [ds,items] of groups){
+    const d=new Date(ds+'T00:00');
+    const label=`${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}（${'日月火水木金土'[d.getDay()]}）`;
+    html+=`<div class="person-list-row"><div class="person-list-date">${label}</div><div>`;
+    items.forEach(e=>{
+      const off=e.kind==='off';
+      const kind=off?'休み':e.kind==='confirmed'?'確定':'予定';
+      const site=off?'':((nightOnDay(e,d)?'🌙 ':'')+E(e.site||'未設定'));
+      const time=off?'':`${E(e.start||'')}～${E(e.end||'')}${e.endDate&&e.endDate!==e.date?'（翌日）':''}`;
+      const vehicles=off?'':((e.vehicles||[]).join('・'));
+      html+=`<div class="person-list-item ${off?'off':''}" onclick="closePersonList();editEvent('${E(e.id)}','${E(e.date||ds)}')"><span class="kind">${kind}</span><b>${off?E(p)+'さん　休み':site}</b>${time?`<div>${time}</div>`:''}${vehicles?`<div class="meta">🚚 ${E(vehicles)}</div>`:''}${e.work&&!off?`<div class="meta">${E(e.work)}</div>`:''}</div>`;
+    });
+    html+='</div></div>';
+  }
+  box.innerHTML=html;
+}
+function copyEventToDate(){
+  if(!eid)return;
+  const src=events.find(x=>String(x.id)===String(eid)); if(!src)return;
+  const target=prompt('コピー先の日付を入力してください（例：2026-09-25）',src.date||K(cur));
+  if(target===null)return;
+  const ds=String(target).trim();
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(ds))return alert('日付は YYYY-MM-DD 形式で入力してください。');
+  const check=new Date(ds+'T00:00'); if(Number.isNaN(check.getTime())||K(check)!==ds)return alert('正しい日付を入力してください。');
+  const delta=Math.round((check-new Date((src.date||ds)+'T00:00'))/86400000);
+  const endDate=src.endDate||src.date;
+  const end=new Date((endDate||src.date||ds)+'T00:00'); end.setDate(end.getDate()+delta);
+  const copy=normalizeEvent(Object.assign({},src,{id:Date.now()+'_'+Math.random().toString(36).slice(2),date:ds,endDate:K(end),updatedAt:0,updatedBy:''}));
+  const conflict=events.some(x=>O(copy,x)&&(((copy.vehicles||[]).some(v=>(x.vehicles||[]).includes(v)))||((copy.people||[]).some(p=>(x.people||[]).includes(p))))&&['plan','confirmed','work'].includes(x.kind)&&['plan','confirmed','work'].includes(copy.kind));
+  if(conflict&&!confirm('コピー先で車両または人員が重複します。コピーしますか？'))return;
+  events.push(copy);markDirtyEvent(copy,0,false);colorPreparedFor='';persistLocal();render();queueCloudSave();
+  closeEventModal();eid=null;editAssignmentSnapshot=null;assignmentTouched={desktop:false,mobile:false};
+}
+function newEvent(){eid=null;assignmentTouched={desktop:false,mobile:false};editAssignmentSnapshot=null;const cb=document.getElementById('copyEventBtn');if(cb)cb.style.display='none';const blank={kind:'plan',site:'',work:'',date:K(cur),endDate:K(cur),start:'08:00',end:'16:00',vehicles:[],people:[]};setFormValues('m',blank);document.getElementById('ftitle').textContent='予定の追加';document.getElementById('mftitle').textContent='予定の追加';openEventModal();}
+function editEvent(id,d){assignmentTouched={desktop:false,mobile:false};const e=events.find(x=>String(x.id)===String(id));if(!e)return;const cb=document.getElementById('copyEventBtn');if(cb)cb.style.display='inline-block';cur=new Date(d+'T00:00');eid=e.id;editAssignmentSnapshot={vehicles:(e.vehicles||[]).map(String),people:(e.people||[]).map(String)};setFormValues('m',e);document.getElementById('ftitle').textContent='予定の編集';document.getElementById('mftitle').textContent='予定の編集';render();openEventModal();}
 function selectDay(d){cur=new Date(d+'T00:00');render();}
 function selectWeekDate(d,ev){if(ev)ev.stopPropagation();cur=new Date(d+'T00:00');newEvent();}
 function markDirtyEvent(e,baseUpdatedAt,preserveAssignments=false){e.updatedAt=Number(e.updatedAt||baseUpdatedAt||0);const prev=dirtyEvents.get(String(e.id));dirtyEvents.set(String(e.id),{event:JSON.parse(JSON.stringify(e)),baseUpdatedAt:Number(baseUpdatedAt||0),preserveAssignments:!!preserveAssignments||!!(prev&&prev.preserveAssignments)});pendingDeletes.delete(String(e.id));}
