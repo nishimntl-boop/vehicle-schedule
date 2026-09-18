@@ -594,46 +594,42 @@ function buildVehicleMatrixPrintPages(orientation){
   if(!source)return null;
   let host=document.getElementById('vmPrintContainer');
   if(host)host.remove();
-  host=document.createElement('div');host.id='vmPrintContainer';host.className='vm-print-container '+orientation;
+  host=document.createElement('div');
+  host.id='vmPrintContainer';
+  host.className='vm-print-container '+orientation;
   const pageW=orientation==='portrait'?277:400, pageH=orientation==='portrait'?404:277;
-  const mmToPx=96/25.4, availW=pageW*mmToPx, availH=pageH*mmToPx;
   const allRows=[...source.querySelectorAll('tbody tr')];
   const head=source.querySelector('thead');
-  const measure=document.createElement('table');
-  measure.className='vehicle-matrix';measure.style.cssText=`width:${availW}px;min-width:0;table-layout:fixed;font-size:10px;`;
-  if(head)measure.appendChild(head.cloneNode(true));
-  const mb=document.createElement('tbody');measure.appendChild(mb);
-  document.body.appendChild(host);host.style.cssText=`position:absolute;left:-100000px;top:0;width:${availW}px;visibility:hidden;`;
-  host.appendChild(measure);
-  const headerH=head?Math.ceil(head.getBoundingClientRect().height):36;
-  const rows=allRows.map(r=>{const c=r.cloneNode(true);mb.innerHTML='';mb.appendChild(c);return Math.max(28,Math.ceil(c.getBoundingClientRect().height));});
-  measure.remove();
-  // 縦は「1枚に収められるだけ収める」。ただし2枚目が極端に少なくなる場合は1枚に集約。
-  const usable=Math.max(180,availH-headerH-8);
-  let maxRows=0,used=0;
-  for(let i=0;i<rows.length;i++){if(i&&used+rows[i]>usable)break;used+=rows[i];maxRows++;}
-  maxRows=Math.max(1,maxRows);
+  // A3縦は「15日を目安に2分割」。ただし実際の内容が少なければ1枚に集約する。
+  // 各ページは同じ日数を優先し、ページ内で用紙高さいっぱいまで拡大する。
   let chunks=[];
-  if(orientation==='portrait' && rows.length>maxRows){
-    const pages=Math.ceil(rows.length/maxRows);
-    const base=Math.ceil(rows.length/pages);
-    // 2枚目などが5日未満になる分割は避け、1枚に戻す。
-    if(pages===2 && rows.length-base<5){chunks=[allRows];}
-    else {
-      for(let i=0;i<rows.length;i+=base)chunks.push(allRows.slice(i,i+base));
+  if(orientation==='portrait'){
+    const hasContent=r=>r.querySelector('.vm-event')||r.querySelector('.rest-label');
+    const contentRows=allRows.filter(hasContent).length;
+    if(allRows.length<=15 || contentRows<=15){
+      chunks=[allRows];
+    }else{
+      const pageCount=2;
+      const per=Math.ceil(allRows.length/pageCount);
+      for(let i=0;i<allRows.length;i+=per)chunks.push(allRows.slice(i,i+per));
+      // 2枚目が極端に短くなる場合は1枚に戻す。
+      if(chunks.length===2 && chunks[1].length<Math.max(5,Math.floor(allRows.length*0.25))) chunks=[allRows];
     }
-  }else chunks=[allRows];
-  // 1枚に収められるなら、多少小さくしても1枚を優先。
-  if(orientation==='portrait' && chunks.length>1){
-    const lastCount=chunks[chunks.length-1].length;
-    if(lastCount<5)chunks=[allRows];
+  }else{
+    chunks=[allRows];
   }
-  chunks.forEach((chunk,idx)=>{
-    const page=document.createElement('div');page.className='vm-print-page';page.style.cssText=`width:${pageW}mm;height:${pageH}mm;`;
-    const wrap=document.createElement('div');wrap.className='vm-print-page-inner';
+
+  chunks.forEach(chunk=>{
+    const page=document.createElement('div');
+    page.className='vm-print-page';
+    page.style.cssText=`width:${pageW}mm;height:${pageH}mm;`;
+    const wrap=document.createElement('div');
+    wrap.className='vm-print-page-inner';
     const table=source.cloneNode(false);
     if(head)table.appendChild(head.cloneNode(true));
-    const body=document.createElement('tbody');chunk.forEach(r=>body.appendChild(r.cloneNode(true)));table.appendChild(body);
+    const body=document.createElement('tbody');
+    chunk.forEach(r=>body.appendChild(r.cloneNode(true)));
+    table.appendChild(body);
     wrap.appendChild(table);page.appendChild(wrap);host.appendChild(page);
   });
   document.body.appendChild(host);
@@ -641,14 +637,63 @@ function buildVehicleMatrixPrintPages(orientation){
 }
 function printVehicleMatrix(orientation='landscape'){
   const m=document.getElementById('vehicleMatrixModal');if(!m||!m.classList.contains('open'))return;
-  let st=document.getElementById('vmPrintStyle');if(!st){st=document.createElement('style');st.id='vmPrintStyle';document.head.appendChild(st);}
+  let st=document.getElementById('vmPrintStyle');
+  if(!st){st=document.createElement('style');st.id='vmPrintStyle';document.head.appendChild(st);}
   document.body.dataset.vmPrintOrientation=orientation;
-  st.textContent=`@media print{ @page{size:A3 ${orientation};margin:8mm} body>*{display:none!important} #vmPrintContainer{display:block!important;position:static!important;visibility:visible!important;width:auto!important;height:auto!important} #vmPrintContainer .vm-print-page{display:block!important;position:relative!important;box-sizing:border-box!important;page-break-after:always!important;break-after:page!important;overflow:hidden!important;margin:0!important;padding:0!important;background:#fff!important} #vmPrintContainer .vm-print-page:last-child{page-break-after:auto!important;break-after:auto!important} #vmPrintContainer .vm-print-page-inner{width:100%!important;height:100%!important;display:flex!important;align-items:flex-start!important;justify-content:flex-start!important;overflow:hidden!important} #vmPrintContainer .vehicle-matrix{width:100%!important;min-width:0!important;table-layout:fixed!important;font-size:10px!important;border-collapse:collapse!important} #vmPrintContainer .vehicle-matrix th,#vmPrintContainer .vehicle-matrix td{padding:3px!important} #vmPrintContainer .vehicle-matrix thead th{position:static!important;min-width:0!important} #vmPrintContainer .vehicle-matrix thead th:first-child,#vmPrintContainer .vehicle-matrix tbody th{position:static!important;width:58px!important;min-width:58px!important} #vmPrintContainer .vehicle-matrix .vm-cell{min-width:0!important;height:auto!important} #vmPrintContainer .vehicle-matrix .vm-event{padding:3px 4px!important;margin-bottom:2px!important;font-size:8px!important} #vmPrintContainer .vehicle-matrix .vm-site{font-size:8px!important} #vmPrintContainer .vehicle-matrix .vm-time,#vmPrintContainer .vehicle-matrix .vm-people{font-size:7px!important} #vmPrintContainer .vehicle-matrix .vm-kind{font-size:6px!important} #vmPrintContainer .vehicle-matrix .rest-label{font-size:7px!important} }`;
+  st.textContent=`@media print{
+    @page{size:A3 ${orientation};margin:6mm}
+    body>*{display:none!important}
+    #vmPrintContainer{display:block!important;position:static!important;visibility:visible!important;width:auto!important;height:auto!important}
+    #vmPrintContainer .vm-print-page{display:block!important;position:relative!important;box-sizing:border-box!important;page-break-after:always!important;break-after:page!important;overflow:hidden!important;margin:0!important;padding:0!important;background:#fff!important}
+    #vmPrintContainer .vm-print-page:last-child{page-break-after:auto!important;break-after:auto!important}
+    #vmPrintContainer .vm-print-page-inner{width:100%!important;height:100%!important;overflow:hidden!important}
+    #vmPrintContainer .vehicle-matrix{width:100%!important;min-width:0!important;table-layout:fixed!important;border-collapse:collapse!important;font-size:10px!important}
+    #vmPrintContainer .vehicle-matrix th,#vmPrintContainer .vehicle-matrix td{padding:2.5px!important;line-height:1.15!important}
+    #vmPrintContainer .vehicle-matrix thead th{position:static!important;min-width:0!important;height:auto!important}
+    #vmPrintContainer .vehicle-matrix thead th:first-child,#vmPrintContainer .vehicle-matrix tbody th{position:static!important;width:54px!important;min-width:54px!important}
+    #vmPrintContainer .vehicle-matrix .vm-cell{min-width:0!important;height:auto!important}
+    #vmPrintContainer .vehicle-matrix .vm-event{padding:2px 3px!important;margin-bottom:1px!important;font-size:7px!important;line-height:1.15!important}
+    #vmPrintContainer .vehicle-matrix .vm-site{font-size:7px!important}
+    #vmPrintContainer .vehicle-matrix .vm-time,#vmPrintContainer .vehicle-matrix .vm-people{font-size:6.5px!important}
+    #vmPrintContainer .vehicle-matrix .vm-kind{font-size:5.5px!important}
+    #vmPrintContainer .vehicle-matrix .rest-label{font-size:6px!important;line-height:1.1!important}
+    #vmPrintContainer .vehicle-matrix .vm-empty{padding-top:2px!important;font-size:6px!important}
+  }`;
   buildVehicleMatrixPrintPages(orientation);
   const host=document.getElementById('vmPrintContainer');
-  // 各ページはA3の横幅いっぱい。縦は内容量に応じて自然に伸び、無理な一律縮小をしない。
   if(host)requestAnimationFrame(()=>window.print());else window.print();
-  setTimeout(()=>{if(host)host.remove();},1500);
+  setTimeout(()=>{if(host)host.remove();},1800);
+}
+
+// トップ画面の印刷。現在表示中の予定表だけを印刷し、操作ボタンや設定欄は除外する。
+function print(){
+  const old=document.getElementById('topPrintContainer');
+  if(old)old.remove();
+  const src=document.querySelector('#zoomContent .app');
+  if(!src){window.print();return;}
+  const host=document.createElement('div');
+  host.id='topPrintContainer';
+  host.innerHTML=src.outerHTML;
+  document.body.appendChild(host);
+  const st=document.getElementById('topPrintStyle')||document.createElement('style');
+  st.id='topPrintStyle';
+  st.textContent=`@media print{
+    @page{size:A3 landscape;margin:8mm}
+    body>*{display:none!important}
+    #topPrintContainer{display:block!important;position:static!important;width:100%!important;height:auto!important;background:#fff!important}
+    #topPrintContainer .app{display:block!important;width:100%!important;max-width:none!important;padding:0!important;margin:0!important}
+    #topPrintContainer main{display:block!important;width:100%!important}
+    #topPrintContainer .side{display:none!important}
+    #topPrintContainer .panel{display:block!important;border:0!important;border-radius:0!important;overflow:visible!important;margin:0 0 6mm!important}
+    #topPrintContainer .head{display:flex!important;position:static!important}
+    #topPrintContainer button{display:none!important}
+    #topPrintContainer .month{min-width:0!important;width:100%!important;grid-template-columns:repeat(7,1fr)!important}
+    #topPrintContainer .week{min-width:0!important;width:100%!important;grid-template-columns:110px repeat(7,1fr)!important}
+    #topPrintContainer .timeline{min-width:0!important;width:100%!important}
+  }`;
+  document.head.appendChild(st);
+  requestAnimationFrame(()=>window.print());
+  setTimeout(()=>{host.remove();},1800);
 }
 
 
