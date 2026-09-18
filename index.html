@@ -191,6 +191,11 @@
   .bar{font-size:9px;height:20px;}
   .checks{grid-template-columns:1fr;}
 }
+#vmPrintContainer{display:none;}
+.vm-print-page{background:#fff;}
+@media print{
+  #vmPrintContainer{display:block;}
+}
 @media print{
   body{background:#fff!important;overflow:visible!important}
   body>*:not(#vehicleMatrixModal){display:none!important}
@@ -582,45 +587,68 @@ function initVehicleMatrixPinch(){
   box.addEventListener('touchend',end,{passive:true});box.addEventListener('touchcancel',end,{passive:true});
 }
 function fitVehicleMatrixForPrint(){
-  const box=document.getElementById('vehicleMatrixBody'),scale=document.querySelector('#vehicleMatrixBody .vehicle-matrix-scale'),table=document.querySelector('#vehicleMatrixBody .vehicle-matrix');
-  if(!box||!scale||!table)return 1;
-  const orientation=document.body.dataset.vmPrintOrientation||'portrait';
-  const mmToPx=96/25.4,margin=8;
-  const pageW=(orientation==='portrait'?297:420)-margin*2;
-  const pageH=(orientation==='portrait'?420:297)-margin*2;
-  const availW=pageW*mmToPx,availH=pageH*mmToPx;
-  // 印刷時は画面幅ではなく「A3の印刷可能領域」に合わせて実寸を測る。
-  const oldTransform=scale.style.transform,oldWidth=scale.style.width,oldHeight=scale.style.height,oldMargin=scale.style.marginBottom,oldVar=box.style.getPropertyValue('--vm-print-scale');
-  scale.style.transform='none';scale.style.width='max-content';scale.style.height='auto';scale.style.marginBottom='0';box.style.setProperty('--vm-print-scale','1');
-  const r=table.getBoundingClientRect(),w=Math.max(r.width,table.scrollWidth),h=Math.max(r.height,table.scrollHeight);
-  const fit=Math.max(.05,Math.min(1,availW/w,availH/h));
-  // transform は見た目だけを縮小するため、レイアウト上の高さも縮小後の値にする。
-  // これでA3縦1ページを超える余分なページが発生しない。
-  scale.style.width=w+'px';
-  scale.style.height=h+'px';
-  scale.style.transformOrigin='top left';
-  scale.style.transform=`scale(${fit})`;
-  scale.style.marginBottom=Math.max(0,h*fit-h)+'px';
-  box.style.setProperty('--vm-print-scale',String(fit));
-  scale.dataset.printFit='1';
-  return fit;
+  return 1;
+}
+function buildVehicleMatrixPrintPages(orientation){
+  const source=document.querySelector('#vehicleMatrixBody .vehicle-matrix');
+  if(!source)return null;
+  let host=document.getElementById('vmPrintContainer');
+  if(host)host.remove();
+  host=document.createElement('div');host.id='vmPrintContainer';host.className='vm-print-container '+orientation;
+  const pageW=orientation==='portrait'?277:400, pageH=orientation==='portrait'?404:277;
+  const mmToPx=96/25.4, availW=pageW*mmToPx, availH=pageH*mmToPx;
+  const allRows=[...source.querySelectorAll('tbody tr')];
+  const head=source.querySelector('thead');
+  const measure=document.createElement('table');
+  measure.className='vehicle-matrix';measure.style.cssText=`width:${availW}px;min-width:0;table-layout:fixed;font-size:10px;`;
+  if(head)measure.appendChild(head.cloneNode(true));
+  const mb=document.createElement('tbody');measure.appendChild(mb);
+  document.body.appendChild(host);host.style.cssText=`position:absolute;left:-100000px;top:0;width:${availW}px;visibility:hidden;`;
+  host.appendChild(measure);
+  const headerH=head?Math.ceil(head.getBoundingClientRect().height):36;
+  const rows=allRows.map(r=>{const c=r.cloneNode(true);mb.innerHTML='';mb.appendChild(c);return Math.max(28,Math.ceil(c.getBoundingClientRect().height));});
+  measure.remove();
+  // 縦は「1枚に収められるだけ収める」。ただし2枚目が極端に少なくなる場合は1枚に集約。
+  const usable=Math.max(180,availH-headerH-8);
+  let maxRows=0,used=0;
+  for(let i=0;i<rows.length;i++){if(i&&used+rows[i]>usable)break;used+=rows[i];maxRows++;}
+  maxRows=Math.max(1,maxRows);
+  let chunks=[];
+  if(orientation==='portrait' && rows.length>maxRows){
+    const pages=Math.ceil(rows.length/maxRows);
+    const base=Math.ceil(rows.length/pages);
+    // 2枚目などが5日未満になる分割は避け、1枚に戻す。
+    if(pages===2 && rows.length-base<5){chunks=[allRows];}
+    else {
+      for(let i=0;i<rows.length;i+=base)chunks.push(allRows.slice(i,i+base));
+    }
+  }else chunks=[allRows];
+  // 1枚に収められるなら、多少小さくしても1枚を優先。
+  if(orientation==='portrait' && chunks.length>1){
+    const lastCount=chunks[chunks.length-1].length;
+    if(lastCount<5)chunks=[allRows];
+  }
+  chunks.forEach((chunk,idx)=>{
+    const page=document.createElement('div');page.className='vm-print-page';page.style.cssText=`width:${pageW}mm;height:${pageH}mm;`;
+    const wrap=document.createElement('div');wrap.className='vm-print-page-inner';
+    const table=source.cloneNode(false);
+    if(head)table.appendChild(head.cloneNode(true));
+    const body=document.createElement('tbody');chunk.forEach(r=>body.appendChild(r.cloneNode(true)));table.appendChild(body);
+    wrap.appendChild(table);page.appendChild(wrap);host.appendChild(page);
+  });
+  document.body.appendChild(host);
+  return host;
 }
 function printVehicleMatrix(orientation='landscape'){
   const m=document.getElementById('vehicleMatrixModal');if(!m||!m.classList.contains('open'))return;
   let st=document.getElementById('vmPrintStyle');if(!st){st=document.createElement('style');st.id='vmPrintStyle';document.head.appendChild(st);}
   document.body.dataset.vmPrintOrientation=orientation;
-  st.textContent=`@media print{ @page{size:A3 ${orientation};margin:8mm} #vehicleMatrixBody .vehicle-matrix-scale{transform:var(--vm-print-transform)!important;width:var(--vm-print-width)!important;height:var(--vm-print-height)!important;margin-bottom:var(--vm-print-margin-bottom)!important;} }`;
-  const box=document.getElementById('vehicleMatrixBody'),scale=document.querySelector('#vehicleMatrixBody .vehicle-matrix-scale');
-  const fit=fitVehicleMatrixForPrint();
-  if(box&&scale){
-    const w=parseFloat(scale.style.width)||0,h=parseFloat(scale.style.height)||0;
-    box.style.setProperty('--vm-print-transform',`scale(${fit})`);
-    box.style.setProperty('--vm-print-width',w+'px');
-    box.style.setProperty('--vm-print-height',h+'px');
-    box.style.setProperty('--vm-print-margin-bottom',Math.max(0,h*fit-h)+'px');
-  }
-  window.print();
-  setTimeout(()=>{if(st)st.textContent='';document.body.removeAttribute('data-vm-print-orientation');if(box){box.style.removeProperty('--vm-print-scale');box.style.removeProperty('--vm-print-transform');box.style.removeProperty('--vm-print-width');box.style.removeProperty('--vm-print-height');box.style.removeProperty('--vm-print-margin-bottom');}if(scale){scale.style.transform='';scale.style.width='';scale.style.height='';scale.style.marginBottom='';scale.style.transformOrigin='';delete scale.dataset.printFit;}},1500);
+  st.textContent=`@media print{ @page{size:A3 ${orientation};margin:8mm} body>*{display:none!important} #vmPrintContainer{display:block!important;position:static!important;visibility:visible!important;width:auto!important;height:auto!important} #vmPrintContainer .vm-print-page{display:block!important;position:relative!important;box-sizing:border-box!important;page-break-after:always!important;break-after:page!important;overflow:hidden!important;margin:0!important;padding:0!important;background:#fff!important} #vmPrintContainer .vm-print-page:last-child{page-break-after:auto!important;break-after:auto!important} #vmPrintContainer .vm-print-page-inner{width:100%!important;height:100%!important;display:flex!important;align-items:flex-start!important;justify-content:flex-start!important;overflow:hidden!important} #vmPrintContainer .vehicle-matrix{width:100%!important;min-width:0!important;table-layout:fixed!important;font-size:10px!important;border-collapse:collapse!important} #vmPrintContainer .vehicle-matrix th,#vmPrintContainer .vehicle-matrix td{padding:3px!important} #vmPrintContainer .vehicle-matrix thead th{position:static!important;min-width:0!important} #vmPrintContainer .vehicle-matrix thead th:first-child,#vmPrintContainer .vehicle-matrix tbody th{position:static!important;width:58px!important;min-width:58px!important} #vmPrintContainer .vehicle-matrix .vm-cell{min-width:0!important;height:auto!important} #vmPrintContainer .vehicle-matrix .vm-event{padding:3px 4px!important;margin-bottom:2px!important;font-size:8px!important} #vmPrintContainer .vehicle-matrix .vm-site{font-size:8px!important} #vmPrintContainer .vehicle-matrix .vm-time,#vmPrintContainer .vehicle-matrix .vm-people{font-size:7px!important} #vmPrintContainer .vehicle-matrix .vm-kind{font-size:6px!important} #vmPrintContainer .vehicle-matrix .rest-label{font-size:7px!important} }`;
+  buildVehicleMatrixPrintPages(orientation);
+  const host=document.getElementById('vmPrintContainer');
+  // 各ページはA3の横幅いっぱい。縦は内容量に応じて自然に伸び、無理な一律縮小をしない。
+  if(host)requestAnimationFrame(()=>window.print());else window.print();
+  setTimeout(()=>{if(host)host.remove();},1500);
 }
 
 
