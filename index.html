@@ -191,6 +191,11 @@
   .bar{font-size:9px;height:20px;}
   .checks{grid-template-columns:1fr;}
 }
+
+.vm-print-settings{position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:2500;display:none;align-items:center;justify-content:center;padding:14px}
+.vm-print-settings.open{display:flex}.vm-print-settings-card{width:min(460px,94vw);background:#fff;border-radius:12px;box-shadow:0 16px 50px rgba(0,0,0,.3);padding:16px}.vm-print-settings-head{display:flex;align-items:center;border-bottom:1px solid #d3dae5;padding-bottom:10px;margin-bottom:12px}.vm-print-settings-head h3{margin:0;font-size:18px}.vm-print-settings-head button{margin-left:auto;border:0;background:transparent;font-size:26px}.vm-print-setting-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #edf0f4}.vm-print-orientation{display:flex;gap:8px}.vm-print-orientation button{min-width:110px;min-height:46px;border:1px solid #cbd3df;border-radius:7px;background:#fff;font-weight:900;font-size:14px}.vm-print-help{font-size:12px;line-height:1.6;color:#5b6472;margin:12px 0 0}
+@media(max-width:700px){.vm-print-settings{padding:8px;align-items:flex-end}.vm-print-settings-card{width:100%;border-radius:12px 12px 0 0}.vm-print-orientation button{min-height:50px}}
+@media print{.vm-print-settings{display:none!important}}
 #vmPrintContainer{display:none;}
 .vm-print-page{background:#fff;}
 @media print{
@@ -198,36 +203,26 @@
 }
 @media print{
   body{background:#fff!important;overflow:visible!important}
-  body:not(.vm-matrix-print-active) #vehicleMatrixModal,body:not(.vm-matrix-print-active) #personListModal,body:not(.vm-matrix-print-active) #eventModal,body:not(.vm-matrix-print-active) #settings,body:not(.vm-matrix-print-active) #cloudDiag{display:none!important}
-  body:not(.vm-matrix-print-active) .top,body:not(.vm-matrix-print-active) .side,body:not(.vm-matrix-print-active) .color-note{display:none!important}
-  body:not(.vm-matrix-print-active) #zoomContent{display:block!important;position:static!important;width:auto!important;height:auto!important;overflow:visible!important}
-  body:not(.vm-matrix-print-active) .app{display:block!important;max-width:none!important;margin:0!important;padding:0!important}
-  body:not(.vm-matrix-print-active) main{display:block!important;width:100%!important}
-  body:not(.vm-matrix-print-active) main>.panel{display:block!important;margin:0 0 8mm!important;border:0!important;overflow:visible!important}
-  body:not(.vm-matrix-print-active) #main,body:not(.vm-matrix-print-active) #secondary{width:100%!important;min-width:0!important}
-  body:not(.vm-matrix-print-active) .head{display:none!important}
-  body:not(.vm-matrix-print-active) .month,body:not(.vm-matrix-print-active) .week,body:not(.vm-matrix-print-active) .timeline{min-width:0!important;width:100%!important}
-}
-@media print{
-  body.vm-matrix-print-active>*:not(#vehicleMatrixModal){display:none!important}
-  body.vm-matrix-print-active #vehicleMatrixModal{display:block!important;position:static!important;inset:auto!important;width:auto!important;height:auto!important;background:#fff!important;padding:0!important;overflow:visible!important}
-  body.vm-matrix-print-active #vehicleMatrixModal .vehicle-matrix-card{display:block!important;width:100%!important;max-width:none!important;max-height:none!important;height:auto!important;padding:0!important;margin:0!important;border:0!important;box-shadow:none!important;border-radius:0!important}
-  body.vm-matrix-print-active #vehicleMatrixModal .vehicle-matrix-head{padding:0 0 8px!important;margin:0 0 8px!important;border-bottom:1px solid #999!important}
-  body.vm-matrix-print-active #vehicleMatrixModal .vehicle-matrix-head button{display:none!important}
-  body.vm-matrix-print-active #vehicleMatrixModal .vehicle-matrix-head h2{font-size:16px!important}
-  body.vm-matrix-print-active #vehicleMatrixModal .vehicle-matrix-wrap{overflow:visible!important;max-height:none!important}
-  body.vm-matrix-print-active #vehicleMatrixModal .vehicle-matrix-scale{transform:none!important;width:100%!important;margin:0!important}
-  body.vm-matrix-print-active #vehicleMatrixModal .vehicle-matrix{width:100%!important;min-width:0!important;font-size:9px!important}
-  body.vm-matrix-print-active #vehicleMatrixModal .vehicle-matrix th,body.vm-matrix-print-active #vehicleMatrixModal .vehicle-matrix td{padding:3px!important}
-  body.vm-matrix-print-active #vehicleMatrixModal .vehicle-matrix thead th{position:static!important;min-width:0!important;width:auto!important}
-  body.vm-matrix-print-active #vehicleMatrixModal .vehicle-matrix thead th:first-child,body.vm-matrix-print-active #vehicleMatrixModal .vehicle-matrix tbody th{position:static!important;min-width:0!important;width:58px!important}
-  body.vm-matrix-print-active #vehicleMatrixModal .vehicle-matrix .vm-cell{min-width:0!important;height:auto!important}
-  body.vm-matrix-print-active #vehicleMatrixModal .vehicle-matrix .vm-event{padding:3px 4px!important;margin-bottom:2px!important;font-size:8px!important}
-  body.vm-matrix-print-active #vehicleMatrixModal .vehicle-matrix .vm-site{font-size:8px!important}
-  body.vm-matrix-print-active #vehicleMatrixModal .vehicle-matrix .vm-time,body.vm-matrix-print-active #vehicleMatrixModal .vehicle-matrix .vm-people{font-size:7px!important}
-  body.vm-matrix-print-active #vehicleMatrixModal .vehicle-matrix .vm-kind{font-size:6px!important}
-  body.vm-matrix-print-active #vehicleMatrixModal .vehicle-matrix .rest-label{font-size:7px!important}
-  body.vm-matrix-print-active #vehicleMatrixModal .vehicle-matrix .vm-empty{padding-top:5px!important;font-size:8px!important}
+  body>*:not(#vehicleMatrixModal){display:none!important}
+  #vehicleMatrixModal{display:block!important;position:static!important;inset:auto!important;width:auto!important;height:auto!important;background:#fff!important;padding:0!important;overflow:visible!important}
+  #vehicleMatrixModal .vehicle-matrix-card{display:block!important;width:100%!important;max-width:none!important;max-height:none!important;height:auto!important;padding:0!important;margin:0!important;border:0!important;box-shadow:none!important;border-radius:0!important}
+  #vehicleMatrixModal .vehicle-matrix-head{padding:0 0 8px!important;margin:0 0 8px!important;border-bottom:1px solid #999!important}
+  #vehicleMatrixModal .vehicle-matrix-head button{display:none!important}
+  #vehicleMatrixModal .vehicle-matrix-head h2{font-size:16px!important}
+  #vehicleMatrixModal .vehicle-matrix-wrap{overflow:visible!important;max-height:none!important}
+  #vehicleMatrixModal .vehicle-matrix-scale{transform:none!important;width:100%!important;margin:0!important}
+  #vehicleMatrixModal .vehicle-matrix{width:100%!important;min-width:0!important;font-size:9px!important}
+  #vehicleMatrixModal .vehicle-matrix th,#vehicleMatrixModal .vehicle-matrix td{padding:3px!important}
+  #vehicleMatrixModal .vehicle-matrix thead th{position:static!important;min-width:0!important;width:auto!important}
+  #vehicleMatrixModal .vehicle-matrix thead th:first-child,#vehicleMatrixModal .vehicle-matrix tbody th{position:static!important;min-width:0!important;width:58px!important}
+  #vehicleMatrixModal .vehicle-matrix .vm-cell{min-width:0!important;height:auto!important}
+  #vehicleMatrixModal .vehicle-matrix .vm-event{padding:3px 4px!important;margin-bottom:2px!important;font-size:8px!important;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)!important}
+  #vehicleMatrixModal .vehicle-matrix .vm-site{font-size:8px!important}
+  #vehicleMatrixModal .vehicle-matrix .vm-time,#vehicleMatrixModal .vehicle-matrix .vm-people{font-size:7px!important}
+  #vehicleMatrixModal .vehicle-matrix .vm-kind{font-size:6px!important}
+  #vehicleMatrixModal .vehicle-matrix .rest-label{font-size:7px!important}
+  #vehicleMatrixModal .vehicle-matrix .vm-empty{padding-top:5px!important;font-size:8px!important}
+  @page{size:landscape;margin:8mm}
 }
 </style><style>
 /* v47fix40: 車両別一覧だけを拡大・縮小。固定ヘッダーや通常画面には影響しない。 */
@@ -336,8 +331,16 @@
 </div>
 <div id="vehicleMatrixModal" class="event-modal" onclick="if(event.target===this)closeVehicleMatrix()">
   <div class="event-card vehicle-matrix-card">
-    <div class="vehicle-matrix-head"><button type="button" onclick="shiftVehicleMatrix(-1)">◀</button><h2 id="vehicleMatrixTitle">🚚 日付別・車両別一覧</h2><button type="button" onclick="shiftVehicleMatrix(1)">▶</button><div class="vm-zoom-tools" aria-label="車両別一覧の表示倍率"><button type="button" onclick="changeVehicleMatrixZoom(-0.1)" aria-label="縮小">−</button><button type="button" class="vm-zoom-value" id="vehicleMatrixZoomValue" onclick="resetVehicleMatrixZoom()">100%</button><button type="button" onclick="changeVehicleMatrixZoom(0.1)" aria-label="拡大">＋</button></div><div class="vm-print-tools"><button type="button" onclick="printVehicleMatrix('portrait')">🖨 縦</button><button type="button" onclick="printVehicleMatrix('landscape')">🖨 横</button></div><button type="button" onclick="closeVehicleMatrix()">×</button></div>
+    <div class="vehicle-matrix-head"><button type="button" onclick="shiftVehicleMatrix(-1)">◀</button><h2 id="vehicleMatrixTitle">🚚 日付別・車両別一覧</h2><button type="button" onclick="shiftVehicleMatrix(1)">▶</button><div class="vm-zoom-tools" aria-label="車両別一覧の表示倍率"><button type="button" onclick="changeVehicleMatrixZoom(-0.1)" aria-label="縮小">−</button><button type="button" class="vm-zoom-value" id="vehicleMatrixZoomValue" onclick="resetVehicleMatrixZoom()">100%</button><button type="button" onclick="changeVehicleMatrixZoom(0.1)" aria-label="拡大">＋</button></div><div class="vm-print-tools"><button type="button" onclick="openVehiclePrintSettings()">🖨 印刷設定</button></div><button type="button" onclick="closeVehicleMatrix()">×</button></div>
     <div id="vehicleMatrixBody" class="vehicle-matrix-wrap"></div>
+  </div>
+</div>
+<div id="vehiclePrintSettings" class="vm-print-settings" onclick="if(event.target===this)closeVehiclePrintSettings()">
+  <div class="vm-print-settings-card">
+    <div class="vm-print-settings-head"><h3>🖨 車両別一覧 印刷設定</h3><button type="button" onclick="closeVehiclePrintSettings()">×</button></div>
+    <div class="vm-print-setting-row"><strong>用紙</strong><span>A3</span></div>
+    <div class="vm-print-setting-row"><strong>向き</strong><div class="vm-print-orientation"><button type="button" onclick="printVehicleMatrix('portrait')">A3 縦</button><button type="button" onclick="printVehicleMatrix('landscape')">A3 横</button></div></div>
+    <p class="vm-print-help">A3縦は予定量に応じて1枚／複数枚を自動調整します。A3横は無理に1枚へ縮小しません。</p>
   </div>
 </div>
 <script>
@@ -649,21 +652,21 @@ function buildVehicleMatrixPrintPages(orientation){
   document.body.appendChild(host);
   return host;
 }
-function print(){
-  // 通常の印刷：車両別一覧ではなく、現在の予定表を印刷。
-  // @page の向きは固定しないため、ブラウザの印刷画面で縦／横を選択できます。
-  document.body.classList.remove('vm-matrix-print-active');
-  window.print();
-}
+function openVehiclePrintSettings(){const m=document.getElementById('vehiclePrintSettings');if(m)m.classList.add('open');}
+function closeVehiclePrintSettings(){const m=document.getElementById('vehiclePrintSettings');if(m)m.classList.remove('open');}
 function printVehicleMatrix(orientation='landscape'){
+  closeVehiclePrintSettings();
   const m=document.getElementById('vehicleMatrixModal');if(!m||!m.classList.contains('open'))return;
   let st=document.getElementById('vmPrintStyle');if(!st){st=document.createElement('style');st.id='vmPrintStyle';document.head.appendChild(st);}
-  document.body.classList.add('vm-matrix-print-active');
   document.body.dataset.vmPrintOrientation=orientation;
-  st.textContent=`@media print{ @page{size:A3 ${orientation};margin:8mm} }`;
-  window.print();
-  setTimeout(()=>{document.body.classList.remove('vm-matrix-print-active');if(st)st.textContent='';document.body.removeAttribute('data-vm-print-orientation');},1500);
+  st.textContent=`@media print{ @page{size:A3 ${orientation};margin:8mm} body>*{display:none!important} #vmPrintContainer{display:block!important;position:static!important;visibility:visible!important;width:auto!important;height:auto!important} #vmPrintContainer .vm-print-page{display:block!important;position:relative!important;box-sizing:border-box!important;page-break-after:always!important;break-after:page!important;overflow:hidden!important;margin:0!important;padding:0!important;background:#fff!important} #vmPrintContainer .vm-print-page:last-child{page-break-after:auto!important;break-after:auto!important} #vmPrintContainer .vm-print-page-inner{width:100%!important;height:100%!important;display:flex!important;align-items:flex-start!important;justify-content:flex-start!important;overflow:hidden!important} #vmPrintContainer .vehicle-matrix{width:100%!important;min-width:0!important;table-layout:fixed!important;font-size:10px!important;border-collapse:collapse!important} #vmPrintContainer .vehicle-matrix th,#vmPrintContainer .vehicle-matrix td{padding:3px!important} #vmPrintContainer .vehicle-matrix thead th{position:static!important;min-width:0!important} #vmPrintContainer .vehicle-matrix thead th:first-child,#vmPrintContainer .vehicle-matrix tbody th{position:static!important;width:58px!important;min-width:58px!important} #vmPrintContainer .vehicle-matrix .vm-cell{min-width:0!important;height:auto!important} #vmPrintContainer .vehicle-matrix .vm-event{padding:3px 4px!important;margin-bottom:2px!important;font-size:8px!important} #vmPrintContainer .vehicle-matrix .vm-site{font-size:8px!important} #vmPrintContainer .vehicle-matrix .vm-time,#vmPrintContainer .vehicle-matrix .vm-people{font-size:7px!important} #vmPrintContainer .vehicle-matrix .vm-kind{font-size:6px!important} #vmPrintContainer .vehicle-matrix .rest-label{font-size:7px!important} }`;
+  buildVehicleMatrixPrintPages(orientation);
+  const host=document.getElementById('vmPrintContainer');
+  // 各ページはA3の横幅いっぱい。縦は内容量に応じて自然に伸び、無理な一律縮小をしない。
+  if(host)requestAnimationFrame(()=>window.print());else window.print();
+  setTimeout(()=>{if(host)host.remove();},1500);
 }
+
 
 function openVehicleMatrix(){
   const modal=document.getElementById('vehicleMatrixModal'); if(!modal)return;
