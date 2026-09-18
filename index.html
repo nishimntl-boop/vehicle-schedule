@@ -577,18 +577,18 @@ function buildVehicleMatrixPrintPages(orientation){
   host.id='vmPrintContainer';
   host.className='vm-print-container '+orientation;
 
+  // A3の印刷可能領域。ページを分ける場合は、各ページをこの領域いっぱいに使う。
   const pageW=orientation==='portrait'?277:400;
   const pageH=orientation==='portrait'?404:277;
   const mmToPx=96/25.4;
-  const availW=pageW*mmToPx;
   const availH=pageH*mmToPx;
-  const safety=4*mmToPx;
+  const safety=5*mmToPx;
   const usableH=Math.max(160,availH-safety);
   const allRows=[...source.querySelectorAll('tbody tr')];
   const head=source.querySelector('thead');
 
-  // 印刷時のCSSを先に再現して測定する。画面表示の高さを基準にすると、
-  // 印刷時だけ文字が折り返して行が高くなるため、後半の日付が欠ける原因になる。
+  // 印刷時と同じ幅・文字サイズで、各日付行の「自然な高さ」を測る。
+  // ここを基準にページ分割するので、後半の日付が印刷領域から欠けない。
   const measure=document.createElement('table');
   measure.className='vehicle-matrix';
   measure.style.cssText=`width:${pageW}mm!important;min-width:0!important;max-width:none!important;table-layout:fixed!important;font-size:10px!important;border-collapse:collapse!important;`;
@@ -621,31 +621,32 @@ function buildVehicleMatrixPrintPages(orientation){
   });
   measure.remove();
 
-  // 1枚に収まるなら1枚。収まらない場合だけ必要最小限の枚数に分割。
-  const totalH=headerH+rowHeights.reduce((a,b)=>a+b,0);
-  const pages=Math.max(1,Math.ceil(totalH/usableH));
-  let chunks=[];
-  if(pages===1){
-    chunks=[allRows];
+  const bodyNaturalH=rowHeights.reduce((a,b)=>a+b,0);
+  const naturalTotalH=headerH+bodyNaturalH;
+
+  // まず必要最小限のページ数を決める。少なければ必ず1枚。
+  const pageCount=Math.max(1,Math.ceil(naturalTotalH/usableH));
+  const chunks=[];
+  if(pageCount===1){
+    chunks.push({rows:allRows, heights:rowHeights});
   }else{
-    // 各ページの内容量が偏らないよう、高さベースで均等化する。
+    // ページごとの自然高さができるだけ均等になるよう日付単位で分割。
     let start=0;
-    for(let pno=0;pno<pages && start<allRows.length;pno++){
-      const pagesLeft=pages-pno;
+    for(let p=0;p<pageCount && start<allRows.length;p++){
+      const pagesLeft=pageCount-p;
       const rowsLeft=allRows.length-start;
-      const target=(totalH-headerH)/pagesLeft;
+      const targetBody=(bodyNaturalH-rowHeights.slice(0,start).reduce((a,b)=>a+b,0))/pagesLeft;
       let end=start, h=0;
       while(end<allRows.length){
-        const rh=rowHeights[end]||24;
-        const remainingRows=allRows.length-(end+1);
+        const rh=rowHeights[end];
+        const remaining=allRows.length-(end+1);
         const remainingPages=pagesLeft-1;
-        const mustLeave=remainingPages?Math.max(1,Math.ceil(remainingRows/remainingPages)):0;
-        if(end>start && h+rh>target && remainingRows>=mustLeave)break;
-        if(end>start && headerH+h+rh>usableH && remainingPages>0)break;
+        const minRowsLeft=remainingPages?remainingPages:0;
+        if(end>start && (h+rh>targetBody || headerH+h+rh>usableH) && remaining>=minRowsLeft)break;
         h+=rh; end++;
       }
       if(end<=start)end=start+1;
-      chunks.push(allRows.slice(start,end));
+      chunks.push({rows:allRows.slice(start,end),heights:rowHeights.slice(start,end)});
       start=end;
     }
   }
@@ -657,15 +658,45 @@ function buildVehicleMatrixPrintPages(orientation){
     const inner=document.createElement('div');
     inner.className='vm-print-page-inner';
     inner.style.cssText=`width:${pageW}mm;height:${usableH/mmToPx}mm;box-sizing:border-box;`;
+
     const table=source.cloneNode(false);
-    table.style.cssText=`width:${pageW}mm!important;height:${usableH/mmToPx}mm!important;min-width:0!important;max-width:none!important;table-layout:fixed!important;font-size:10px!important;border-collapse:collapse!important;`;
+    table.style.cssText=`width:${pageW}mm!important;min-width:0!important;max-width:none!important;table-layout:fixed!important;font-size:10px!important;border-collapse:collapse!important;`;
     if(head)table.appendChild(head.cloneNode(true));
     const body=document.createElement('tbody');
-    chunk.forEach(r=>body.appendChild(r.cloneNode(true)));
+    chunk.rows.forEach((r,i)=>{
+      const nr=r.cloneNode(true);
+      // 縦方向は transform/scale ではなく行高を増やしてA3を有効利用する。
+      // そのため文字が変形したり、行同士が重なったりしない。
+      const natural=chunk.heights[i]||24;
+      nr.style.height=`${natural}px`;
+      body.appendChild(nr);
+    });
     table.appendChild(body);
     inner.appendChild(table);
     page.appendChild(inner);
     host.appendChild(page);
+  });
+
+  // 各ページの自然な内容高さを測り、余った高さを日付行へ均等に配分する。
+  // table全体をscaleする方式ではないので、文字サイズと横幅は変わらない。
+  requestAnimationFrame(()=>{
+    host.querySelectorAll('.vm-print-page').forEach(page=>{
+      const inner=page.querySelector('.vm-print-page-inner');
+      const table=inner&&inner.querySelector('.vehicle-matrix');
+      const body=table&&table.tBodies[0];
+      if(!inner||!table||!body)return;
+      const rows=[...body.rows];
+      if(!rows.length)return;
+      const currentH=table.getBoundingClientRect().height;
+      const targetH=usableH;
+      const extra=Math.max(0,targetH-currentH);
+      if(extra>1){
+        const add=extra/rows.length;
+        rows.forEach(row=>{
+          row.style.height=`${row.getBoundingClientRect().height+add}px`;
+        });
+      }
+    });
   });
 
   return host;
@@ -678,7 +709,7 @@ function printVehicleMatrix(orientation='landscape'){
   let st=document.getElementById('vmPrintStyle');if(!st){st=document.createElement('style');st.id='vmPrintStyle';document.head.appendChild(st);}
   document.body.dataset.vmPrintOrientation=orientation;
   document.body.dataset.vmPrintActive='1';
-  st.textContent=`@media print{ @page{size:A3 ${orientation};margin:8mm} #vmPrintContainer.landscape .vehicle-matrix{width:400mm!important;height:269mm!important} #vmPrintContainer.portrait .vehicle-matrix{width:277mm!important;height:396mm!important} body>*{display:none!important} #vmPrintContainer{display:block!important;position:static!important;visibility:visible!important;width:auto!important;height:auto!important} #vmPrintContainer .vm-print-page{display:block!important;position:relative!important;box-sizing:border-box!important;page-break-after:always!important;break-after:page!important;overflow:visible!important;margin:0!important;padding:0!important;background:#fff!important} #vmPrintContainer .vm-print-page:last-child{page-break-after:auto!important;break-after:auto!important} #vmPrintContainer .vm-print-page-inner{width:100%!important;height:auto!important;display:block!important;overflow:visible!important} #vmPrintContainer .vehicle-matrix{width:277mm!important;min-width:0!important;max-width:none!important;table-layout:fixed!important;font-size:10px!important;border-collapse:collapse!important} #vmPrintContainer .vehicle-matrix th,#vmPrintContainer .vehicle-matrix td{padding:3px!important} #vmPrintContainer .vehicle-matrix thead th{position:static!important;min-width:0!important} #vmPrintContainer .vehicle-matrix thead th:first-child,#vmPrintContainer .vehicle-matrix tbody th{position:static!important;width:58px!important;min-width:58px!important} #vmPrintContainer .vehicle-matrix .vm-cell{min-width:0!important;height:auto!important} #vmPrintContainer .vehicle-matrix .vm-event{padding:3px 4px!important;margin-bottom:2px!important;font-size:8px!important} #vmPrintContainer .vehicle-matrix .vm-site{font-size:8px!important} #vmPrintContainer .vehicle-matrix .vm-time,#vmPrintContainer .vehicle-matrix .vm-people{font-size:7px!important} #vmPrintContainer .vehicle-matrix .vm-kind{font-size:6px!important} #vmPrintContainer .vehicle-matrix .rest-label{font-size:7px!important} }`;
+  st.textContent=`@media print{ @page{size:A3 ${orientation};margin:8mm} #vmPrintContainer.landscape .vehicle-matrix{width:400mm!important;height:auto!important} #vmPrintContainer.portrait .vehicle-matrix{width:277mm!important;height:auto!important} body>*{display:none!important} #vmPrintContainer{display:block!important;position:static!important;visibility:visible!important;width:auto!important;height:auto!important} #vmPrintContainer .vm-print-page{display:block!important;position:relative!important;box-sizing:border-box!important;page-break-after:always!important;break-after:page!important;overflow:visible!important;margin:0!important;padding:0!important;background:#fff!important} #vmPrintContainer .vm-print-page:last-child{page-break-after:auto!important;break-after:auto!important} #vmPrintContainer .vm-print-page-inner{width:100%!important;height:auto!important;display:block!important;overflow:visible!important} #vmPrintContainer .vehicle-matrix{width:400mm!important;min-width:0!important;max-width:none!important;table-layout:fixed!important;font-size:10px!important;border-collapse:collapse!important} #vmPrintContainer .vehicle-matrix th,#vmPrintContainer .vehicle-matrix td{padding:3px!important} #vmPrintContainer .vehicle-matrix thead th{position:static!important;min-width:0!important} #vmPrintContainer .vehicle-matrix thead th:first-child,#vmPrintContainer .vehicle-matrix tbody th{position:static!important;width:58px!important;min-width:58px!important} #vmPrintContainer .vehicle-matrix .vm-cell{min-width:0!important;height:auto!important} #vmPrintContainer .vehicle-matrix .vm-event{padding:3px 4px!important;margin-bottom:2px!important;font-size:8px!important} #vmPrintContainer .vehicle-matrix .vm-site{font-size:8px!important} #vmPrintContainer .vehicle-matrix .vm-time,#vmPrintContainer .vehicle-matrix .vm-people{font-size:7px!important} #vmPrintContainer .vehicle-matrix .vm-kind{font-size:6px!important} #vmPrintContainer .vehicle-matrix .rest-label{font-size:7px!important} }`;
   buildVehicleMatrixPrintPages(orientation);
   const host=document.getElementById('vmPrintContainer');
   // 各ページはA3の横幅いっぱい。縦は内容量に応じて自然に伸び、無理な一律縮小をしない。
