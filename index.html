@@ -600,20 +600,27 @@ function buildVehicleMatrixPrintPages(orientation){
   }
   fit=Math.max(1,fit);
   let chunks=[];
-  if(orientation==='portrait' && allRows.length>fit){
-    let pages=Math.ceil(allRows.length/fit);
-    // 2ページ目以降が極端に少なくならないよう、日数をできるだけ均等化。
-    // 2枚なら5日未満しか残らない場合は、1枚へ戻す。
-    let base=Math.ceil(allRows.length/pages);
-    if(pages===2 && allRows.length-base<5){
+  if(orientation==='portrait'){
+    // A3縦は30日を無理に1枚へ詰め込まず、15日前後を基準に分割する。
+    // 予定が多い日でも、最後の日付行がページ下端で切れないことを優先する。
+    const targetDays=15;
+    if(allRows.length<=targetDays){
       chunks=[allRows];
     }else{
-      for(let i=0;i<allRows.length;i+=base)chunks.push(allRows.slice(i,i+base));
+      const pages=Math.ceil(allRows.length/targetDays);
+      const base=Math.floor(allRows.length/pages);
+      const extra=allRows.length%pages;
+      let pos=0;
+      for(let i=0;i<pages;i++){
+        const count=base+(i<extra?1:0);
+        chunks.push(allRows.slice(pos,pos+count));
+        pos+=count;
+      }
     }
-    if(chunks.length>1 && chunks[chunks.length-1].length<5)chunks=[allRows];
   }else{
     chunks=[allRows];
   }
+
 
   // 分割後の各ページが実寸を超える場合は、そのページだけさらに日付単位で分割。
   if(orientation==='portrait' && chunks.length){
@@ -649,7 +656,7 @@ function buildVehicleMatrixPrintPages(orientation){
       const actualH=Math.ceil(table.getBoundingClientRect().height);
       const maxH=Math.max(100,printPageH-8*mmToPx);
       if(actualH>maxH){
-        const scale=Math.max(0.5,Math.min(1,maxH/actualH));
+        const scale=Math.max(0.35,Math.min(1,maxH/actualH));
         inner.style.transformOrigin='top left';
         inner.style.transform=`scale(${scale})`;
         inner.style.width=`${100/scale}%`;
