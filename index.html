@@ -638,6 +638,25 @@ function buildVehicleMatrixPrintPages(orientation){
     const body=document.createElement('tbody');chunk.forEach(r=>body.appendChild(r.cloneNode(true)));table.appendChild(body);
     wrap.appendChild(table);page.appendChild(wrap);host.appendChild(page);
   });
+  // 印刷時のCSSで行高が再計算されても、最後の日付行がページ下端で切れないようにする。
+  // 各ページを実測し、A3の印刷可能高さを超える場合だけ全体を縮小する。
+  if(orientation==='portrait'){
+    const printPageH=pageH*mmToPx;
+    [...host.querySelectorAll('.vm-print-page')].forEach(page=>{
+      const inner=page.querySelector('.vm-print-page-inner');
+      const table=inner&&inner.querySelector('.vehicle-matrix');
+      if(!inner||!table)return;
+      const actualH=Math.ceil(table.getBoundingClientRect().height);
+      const maxH=Math.max(100,printPageH-8*mmToPx);
+      if(actualH>maxH){
+        const scale=Math.max(0.5,Math.min(1,maxH/actualH));
+        inner.style.transformOrigin='top left';
+        inner.style.transform=`scale(${scale})`;
+        inner.style.width=`${100/scale}%`;
+        inner.style.height=`${actualH*scale}px`;
+      }
+    });
+  }
   host.style.visibility='hidden';
   return host;
 }
