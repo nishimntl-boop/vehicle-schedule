@@ -266,7 +266,7 @@
 .person-list-card{width:min(900px,96vw)!important;max-height:90vh;overflow:auto}.person-list-tools{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid #dce3eb;font-weight:800}.person-list-tools select{padding:9px 12px;border:1px solid #bfc9d6;border-radius:6px;min-width:180px}.person-list-body{padding:12px 16px 18px}.person-list-row{display:grid;grid-template-columns:110px 1fr;gap:10px;align-items:start;border-bottom:1px solid #e5e7eb;padding:10px 0}.person-list-date{font-weight:800;color:#334155}.person-list-item{border:1px solid #d8dee8;border-radius:6px;padding:7px 9px;margin-bottom:6px;background:#fff}.person-list-item.off{background:#fff0f5;border-color:#efb5cb;color:#a11}.person-list-item .kind{font-size:11px;font-weight:800;margin-right:6px}.person-list-item .meta{font-size:12px;color:#64748b;margin-top:3px}.person-list-empty{padding:20px;text-align:center;color:#64748b}.person-list-open{cursor:pointer}@media(max-width:700px){.person-list-card{width:96vw!important}.person-list-tools{flex-wrap:wrap}.person-list-tools select{flex:1;min-width:160px}.person-list-row{grid-template-columns:82px 1fr;gap:7px}.person-list-body{padding:10px}}
 </style>
 <body>
-<header class="top"><div class="logo">🚚 車両・人員 配置管理</div><div class="tabs"><button data-v="day">日予定</button><button data-v="week">週予定</button><button data-v="month" class="on">月予定</button></div><div class="nav"><button id="prev">◀</button><div id="title" class="title"></div><span id="cloudStatus" class="cloud-status">共有確認中…</span><button id="cloudDiagBtn" type="button" onclick="openCloudDiag()">🔄 共有診断</button><button id="next">▶</button><button id="today">今日</button><button type="button" onclick="openPersonList()">👤 人員一覧</button><button type="button" onclick="openVehicleMatrix()">🚚 車両別一覧</button><button type="button" onclick="openTopPrintSettings()">🖨 印刷</button><button id="installBtn" type="button" onclick="installApp()" style="display:none">📱 アプリ追加</button><button class="mobile-add" type="button" onclick="newEvent()">＋ 予定</button><button id="settingsBtn" type="button" onclick="openSettings()">⚙ 設定</button></div></header>
+<header class="top"><div class="logo">🚚 車両・人員 配置管理</div><div class="tabs"><button data-v="day">日予定</button><button data-v="week">週予定</button><button data-v="month" class="on">月予定</button></div><div class="nav"><button id="prev">◀</button><div id="title" class="title"></div><span id="cloudStatus" class="cloud-status">共有確認中…</span><button id="cloudDiagBtn" type="button" onclick="openCloudDiag()">🔄 共有診断</button><button id="next">▶</button><button id="today">今日</button><button type="button" onclick="openPersonList()">👤 人員一覧</button><button type="button" onclick="openVehicleMatrix()">🚚 車両別一覧</button><button type="button" onclick="printTop()">🖨 印刷</button><button id="installBtn" type="button" onclick="installApp()" style="display:none">📱 アプリ追加</button><button class="mobile-add" type="button" onclick="newEvent()">＋ 予定</button><button id="settingsBtn" type="button" onclick="openSettings()">⚙ 設定</button></div></header>
 <div id="cloudDiag" class="cloud-diag"><div class="cloud-diag-card"><h3>🔄 共有診断</h3><pre id="cloudDiagText">確認中…</pre><div class="cloud-diag-actions"><button type="button" onclick="closeCloudDiag()">閉じる</button><button type="button" class="primary" onclick="runCloudDiag()">今すぐ確認</button></div></div></div><div id="zoomContent"><div class="color-note">現場ごとに色分け　｜　<span class="red-note">赤＝車両・人員のダブルブッキング</span>　｜　<span class="off-note">休み</span></div><div class="app"><main><section class="panel"><div id="main"></div></section>
 <section class="panel"><div class="head"><span id="sub"></span><button id="subPrev" onclick="shift(-1)">◀</button><button id="subNext" onclick="shift(1)">▶</button><button class="add" onclick="newEvent()">＋ 予定追加</button></div><div id="secondary"></div></section></main>
 <aside class="side"><div class="box"><h3 id="stitle">空き状況</h3><div id="status" class="status"></div></div><div class="box"><h3>お知らせ</h3><div class="notice">・予定／確定をクリックして編集<br>・人員の「休み」を登録<br>・重複した車両／人員だけ赤色<br>・選択した日は青枠で表示</div></div>
@@ -297,27 +297,13 @@
 </div>
 <div id="vehicleMatrixModal" class="event-modal" onclick="if(event.target===this)closeVehicleMatrix()">
   <div class="event-card vehicle-matrix-card">
-    <div class="vehicle-matrix-head"><button type="button" onclick="shiftVehicleMatrix(-1)">◀</button><h2 id="vehicleMatrixTitle">🚚 日付別・車両別一覧</h2><button type="button" onclick="shiftVehicleMatrix(1)">▶</button><div class="vm-zoom-tools" aria-label="車両別一覧の表示倍率"><button type="button" onclick="changeVehicleMatrixZoom(-0.1)" aria-label="縮小">−</button><button type="button" class="vm-zoom-value" id="vehicleMatrixZoomValue" onclick="resetVehicleMatrixZoom()">100%</button><button type="button" onclick="changeVehicleMatrixZoom(0.1)" aria-label="拡大">＋</button></div><div class="vm-print-tools"><button type="button" onclick="openVehiclePrintSettings()">🖨 印刷設定</button></div><button type="button" onclick="closeVehicleMatrix()">×</button></div>
+    <div class="vehicle-matrix-head"><button type="button" onclick="shiftVehicleMatrix(-1)">◀</button><h2 id="vehicleMatrixTitle">🚚 日付別・車両別一覧</h2><button type="button" onclick="shiftVehicleMatrix(1)">▶</button><div class="vm-zoom-tools" aria-label="車両別一覧の表示倍率"><button type="button" onclick="changeVehicleMatrixZoom(-0.1)" aria-label="縮小">−</button><button type="button" class="vm-zoom-value" id="vehicleMatrixZoomValue" onclick="resetVehicleMatrixZoom()">100%</button><button type="button" onclick="changeVehicleMatrixZoom(0.1)" aria-label="拡大">＋</button></div><div class="vm-print-tools"><button type="button" onclick="printVehicleMatrix()">🖨 印刷</button></div><button type="button" onclick="closeVehicleMatrix()">×</button></div>
     <div id="vehicleMatrixBody" class="vehicle-matrix-wrap"></div>
   </div>
 </div>
-<div id="vehiclePrintSettings" class="vm-print-settings" onclick="if(event.target===this)closeVehiclePrintSettings()">
-  <div class="vm-print-settings-card">
-    <div class="vm-print-settings-head"><h3>🖨 車両別一覧 印刷設定</h3><button type="button" onclick="closeVehiclePrintSettings()">×</button></div>
-    <div class="vm-print-setting-row"><strong>部数</strong><input id="vmPrintCopies" class="vm-print-copies" type="number" min="1" max="99" value="1" inputmode="numeric"></div>
-    <div class="vm-print-setting-row"><strong>向き</strong><div class="vm-print-orientation"><button id="vmPortraitBtn" type="button" onclick="setVmPrintOrientation('portrait')">縦</button><button id="vmLandscapeBtn" type="button" onclick="setVmPrintOrientation('landscape')">横</button></div></div>
-    <div class="vm-print-setting-row"><strong>用紙</strong><div class="vm-print-orientation"><button id="vmA3Btn" type="button" onclick="setVmPrintPaper('A3')">A3</button><button id="vmA4Btn" type="button" onclick="setVmPrintPaper('A4')">A4</button></div></div>
-    <button type="button" class="vm-print-start" onclick="startVehicleMatrixPrint()">🖨 この設定で印刷</button>
-    <p class="vm-print-help">予定のない日は狭く、予定のある日は読みやすく配置し、A3用紙を有効に使います。1枚に収まらない場合は自動分割します。</p>
-  </div>
-</div>
-<div id="topPrintSettings" class="vm-print-settings" onclick="if(event.target===this)closeTopPrintSettings()">
-  <div class="vm-print-settings-card">
-    <div class="vm-print-settings-head"><h3>🖨 印刷設定</h3><button type="button" onclick="closeTopPrintSettings()">×</button></div>
     <div class="vm-print-setting-row"><strong>部数</strong><input id="topPrintCopies" class="vm-print-copies" type="number" min="1" max="99" value="1" inputmode="numeric"></div>
     <div class="vm-print-setting-row"><strong>向き</strong><div class="vm-print-orientation"><button id="topPortraitBtn" type="button" onclick="setTopPrintOrientation('portrait')">縦</button><button id="topLandscapeBtn" type="button" onclick="setTopPrintOrientation('landscape')">横</button></div></div>
-    <div class="vm-print-setting-row"><strong>用紙</strong><div class="vm-print-orientation"><button id="topA3Btn" type="button" onclick="setTopPrintPaper('A3')">A3</button><button id="topA4Btn" type="button" onclick="setTopPrintPaper('A4')">A4</button></div></div>
-    <button type="button" class="vm-print-start" onclick="startTopPrint()">🖨 この設定で印刷</button>
+        <button type="button" class="vm-print-start" onclick="startTopPrint()">🖨 この設定で印刷</button>
     <p class="vm-print-help">現在表示している予定表を印刷します。</p>
   </div>
 </div>
@@ -580,179 +566,82 @@ function initVehicleMatrixPinch(){
 function fitVehicleMatrixForPrint(){
   return 1;
 }
-let vmPrintPaper='A3';
-let topPrintPaper='A3';
-let vmPrintOrientation='portrait';
-let topPrintOrientation='portrait';
-function setVmPrintOrientation(o){vmPrintOrientation=o;const m=document.getElementById('vehiclePrintSettings');if(m){m.querySelector('#vmPortraitBtn')?.classList.toggle('on',o==='portrait');m.querySelector('#vmLandscapeBtn')?.classList.toggle('on',o==='landscape');}}
-function setVmPrintPaper(paper){vmPrintPaper=paper;const m=document.getElementById('vehiclePrintSettings');if(m){m.querySelector('#vmA3Btn')?.classList.toggle('on',paper==='A3');m.querySelector('#vmA4Btn')?.classList.toggle('on',paper==='A4');}}
-function startVehicleMatrixPrint(){const n=Math.max(1,Math.min(99,Number(document.getElementById('vmPrintCopies')?.value||1)));document.getElementById('vmPrintCopies').value=n;printVehicleMatrix(vmPrintOrientation,vmPrintPaper,n);}
-function setTopPrintOrientation(o){topPrintOrientation=o;const m=document.getElementById('topPrintSettings');if(m){m.querySelector('#topPortraitBtn')?.classList.toggle('on',o==='portrait');m.querySelector('#topLandscapeBtn')?.classList.toggle('on',o==='landscape');}}
-function setTopPrintPaper(paper){topPrintPaper=paper;const m=document.getElementById('topPrintSettings');if(m){m.querySelector('#topA3Btn')?.classList.toggle('on',paper==='A3');m.querySelector('#topA4Btn')?.classList.toggle('on',paper==='A4');}}
-function startTopPrint(){const n=Math.max(1,Math.min(99,Number(document.getElementById('topPrintCopies')?.value||1)));document.getElementById('topPrintCopies').value=n;printTop(topPrintOrientation,topPrintPaper,n);}
-function paperSize(paper,orientation){
-  const sizes={A3:[297,420],A4:[210,297]};
-  const base=sizes[paper]||sizes.A3;
-  const w=orientation==='portrait'?base[0]:base[1];
-  const h=orientation==='portrait'?base[1]:base[0];
-  return {pageW:w-16,pageH:h-16};
-}
-function openTopPrintSettings(){const m=document.getElementById('topPrintSettings');if(m){m.classList.add('open');setTopPrintOrientation(topPrintOrientation);setTopPrintPaper(topPrintPaper);}}
-function closeTopPrintSettings(){const m=document.getElementById('topPrintSettings');if(m)m.classList.remove('open');}
-function printTop(orientation,paper='A3',copies=1){
-  closeTopPrintSettings();
+
+// 印刷はアプリ側で用紙・向きを固定せず、ブラウザ標準の印刷設定を使う。
+// そのため印刷プレビュー側で「用紙サイズ」「縦／横」「部数」を選択できる。
+function printTop(){
   let st=document.getElementById('topPrintStyle');
   if(!st){st=document.createElement('style');st.id='topPrintStyle';document.head.appendChild(st);}
   document.body.dataset.topPrintActive='1';
-  st.textContent=`@media print{@page{size:${paper} ${orientation};margin:8mm}.top,.tabs,.nav,.event-modal,.vm-print-settings,#vehicleMatrixModal,#vehiclePrintSettings,#topPrintSettings{display:none!important}body{background:#fff!important}body[data-top-print-active="1"] main{display:block!important}body[data-top-print-active="1"] .calendar-wrap{width:100%!important;max-width:none!important;overflow:visible!important}body[data-top-print-active="1"] table{break-inside:auto}body[data-top-print-active="1"] tr{break-inside:avoid;page-break-inside:avoid}}`;
+  st.textContent=`@media print{
+    @page{margin:8mm;}
+    .top,.tabs,.nav,.event-modal,#vehicleMatrixModal,#vehiclePrintSettings,#topPrintSettings{display:none!important}
+    body{background:#fff!important;margin:0!important}
+    body[data-top-print-active="1"] main{display:block!important}
+    body[data-top-print-active="1"] .calendar-wrap{width:100%!important;max-width:none!important;overflow:visible!important}
+    body[data-top-print-active="1"] table{break-inside:auto}
+    body[data-top-print-active="1"] thead{display:table-header-group}
+    body[data-top-print-active="1"] tr{break-inside:avoid;page-break-inside:avoid}
+  }`;
   requestAnimationFrame(()=>window.print());
-  setTimeout(()=>{delete document.body.dataset.topPrintActive;st.remove();},1500);
+  setTimeout(()=>{delete document.body.dataset.topPrintActive;if(st&&st.parentNode)st.remove();},1500);
 }
 
-function buildVehicleMatrixPrintPages(orientation,paper='A3'){
+function prepareVehicleMatrixPrint(){
   const source=document.querySelector('#vehicleMatrixBody .vehicle-matrix');
   if(!source)return null;
   let host=document.getElementById('vmPrintContainer');
   if(host)host.remove();
   host=document.createElement('div');
   host.id='vmPrintContainer';
-  host.className='vm-print-container '+orientation;
-
-  // 選択した用紙の印刷可能領域（@page margin:8mm）を基準にする。
-  const ps=paperSize(paper,orientation);
-  const pageW=ps.pageW;
-  const pageH=ps.pageH;
-  const mmToPx=96/25.4;
-  const usableH=pageH*mmToPx;
-  const allRows=[...source.querySelectorAll('tbody tr')];
-  const head=source.querySelector('thead');
-
-  // 印刷用と同じ幅・文字サイズで各日付行の自然な高さを測る。
-  const measure=document.createElement('table');
-  measure.className='vehicle-matrix';
-  measure.style.cssText=`width:${pageW}mm!important;min-width:0!important;max-width:none!important;table-layout:fixed!important;font-size:10px!important;border-collapse:collapse!important;`;
-  if(head)measure.appendChild(head.cloneNode(true));
-  const mb=document.createElement('tbody');
-  measure.appendChild(mb);
-  host.style.cssText='position:absolute;left:-100000px;top:0;visibility:hidden;width:0;height:0;';
   document.body.appendChild(host);
-  host.appendChild(measure);
-
-  const applyMeasureRules=()=>{
-    measure.querySelectorAll('th,td').forEach(el=>{el.style.padding='3px';el.style.verticalAlign='top';});
-    measure.querySelectorAll('thead th').forEach(el=>{el.style.position='static';el.style.minWidth='0';});
-    measure.querySelectorAll('thead th:first-child,tbody th').forEach(el=>{el.style.position='static';el.style.width='58px';el.style.minWidth='58px';});
-    measure.querySelectorAll('.vm-cell').forEach(el=>{el.style.minWidth='0';el.style.height='auto';});
-    measure.querySelectorAll('.vm-event').forEach(el=>{el.style.padding='3px 4px';el.style.marginBottom='2px';el.style.fontSize='8px';});
-    measure.querySelectorAll('.vm-site').forEach(el=>el.style.fontSize='8px');
-    measure.querySelectorAll('.vm-time,.vm-people').forEach(el=>el.style.fontSize='7px');
-    measure.querySelectorAll('.vm-kind').forEach(el=>el.style.fontSize='6px');
-    measure.querySelectorAll('.rest-label').forEach(el=>el.style.fontSize='7px');
-  };
-  applyMeasureRules();
-
-  const headerH=head?Math.ceil(head.getBoundingClientRect().height):36;
-  const rowHeights=allRows.map(r=>{
-    mb.innerHTML='';
-    mb.appendChild(r.cloneNode(true));
-    applyMeasureRules();
-    const row=mb.firstElementChild;
-    const hasPlan=!!row.querySelector('.vm-event,.rest-label');
-    // 予定なしの日は意図的に細くする。
-    return hasPlan ? Math.max(24,Math.ceil(row.getBoundingClientRect().height)) : 12;
-  });
-  measure.remove();
-
-  const bodyNaturalH=rowHeights.reduce((a,b)=>a+b,0);
-  const pageCount=Math.max(1,Math.ceil((headerH+bodyNaturalH)/usableH));
-  const chunks=[];
-
-  if(pageCount===1){
-    chunks.push({rows:allRows,heights:rowHeights});
-  }else{
-    // 日付を途中で切らず、各ページの自然高さが近くなるように分割。
-    let start=0;
-    for(let p=0;p<pageCount && start<allRows.length;p++){
-      const pagesLeft=pageCount-p;
-      const remainingRows=allRows.length-start;
-      const remainingNatural=rowHeights.slice(start).reduce((a,b)=>a+b,0);
-      const target=remainingNatural/pagesLeft;
-      let end=start, h=0;
-      while(end<allRows.length){
-        const rh=rowHeights[end];
-        const rowsAfter=allRows.length-(end+1);
-        const pagesAfter=pagesLeft-1;
-        if(end>start && (h+rh>usableH-headerH || Math.abs((h+rh)-target)>Math.abs(h-target))){
-          if(rowsAfter>=pagesAfter && h>0)break;
-        }
-        h+=rh;end++;
-        if(h>=usableH-headerH && rowsAfter>=pagesAfter)break;
-      }
-      if(end<=start)end=start+1;
-      chunks.push({rows:allRows.slice(start,end),heights:rowHeights.slice(start,end)});
-      start=end;
-    }
-  }
-
-  chunks.forEach(chunk=>{
-    const page=document.createElement('div');
-    page.className='vm-print-page';
-    page.style.cssText=`width:${pageW}mm;height:${pageH}mm;box-sizing:border-box;break-inside:avoid;`;
-    const inner=document.createElement('div');
-    inner.className='vm-print-page-inner';
-    inner.style.cssText=`width:${pageW}mm;height:${pageH}mm;box-sizing:border-box;`;
-
-    const table=source.cloneNode(false);
-    table.style.cssText=`width:${pageW}mm!important;min-width:0!important;max-width:none!important;table-layout:fixed!important;font-size:10px!important;border-collapse:collapse!important;`;
-    if(head)table.appendChild(head.cloneNode(true));
-    const body=document.createElement('tbody');
-    chunk.rows.forEach((r,i)=>{
-      const nr=r.cloneNode(true);
-      const natural=chunk.heights[i]||12;
-      nr.style.height=`${natural}px`;
-      nr.dataset.vmHasPlan=nr.querySelector('.vm-event,.rest-label')?'1':'0';
-      body.appendChild(nr);
-    });
-    table.appendChild(body);
-    inner.appendChild(table);
-    page.appendChild(inner);
-    host.appendChild(page);
-  });
-
-  // 余った高さは「予定あり」の日へ配分する。予定なしの日は狭いまま。
-  requestAnimationFrame(()=>{
-    host.querySelectorAll('.vm-print-page').forEach(page=>{
-      const table=page.querySelector('.vehicle-matrix');
-      const body=table&&table.tBodies[0];
-      if(!table||!body)return;
-      const rows=[...body.rows];
-      const planned=rows.filter(r=>r.dataset.vmHasPlan==='1');
-      if(!planned.length)return;
-      const current=table.getBoundingClientRect().height;
-      const extra=Math.max(0,usableH-current);
-      if(extra<1)return;
-      const each=extra/planned.length;
-      planned.forEach(row=>{
-        row.style.height=`${Math.ceil(row.getBoundingClientRect().height+each)}px`;
-      });
-    });
-  });
+  const table=source.cloneNode(true);
+  // 通常画面のズームを印刷へ持ち込まない。
+  table.removeAttribute('style');
+  table.classList.remove('vehicle-matrix-scale');
+  host.appendChild(table);
   return host;
 }
-function openVehiclePrintSettings(){const m=document.getElementById('vehiclePrintSettings');if(m){m.classList.add('open');setVmPrintOrientation(vmPrintOrientation);setVmPrintPaper(vmPrintPaper);}}
-function closeVehiclePrintSettings(){const m=document.getElementById('vehiclePrintSettings');if(m)m.classList.remove('open');}
-function printVehicleMatrix(orientation='landscape',paper='A3',copies=1){
-  closeVehiclePrintSettings();
-  const m=document.getElementById('vehicleMatrixModal');if(!m||!m.classList.contains('open'))return;
-  let st=document.getElementById('vmPrintStyle');if(!st){st=document.createElement('style');st.id='vmPrintStyle';document.head.appendChild(st);}
-  document.body.dataset.vmPrintOrientation=orientation;
+
+function printVehicleMatrix(){
+  const m=document.getElementById('vehicleMatrixModal');
+  if(!m||!m.classList.contains('open'))return;
+  const host=prepareVehicleMatrixPrint();
+  let st=document.getElementById('vmPrintStyle');
+  if(!st){st=document.createElement('style');st.id='vmPrintStyle';document.head.appendChild(st);}
   document.body.dataset.vmPrintActive='1';
-  const ps=paperSize(paper,orientation); st.textContent=`@media print{ @page{size:${paper} ${orientation};margin:8mm} #vmPrintContainer .vehicle-matrix{width:${ps.pageW}mm!important;height:auto!important} body>*{display:none!important} #vmPrintContainer{display:block!important;position:static!important;visibility:visible!important;width:auto!important;height:auto!important} #vmPrintContainer .vm-print-page{display:block!important;position:relative!important;box-sizing:border-box!important;page-break-after:always!important;break-after:page!important;overflow:visible!important;margin:0!important;padding:0!important;background:#fff!important} #vmPrintContainer .vm-print-page:last-child{page-break-after:auto!important;break-after:auto!important} #vmPrintContainer .vm-print-page-inner{width:100%!important;height:auto!important;display:block!important;overflow:visible!important} #vmPrintContainer .vehicle-matrix{width:${ps.pageW}mm!important;min-width:0!important;max-width:none!important;table-layout:fixed!important;font-size:10px!important;border-collapse:collapse!important} #vmPrintContainer .vehicle-matrix th,#vmPrintContainer .vehicle-matrix td{padding:3px!important} #vmPrintContainer .vehicle-matrix thead th{position:static!important;min-width:0!important} #vmPrintContainer .vehicle-matrix thead th:first-child,#vmPrintContainer .vehicle-matrix tbody th{position:static!important;width:58px!important;min-width:58px!important} #vmPrintContainer .vehicle-matrix .vm-cell{min-width:0!important;height:auto!important} #vmPrintContainer .vehicle-matrix .vm-event{padding:3px 4px!important;margin-bottom:2px!important;font-size:8px!important} #vmPrintContainer .vehicle-matrix .vm-site{font-size:8px!important} #vmPrintContainer .vehicle-matrix .vm-time,#vmPrintContainer .vehicle-matrix .vm-people{font-size:7px!important} #vmPrintContainer .vehicle-matrix .vm-kind{font-size:6px!important} #vmPrintContainer .vehicle-matrix .rest-label{font-size:7px!important} }`;
-  buildVehicleMatrixPrintPages(orientation,paper);
-  const host=document.getElementById('vmPrintContainer');
-  // 各ページはA3の横幅いっぱい。縦は内容量に応じて自然に伸び、無理な一律縮小をしない。
-  if(host)requestAnimationFrame(()=>window.print());else window.print();
-  setTimeout(()=>{if(host)host.remove();delete document.body.dataset.vmPrintActive;delete document.body.dataset.vmPrintOrientation;},1500);
+  st.textContent=`@media print{
+    @page{margin:8mm;}
+    body>*{display:none!important}
+    #vmPrintContainer{display:block!important;position:static!important;visibility:visible!important;width:100%!important;height:auto!important;margin:0!important;padding:0!important}
+    #vmPrintContainer .vehicle-matrix{display:table!important;width:100%!important;min-width:0!important;max-width:none!important;height:auto!important;table-layout:fixed!important;border-collapse:collapse!important;font-size:10px!important}
+    #vmPrintContainer .vehicle-matrix thead{display:table-header-group!important}
+    #vmPrintContainer .vehicle-matrix tr{break-inside:avoid!important;page-break-inside:avoid!important}
+    #vmPrintContainer .vehicle-matrix th,#vmPrintContainer .vehicle-matrix td{padding:3px!important;vertical-align:top!important}
+    #vmPrintContainer .vehicle-matrix thead th{position:static!important;min-width:0!important}
+    #vmPrintContainer .vehicle-matrix thead th:first-child,#vmPrintContainer .vehicle-matrix tbody th{position:static!important;width:58px!important;min-width:58px!important}
+    #vmPrintContainer .vehicle-matrix .vm-cell{min-width:0!important;height:auto!important}
+    #vmPrintContainer .vehicle-matrix .vm-event{padding:3px 4px!important;margin-bottom:2px!important;font-size:8px!important;break-inside:avoid!important}
+    #vmPrintContainer .vehicle-matrix .vm-site{font-size:8px!important}
+    #vmPrintContainer .vehicle-matrix .vm-time,#vmPrintContainer .vehicle-matrix .vm-people{font-size:7px!important}
+    #vmPrintContainer .vehicle-matrix .vm-kind{font-size:6px!important}
+    #vmPrintContainer .vehicle-matrix .rest-label{font-size:7px!important}
+    @media (orientation:landscape){
+      #vmPrintContainer .vehicle-matrix{font-size:10px!important}
+    }
+    @media (orientation:portrait){
+      #vmPrintContainer .vehicle-matrix{font-size:8px!important}
+      #vmPrintContainer .vehicle-matrix th,#vmPrintContainer .vehicle-matrix td{padding:2px!important}
+      #vmPrintContainer .vehicle-matrix thead th:first-child,#vmPrintContainer .vehicle-matrix tbody th{width:48px!important;min-width:48px!important}
+      #vmPrintContainer .vehicle-matrix .vm-event{padding:2px 3px!important;font-size:7px!important}
+      #vmPrintContainer .vehicle-matrix .vm-site{font-size:7px!important}
+      #vmPrintContainer .vehicle-matrix .vm-time,#vmPrintContainer .vehicle-matrix .vm-people{font-size:6px!important}
+      #vmPrintContainer .vehicle-matrix .vm-kind{font-size:5px!important}
+      #vmPrintContainer .vehicle-matrix .rest-label{font-size:6px!important}
+    }
+  }`;
+  requestAnimationFrame(()=>window.print());
+  setTimeout(()=>{if(host&&host.parentNode)host.remove();delete document.body.dataset.vmPrintActive;if(st&&st.parentNode)st.remove();},1500);
 }
 
 
