@@ -266,7 +266,7 @@
 .person-list-card{width:min(900px,96vw)!important;max-height:90vh;overflow:auto}.person-list-tools{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid #dce3eb;font-weight:800}.person-list-tools select{padding:9px 12px;border:1px solid #bfc9d6;border-radius:6px;min-width:180px}.person-list-body{padding:12px 16px 18px}.person-list-row{display:grid;grid-template-columns:110px 1fr;gap:10px;align-items:start;border-bottom:1px solid #e5e7eb;padding:10px 0}.person-list-date{font-weight:800;color:#334155}.person-list-item{border:1px solid #d8dee8;border-radius:6px;padding:7px 9px;margin-bottom:6px;background:#fff}.person-list-item.off{background:#fff0f5;border-color:#efb5cb;color:#a11}.person-list-item .kind{font-size:11px;font-weight:800;margin-right:6px}.person-list-item .meta{font-size:12px;color:#64748b;margin-top:3px}.person-list-empty{padding:20px;text-align:center;color:#64748b}.person-list-open{cursor:pointer}@media(max-width:700px){.person-list-card{width:96vw!important}.person-list-tools{flex-wrap:wrap}.person-list-tools select{flex:1;min-width:160px}.person-list-row{grid-template-columns:82px 1fr;gap:7px}.person-list-body{padding:10px}}
 </style>
 <body>
-<header class="top"><div class="logo">🚚 車両・人員 配置管理</div><div class="tabs"><button data-v="day">日予定</button><button data-v="week">週予定</button><button data-v="month" class="on">月予定</button></div><div class="nav"><button id="prev">◀</button><div id="title" class="title"></div><span id="cloudStatus" class="cloud-status">共有確認中…</span><button id="cloudDiagBtn" type="button" onclick="openCloudDiag()">🔄 共有診断</button><button id="next">▶</button><button id="today">今日</button><button type="button" onclick="openPersonList()">👤 人員一覧</button><button type="button" onclick="openVehicleMatrix()">🚚 車両別一覧</button><button onclick="print()">🖨 印刷</button><button id="installBtn" type="button" onclick="installApp()" style="display:none">📱 アプリ追加</button><button class="mobile-add" type="button" onclick="newEvent()">＋ 予定</button><button id="settingsBtn" type="button" onclick="openSettings()">⚙ 設定</button></div></header>
+<header class="top"><div class="logo">🚚 車両・人員 配置管理</div><div class="tabs"><button data-v="day">日予定</button><button data-v="week">週予定</button><button data-v="month" class="on">月予定</button></div><div class="nav"><button id="prev">◀</button><div id="title" class="title"></div><span id="cloudStatus" class="cloud-status">共有確認中…</span><button id="cloudDiagBtn" type="button" onclick="openCloudDiag()">🔄 共有診断</button><button id="next">▶</button><button id="today">今日</button><button type="button" onclick="openPersonList()">👤 人員一覧</button><button type="button" onclick="openVehicleMatrix()">🚚 車両別一覧</button><button onclick="window.print()">🖨 印刷</button><button id="installBtn" type="button" onclick="installApp()" style="display:none">📱 アプリ追加</button><button class="mobile-add" type="button" onclick="newEvent()">＋ 予定</button><button id="settingsBtn" type="button" onclick="openSettings()">⚙ 設定</button></div></header>
 <div id="cloudDiag" class="cloud-diag"><div class="cloud-diag-card"><h3>🔄 共有診断</h3><pre id="cloudDiagText">確認中…</pre><div class="cloud-diag-actions"><button type="button" onclick="closeCloudDiag()">閉じる</button><button type="button" class="primary" onclick="runCloudDiag()">今すぐ確認</button></div></div></div><div id="zoomContent"><div class="color-note">現場ごとに色分け　｜　<span class="red-note">赤＝車両・人員のダブルブッキング</span>　｜　<span class="off-note">休み</span></div><div class="app"><main><section class="panel"><div id="main"></div></section>
 <section class="panel"><div class="head"><span id="sub"></span><button id="subPrev" onclick="shift(-1)">◀</button><button id="subNext" onclick="shift(1)">▶</button><button class="add" onclick="newEvent()">＋ 予定追加</button></div><div id="secondary"></div></section></main>
 <aside class="side"><div class="box"><h3 id="stitle">空き状況</h3><div id="status" class="status"></div></div><div class="box"><h3>お知らせ</h3><div class="notice">・予定／確定をクリックして編集<br>・人員の「休み」を登録<br>・重複した車両／人員だけ赤色<br>・選択した日は青枠で表示</div></div>
@@ -306,7 +306,7 @@
     <div class="vm-print-settings-head"><h3>🖨 車両別一覧 印刷設定</h3><button type="button" onclick="closeVehiclePrintSettings()">×</button></div>
     <div class="vm-print-setting-row"><strong>用紙</strong><span>A3</span></div>
     <div class="vm-print-setting-row"><strong>向き</strong><div class="vm-print-orientation"><button type="button" onclick="printVehicleMatrix('portrait')">A3 縦</button><button type="button" onclick="printVehicleMatrix('landscape')">A3 横</button></div></div>
-    <p class="vm-print-help">A3縦は予定量に応じて1枚／複数枚を自動調整します。A3横は無理に1枚へ縮小しません。</p>
+    <p class="vm-print-help">予定のない日は狭く、予定のある日は読みやすく配置し、A3用紙を有効に使います。1枚に収まらない場合は自動分割します。</p>
   </div>
 </div>
 <script>
@@ -617,7 +617,9 @@ function buildVehicleMatrixPrintPages(orientation){
     mb.innerHTML='';
     mb.appendChild(r.cloneNode(true));
     applyMeasureRules();
-    return Math.max(24,Math.ceil(mb.firstElementChild.getBoundingClientRect().height));
+    const row=mb.firstElementChild;
+    const hasPlan=!!row.querySelector('.vm-event,.rest-label');
+    return hasPlan ? Math.max(24,Math.ceil(row.getBoundingClientRect().height)) : 14;
   });
   measure.remove();
 
@@ -677,25 +679,25 @@ function buildVehicleMatrixPrintPages(orientation){
     host.appendChild(page);
   });
 
-  // 各ページの自然な内容高さを測り、余った高さを日付行へ均等に配分する。
-  // table全体をscaleする方式ではないので、文字サイズと横幅は変わらない。
+  // 余白は「予定がある日」に優先配分する。
+  // 予定のない日は細く保ち、予定のある日を読みやすく広げる。
   requestAnimationFrame(()=>{
     host.querySelectorAll('.vm-print-page').forEach(page=>{
-      const inner=page.querySelector('.vm-print-page-inner');
-      const table=inner&&inner.querySelector('.vehicle-matrix');
+      const table=page.querySelector('.vehicle-matrix');
       const body=table&&table.tBodies[0];
-      if(!inner||!table||!body)return;
+      if(!table||!body)return;
       const rows=[...body.rows];
       if(!rows.length)return;
+      const contentRows=rows.filter(row=>row.querySelector('.vm-event,.rest-label'));
+      if(!contentRows.length)return;
       const currentH=table.getBoundingClientRect().height;
-      const targetH=usableH;
-      const extra=Math.max(0,targetH-currentH);
-      if(extra>1){
-        const add=extra/rows.length;
-        rows.forEach(row=>{
-          row.style.height=`${row.getBoundingClientRect().height+add}px`;
-        });
-      }
+      const extra=Math.max(0,usableH-currentH);
+      if(extra<=1)return;
+      const maxAdd=36;
+      const add=Math.min(maxAdd,extra/contentRows.length);
+      contentRows.forEach(row=>{
+        row.style.height=`${row.getBoundingClientRect().height+add}px`;
+      });
     });
   });
 
