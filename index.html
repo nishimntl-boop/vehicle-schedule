@@ -193,7 +193,7 @@
 }
 
 .vm-print-settings{position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:2500;display:none;align-items:center;justify-content:center;padding:14px}
-.vm-print-settings.open{display:flex}.vm-print-settings-card{width:min(460px,94vw);background:#fff;border-radius:12px;box-shadow:0 16px 50px rgba(0,0,0,.3);padding:16px}.vm-print-settings-head{display:flex;align-items:center;border-bottom:1px solid #d3dae5;padding-bottom:10px;margin-bottom:12px}.vm-print-settings-head h3{margin:0;font-size:18px}.vm-print-settings-head button{margin-left:auto;border:0;background:transparent;font-size:26px}.vm-print-setting-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #edf0f4}.vm-print-orientation{display:flex;gap:8px}.vm-print-orientation button{min-width:110px;min-height:46px;border:1px solid #cbd3df;border-radius:7px;background:#fff;font-weight:900;font-size:14px}.vm-print-help{font-size:12px;line-height:1.6;color:#5b6472;margin:12px 0 0}
+.vm-print-settings.open{display:flex}.vm-print-settings-card{width:min(460px,94vw);background:#fff;border-radius:12px;box-shadow:0 16px 50px rgba(0,0,0,.3);padding:16px}.vm-print-settings-head{display:flex;align-items:center;border-bottom:1px solid #d3dae5;padding-bottom:10px;margin-bottom:12px}.vm-print-settings-head h3{margin:0;font-size:18px}.vm-print-settings-head button{margin-left:auto;border:0;background:transparent;font-size:26px}.vm-print-setting-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #edf0f4}.vm-print-orientation{display:flex;gap:8px}.vm-print-orientation button{min-width:110px;min-height:46px;border:1px solid #cbd3df;border-radius:7px;background:#fff;font-weight:900;font-size:14px}.vm-print-orientation button.on{background:#e8f0ff;border-color:#2563eb;box-shadow:inset 0 0 0 2px #2563eb}.vm-print-copies{width:110px;height:42px;border:1px solid #cbd3df;border-radius:7px;padding:0 10px;font-size:16px;font-weight:700}.vm-print-start{width:100%;margin-top:14px;min-height:48px;border:0;border-radius:8px;background:#2563eb;color:#fff;font-size:16px;font-weight:900}.vm-print-help{font-size:12px;line-height:1.6;color:#5b6472;margin:12px 0 0}
 @media(max-width:700px){.vm-print-settings{padding:8px;align-items:flex-end}.vm-print-settings-card{width:100%;border-radius:12px 12px 0 0}.vm-print-orientation button{min-height:50px}}
 @media print{.vm-print-settings{display:none!important}}
 #vmPrintContainer{display:none;}
@@ -304,16 +304,20 @@
 <div id="vehiclePrintSettings" class="vm-print-settings" onclick="if(event.target===this)closeVehiclePrintSettings()">
   <div class="vm-print-settings-card">
     <div class="vm-print-settings-head"><h3>🖨 車両別一覧 印刷設定</h3><button type="button" onclick="closeVehiclePrintSettings()">×</button></div>
-    <div class="vm-print-setting-row"><strong>用紙</strong><div class="vm-print-orientation"><button type="button" onclick="setVmPrintPaper('A3')">A3</button><button type="button" onclick="setVmPrintPaper('A4')">A4</button></div></div>
-    <div class="vm-print-setting-row"><strong>向き</strong><div class="vm-print-orientation"><button type="button" onclick="printVehicleMatrix('portrait',vmPrintPaper)">縦</button><button type="button" onclick="printVehicleMatrix('landscape',vmPrintPaper)">横</button></div></div>
+    <div class="vm-print-setting-row"><strong>部数</strong><input id="vmPrintCopies" class="vm-print-copies" type="number" min="1" max="99" value="1" inputmode="numeric"></div>
+    <div class="vm-print-setting-row"><strong>向き</strong><div class="vm-print-orientation"><button id="vmPortraitBtn" type="button" onclick="setVmPrintOrientation('portrait')">縦</button><button id="vmLandscapeBtn" type="button" onclick="setVmPrintOrientation('landscape')">横</button></div></div>
+    <div class="vm-print-setting-row"><strong>用紙</strong><div class="vm-print-orientation"><button id="vmA3Btn" type="button" onclick="setVmPrintPaper('A3')">A3</button><button id="vmA4Btn" type="button" onclick="setVmPrintPaper('A4')">A4</button></div></div>
+    <button type="button" class="vm-print-start" onclick="startVehicleMatrixPrint()">🖨 この設定で印刷</button>
     <p class="vm-print-help">予定のない日は狭く、予定のある日は読みやすく配置し、A3用紙を有効に使います。1枚に収まらない場合は自動分割します。</p>
   </div>
 </div>
 <div id="topPrintSettings" class="vm-print-settings" onclick="if(event.target===this)closeTopPrintSettings()">
   <div class="vm-print-settings-card">
     <div class="vm-print-settings-head"><h3>🖨 印刷設定</h3><button type="button" onclick="closeTopPrintSettings()">×</button></div>
-    <div class="vm-print-setting-row"><strong>用紙</strong><div class="vm-print-orientation"><button type="button" onclick="setTopPrintPaper('A3')">A3</button><button type="button" onclick="setTopPrintPaper('A4')">A4</button></div></div>
-    <div class="vm-print-setting-row"><strong>向き</strong><div class="vm-print-orientation"><button type="button" onclick="printTop('portrait',topPrintPaper)">縦</button><button type="button" onclick="printTop('landscape',topPrintPaper)">横</button></div></div>
+    <div class="vm-print-setting-row"><strong>部数</strong><input id="topPrintCopies" class="vm-print-copies" type="number" min="1" max="99" value="1" inputmode="numeric"></div>
+    <div class="vm-print-setting-row"><strong>向き</strong><div class="vm-print-orientation"><button id="topPortraitBtn" type="button" onclick="setTopPrintOrientation('portrait')">縦</button><button id="topLandscapeBtn" type="button" onclick="setTopPrintOrientation('landscape')">横</button></div></div>
+    <div class="vm-print-setting-row"><strong>用紙</strong><div class="vm-print-orientation"><button id="topA3Btn" type="button" onclick="setTopPrintPaper('A3')">A3</button><button id="topA4Btn" type="button" onclick="setTopPrintPaper('A4')">A4</button></div></div>
+    <button type="button" class="vm-print-start" onclick="startTopPrint()">🖨 この設定で印刷</button>
     <p class="vm-print-help">現在表示している予定表を印刷します。</p>
   </div>
 </div>
@@ -578,8 +582,14 @@ function fitVehicleMatrixForPrint(){
 }
 let vmPrintPaper='A3';
 let topPrintPaper='A3';
-function setVmPrintPaper(paper){vmPrintPaper=paper;const m=document.getElementById('vehiclePrintSettings');if(m){m.querySelectorAll('.vm-print-setting-row:nth-child(2) button').forEach(b=>b.classList.toggle('on',b.textContent===paper));}}
-function setTopPrintPaper(paper){topPrintPaper=paper;const m=document.getElementById('topPrintSettings');if(m){m.querySelectorAll('.vm-print-setting-row:nth-child(2) button').forEach(b=>b.classList.toggle('on',b.textContent===paper));}}
+let vmPrintOrientation='portrait';
+let topPrintOrientation='portrait';
+function setVmPrintOrientation(o){vmPrintOrientation=o;const m=document.getElementById('vehiclePrintSettings');if(m){m.querySelector('#vmPortraitBtn')?.classList.toggle('on',o==='portrait');m.querySelector('#vmLandscapeBtn')?.classList.toggle('on',o==='landscape');}}
+function setVmPrintPaper(paper){vmPrintPaper=paper;const m=document.getElementById('vehiclePrintSettings');if(m){m.querySelector('#vmA3Btn')?.classList.toggle('on',paper==='A3');m.querySelector('#vmA4Btn')?.classList.toggle('on',paper==='A4');}}
+function startVehicleMatrixPrint(){const n=Math.max(1,Math.min(99,Number(document.getElementById('vmPrintCopies')?.value||1)));document.getElementById('vmPrintCopies').value=n;printVehicleMatrix(vmPrintOrientation,vmPrintPaper,n);}
+function setTopPrintOrientation(o){topPrintOrientation=o;const m=document.getElementById('topPrintSettings');if(m){m.querySelector('#topPortraitBtn')?.classList.toggle('on',o==='portrait');m.querySelector('#topLandscapeBtn')?.classList.toggle('on',o==='landscape');}}
+function setTopPrintPaper(paper){topPrintPaper=paper;const m=document.getElementById('topPrintSettings');if(m){m.querySelector('#topA3Btn')?.classList.toggle('on',paper==='A3');m.querySelector('#topA4Btn')?.classList.toggle('on',paper==='A4');}}
+function startTopPrint(){const n=Math.max(1,Math.min(99,Number(document.getElementById('topPrintCopies')?.value||1)));document.getElementById('topPrintCopies').value=n;printTop(topPrintOrientation,topPrintPaper,n);}
 function paperSize(paper,orientation){
   const sizes={A3:[297,420],A4:[210,297]};
   const base=sizes[paper]||sizes.A3;
@@ -587,9 +597,9 @@ function paperSize(paper,orientation){
   const h=orientation==='portrait'?base[1]:base[0];
   return {pageW:w-16,pageH:h-16};
 }
-function openTopPrintSettings(){const m=document.getElementById('topPrintSettings');if(m)m.classList.add('open');}
+function openTopPrintSettings(){const m=document.getElementById('topPrintSettings');if(m){m.classList.add('open');setTopPrintOrientation(topPrintOrientation);setTopPrintPaper(topPrintPaper);}}
 function closeTopPrintSettings(){const m=document.getElementById('topPrintSettings');if(m)m.classList.remove('open');}
-function printTop(orientation,paper='A3'){
+function printTop(orientation,paper='A3',copies=1){
   closeTopPrintSettings();
   let st=document.getElementById('topPrintStyle');
   if(!st){st=document.createElement('style');st.id='topPrintStyle';document.head.appendChild(st);}
@@ -729,9 +739,9 @@ function buildVehicleMatrixPrintPages(orientation,paper='A3'){
   });
   return host;
 }
-function openVehiclePrintSettings(){const m=document.getElementById('vehiclePrintSettings');if(m)m.classList.add('open');}
+function openVehiclePrintSettings(){const m=document.getElementById('vehiclePrintSettings');if(m){m.classList.add('open');setVmPrintOrientation(vmPrintOrientation);setVmPrintPaper(vmPrintPaper);}}
 function closeVehiclePrintSettings(){const m=document.getElementById('vehiclePrintSettings');if(m)m.classList.remove('open');}
-function printVehicleMatrix(orientation='landscape',paper='A3'){
+function printVehicleMatrix(orientation='landscape',paper='A3',copies=1){
   closeVehiclePrintSettings();
   const m=document.getElementById('vehicleMatrixModal');if(!m||!m.classList.contains('open'))return;
   let st=document.getElementById('vmPrintStyle');if(!st){st=document.createElement('style');st.id='vmPrintStyle';document.head.appendChild(st);}
