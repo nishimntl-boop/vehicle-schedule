@@ -266,7 +266,7 @@
 .person-list-card{width:min(900px,96vw)!important;max-height:90vh;overflow:auto}.person-list-tools{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid #dce3eb;font-weight:800}.person-list-tools select{padding:9px 12px;border:1px solid #bfc9d6;border-radius:6px;min-width:180px}.person-list-body{padding:12px 16px 18px}.person-list-row{display:grid;grid-template-columns:110px 1fr;gap:10px;align-items:start;border-bottom:1px solid #e5e7eb;padding:10px 0}.person-list-date{font-weight:800;color:#334155}.person-list-item{border:1px solid #d8dee8;border-radius:6px;padding:7px 9px;margin-bottom:6px;background:#fff}.person-list-item.off{background:#fff0f5;border-color:#efb5cb;color:#a11}.person-list-item .kind{font-size:11px;font-weight:800;margin-right:6px}.person-list-item .meta{font-size:12px;color:#64748b;margin-top:3px}.person-list-empty{padding:20px;text-align:center;color:#64748b}.person-list-open{cursor:pointer}@media(max-width:700px){.person-list-card{width:96vw!important}.person-list-tools{flex-wrap:wrap}.person-list-tools select{flex:1;min-width:160px}.person-list-row{grid-template-columns:82px 1fr;gap:7px}.person-list-body{padding:10px}}
 </style>
 <body>
-<header class="top"><div class="logo">🚚 車両・人員 配置管理</div><div class="tabs"><button data-v="day">日予定</button><button data-v="week">週予定</button><button data-v="month" class="on">月予定</button></div><div class="nav"><button id="prev">◀</button><div id="title" class="title"></div><span id="cloudStatus" class="cloud-status">共有確認中…</span><button id="cloudDiagBtn" type="button" onclick="openCloudDiag()">🔄 共有診断</button><button id="next">▶</button><button id="today">今日</button><button type="button" onclick="openPersonList()">👤 人員一覧</button><button type="button" onclick="openVehicleMatrix()">🚚 車両別一覧</button><button onclick="window.print()">🖨 印刷</button><button id="installBtn" type="button" onclick="installApp()" style="display:none">📱 アプリ追加</button><button class="mobile-add" type="button" onclick="newEvent()">＋ 予定</button><button id="settingsBtn" type="button" onclick="openSettings()">⚙ 設定</button></div></header>
+<header class="top"><div class="logo">🚚 車両・人員 配置管理</div><div class="tabs"><button data-v="day">日予定</button><button data-v="week">週予定</button><button data-v="month" class="on">月予定</button></div><div class="nav"><button id="prev">◀</button><div id="title" class="title"></div><span id="cloudStatus" class="cloud-status">共有確認中…</span><button id="cloudDiagBtn" type="button" onclick="openCloudDiag()">🔄 共有診断</button><button id="next">▶</button><button id="today">今日</button><button type="button" onclick="openPersonList()">👤 人員一覧</button><button type="button" onclick="openVehicleMatrix()">🚚 車両別一覧</button><button type="button" onclick="openTopPrintSettings()">🖨 印刷</button><button id="installBtn" type="button" onclick="installApp()" style="display:none">📱 アプリ追加</button><button class="mobile-add" type="button" onclick="newEvent()">＋ 予定</button><button id="settingsBtn" type="button" onclick="openSettings()">⚙ 設定</button></div></header>
 <div id="cloudDiag" class="cloud-diag"><div class="cloud-diag-card"><h3>🔄 共有診断</h3><pre id="cloudDiagText">確認中…</pre><div class="cloud-diag-actions"><button type="button" onclick="closeCloudDiag()">閉じる</button><button type="button" class="primary" onclick="runCloudDiag()">今すぐ確認</button></div></div></div><div id="zoomContent"><div class="color-note">現場ごとに色分け　｜　<span class="red-note">赤＝車両・人員のダブルブッキング</span>　｜　<span class="off-note">休み</span></div><div class="app"><main><section class="panel"><div id="main"></div></section>
 <section class="panel"><div class="head"><span id="sub"></span><button id="subPrev" onclick="shift(-1)">◀</button><button id="subNext" onclick="shift(1)">▶</button><button class="add" onclick="newEvent()">＋ 予定追加</button></div><div id="secondary"></div></section></main>
 <aside class="side"><div class="box"><h3 id="stitle">空き状況</h3><div id="status" class="status"></div></div><div class="box"><h3>お知らせ</h3><div class="notice">・予定／確定をクリックして編集<br>・人員の「休み」を登録<br>・重複した車両／人員だけ赤色<br>・選択した日は青枠で表示</div></div>
@@ -307,6 +307,14 @@
     <div class="vm-print-setting-row"><strong>用紙</strong><span>A3</span></div>
     <div class="vm-print-setting-row"><strong>向き</strong><div class="vm-print-orientation"><button type="button" onclick="printVehicleMatrix('portrait')">A3 縦</button><button type="button" onclick="printVehicleMatrix('landscape')">A3 横</button></div></div>
     <p class="vm-print-help">予定のない日は狭く、予定のある日は読みやすく配置し、A3用紙を有効に使います。1枚に収まらない場合は自動分割します。</p>
+  </div>
+</div>
+<div id="topPrintSettings" class="vm-print-settings" onclick="if(event.target===this)closeTopPrintSettings()">
+  <div class="vm-print-settings-card">
+    <div class="vm-print-settings-head"><h3>🖨 印刷設定</h3><button type="button" onclick="closeTopPrintSettings()">×</button></div>
+    <div class="vm-print-setting-row"><strong>用紙</strong><span>A3</span></div>
+    <div class="vm-print-setting-row"><strong>向き</strong><div class="vm-print-orientation"><button type="button" onclick="printTop('portrait')">A3 縦</button><button type="button" onclick="printTop('landscape')">A3 横</button></div></div>
+    <p class="vm-print-help">現在表示している予定表を印刷します。</p>
   </div>
 </div>
 <script>
@@ -568,6 +576,17 @@ function initVehicleMatrixPinch(){
 function fitVehicleMatrixForPrint(){
   return 1;
 }
+function openTopPrintSettings(){const m=document.getElementById('topPrintSettings');if(m)m.classList.add('open');}
+function closeTopPrintSettings(){const m=document.getElementById('topPrintSettings');if(m)m.classList.remove('open');}
+function printTop(orientation){
+  closeTopPrintSettings();
+  let st=document.getElementById('topPrintStyle');
+  if(!st){st=document.createElement('style');st.id='topPrintStyle';document.head.appendChild(st);}
+  document.body.dataset.topPrintActive='1';
+  st.textContent=`@media print{@page{size:A3 ${orientation};margin:8mm}.top,.tabs,.nav,.event-modal,.vm-print-settings,#vehicleMatrixModal,#vehiclePrintSettings{display:none!important}body{background:#fff!important}body[data-top-print-active="1"] main{display:block!important}body[data-top-print-active="1"] .calendar-wrap{width:100%!important;max-width:none!important;overflow:visible!important}body[data-top-print-active="1"] table{break-inside:auto}body[data-top-print-active="1"] tr{break-inside:avoid;page-break-inside:avoid}}`;
+  requestAnimationFrame(()=>window.print());
+  setTimeout(()=>{delete document.body.dataset.topPrintActive;st.remove();},1500);
+}
 function buildVehicleMatrixPrintPages(orientation){
   const source=document.querySelector('#vehicleMatrixBody .vehicle-matrix');
   if(!source)return null;
@@ -577,18 +596,15 @@ function buildVehicleMatrixPrintPages(orientation){
   host.id='vmPrintContainer';
   host.className='vm-print-container '+orientation;
 
-  // A3の印刷可能領域。ページを分ける場合は、各ページをこの領域いっぱいに使う。
-  const pageW=orientation==='portrait'?277:400;
+  // A3の印刷可能領域（@page margin:8mm）を基準にする。
+  const pageW=orientation==='portrait'?277:404;
   const pageH=orientation==='portrait'?404:277;
   const mmToPx=96/25.4;
-  const availH=pageH*mmToPx;
-  const safety=5*mmToPx;
-  const usableH=Math.max(160,availH-safety);
+  const usableH=pageH*mmToPx;
   const allRows=[...source.querySelectorAll('tbody tr')];
   const head=source.querySelector('thead');
 
-  // 印刷時と同じ幅・文字サイズで、各日付行の「自然な高さ」を測る。
-  // ここを基準にページ分割するので、後半の日付が印刷領域から欠けない。
+  // 印刷用と同じ幅・文字サイズで各日付行の自然な高さを測る。
   const measure=document.createElement('table');
   measure.className='vehicle-matrix';
   measure.style.cssText=`width:${pageW}mm!important;min-width:0!important;max-width:none!important;table-layout:fixed!important;font-size:10px!important;border-collapse:collapse!important;`;
@@ -619,33 +635,35 @@ function buildVehicleMatrixPrintPages(orientation){
     applyMeasureRules();
     const row=mb.firstElementChild;
     const hasPlan=!!row.querySelector('.vm-event,.rest-label');
-    return hasPlan ? Math.max(24,Math.ceil(row.getBoundingClientRect().height)) : 14;
+    // 予定なしの日は意図的に細くする。
+    return hasPlan ? Math.max(24,Math.ceil(row.getBoundingClientRect().height)) : 12;
   });
   measure.remove();
 
   const bodyNaturalH=rowHeights.reduce((a,b)=>a+b,0);
-  const naturalTotalH=headerH+bodyNaturalH;
-
-  // まず必要最小限のページ数を決める。少なければ必ず1枚。
-  const pageCount=Math.max(1,Math.ceil(naturalTotalH/usableH));
+  const pageCount=Math.max(1,Math.ceil((headerH+bodyNaturalH)/usableH));
   const chunks=[];
+
   if(pageCount===1){
-    chunks.push({rows:allRows, heights:rowHeights});
+    chunks.push({rows:allRows,heights:rowHeights});
   }else{
-    // ページごとの自然高さができるだけ均等になるよう日付単位で分割。
+    // 日付を途中で切らず、各ページの自然高さが近くなるように分割。
     let start=0;
     for(let p=0;p<pageCount && start<allRows.length;p++){
       const pagesLeft=pageCount-p;
-      const rowsLeft=allRows.length-start;
-      const targetBody=(bodyNaturalH-rowHeights.slice(0,start).reduce((a,b)=>a+b,0))/pagesLeft;
+      const remainingRows=allRows.length-start;
+      const remainingNatural=rowHeights.slice(start).reduce((a,b)=>a+b,0);
+      const target=remainingNatural/pagesLeft;
       let end=start, h=0;
       while(end<allRows.length){
         const rh=rowHeights[end];
-        const remaining=allRows.length-(end+1);
-        const remainingPages=pagesLeft-1;
-        const minRowsLeft=remainingPages?remainingPages:0;
-        if(end>start && (h+rh>targetBody || headerH+h+rh>usableH) && remaining>=minRowsLeft)break;
-        h+=rh; end++;
+        const rowsAfter=allRows.length-(end+1);
+        const pagesAfter=pagesLeft-1;
+        if(end>start && (h+rh>usableH-headerH || Math.abs((h+rh)-target)>Math.abs(h-target))){
+          if(rowsAfter>=pagesAfter && h>0)break;
+        }
+        h+=rh;end++;
+        if(h>=usableH-headerH && rowsAfter>=pagesAfter)break;
       }
       if(end<=start)end=start+1;
       chunks.push({rows:allRows.slice(start,end),heights:rowHeights.slice(start,end)});
@@ -656,10 +674,10 @@ function buildVehicleMatrixPrintPages(orientation){
   chunks.forEach(chunk=>{
     const page=document.createElement('div');
     page.className='vm-print-page';
-    page.style.cssText=`width:${pageW}mm;height:${pageH}mm;box-sizing:border-box;`;
+    page.style.cssText=`width:${pageW}mm;height:${pageH}mm;box-sizing:border-box;break-inside:avoid;`;
     const inner=document.createElement('div');
     inner.className='vm-print-page-inner';
-    inner.style.cssText=`width:${pageW}mm;height:${usableH/mmToPx}mm;box-sizing:border-box;`;
+    inner.style.cssText=`width:${pageW}mm;height:${pageH}mm;box-sizing:border-box;`;
 
     const table=source.cloneNode(false);
     table.style.cssText=`width:${pageW}mm!important;min-width:0!important;max-width:none!important;table-layout:fixed!important;font-size:10px!important;border-collapse:collapse!important;`;
@@ -667,10 +685,9 @@ function buildVehicleMatrixPrintPages(orientation){
     const body=document.createElement('tbody');
     chunk.rows.forEach((r,i)=>{
       const nr=r.cloneNode(true);
-      // 縦方向は transform/scale ではなく行高を増やしてA3を有効利用する。
-      // そのため文字が変形したり、行同士が重なったりしない。
-      const natural=chunk.heights[i]||24;
+      const natural=chunk.heights[i]||12;
       nr.style.height=`${natural}px`;
+      nr.dataset.vmHasPlan=nr.querySelector('.vm-event,.rest-label')?'1':'0';
       body.appendChild(nr);
     });
     table.appendChild(body);
@@ -679,28 +696,24 @@ function buildVehicleMatrixPrintPages(orientation){
     host.appendChild(page);
   });
 
-  // 余白は「予定がある日」に優先配分する。
-  // 予定のない日は細く保ち、予定のある日を読みやすく広げる。
+  // 余った高さは「予定あり」の日へ配分する。予定なしの日は狭いまま。
   requestAnimationFrame(()=>{
     host.querySelectorAll('.vm-print-page').forEach(page=>{
       const table=page.querySelector('.vehicle-matrix');
       const body=table&&table.tBodies[0];
       if(!table||!body)return;
       const rows=[...body.rows];
-      if(!rows.length)return;
-      const contentRows=rows.filter(row=>row.querySelector('.vm-event,.rest-label'));
-      if(!contentRows.length)return;
-      const currentH=table.getBoundingClientRect().height;
-      const extra=Math.max(0,usableH-currentH);
-      if(extra<=1)return;
-      const maxAdd=36;
-      const add=Math.min(maxAdd,extra/contentRows.length);
-      contentRows.forEach(row=>{
-        row.style.height=`${row.getBoundingClientRect().height+add}px`;
+      const planned=rows.filter(r=>r.dataset.vmHasPlan==='1');
+      if(!planned.length)return;
+      const current=table.getBoundingClientRect().height;
+      const extra=Math.max(0,usableH-current);
+      if(extra<1)return;
+      const each=extra/planned.length;
+      planned.forEach(row=>{
+        row.style.height=`${Math.ceil(row.getBoundingClientRect().height+each)}px`;
       });
     });
   });
-
   return host;
 }
 function openVehiclePrintSettings(){const m=document.getElementById('vehiclePrintSettings');if(m)m.classList.add('open');}
