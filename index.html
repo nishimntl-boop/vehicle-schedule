@@ -199,31 +199,9 @@
 #vmPrintContainer{display:none;}
 .vm-print-page{background:#fff;}
 @media print{
-  #vmPrintContainer{display:block;}
+  body[data-vm-print-active="1"] #vmPrintContainer{display:block;}
 }
-@media print{
-  body{background:#fff!important;overflow:visible!important}
-  body>*:not(#vehicleMatrixModal){display:none!important}
-  #vehicleMatrixModal{display:block!important;position:static!important;inset:auto!important;width:auto!important;height:auto!important;background:#fff!important;padding:0!important;overflow:visible!important}
-  #vehicleMatrixModal .vehicle-matrix-card{display:block!important;width:100%!important;max-width:none!important;max-height:none!important;height:auto!important;padding:0!important;margin:0!important;border:0!important;box-shadow:none!important;border-radius:0!important}
-  #vehicleMatrixModal .vehicle-matrix-head{padding:0 0 8px!important;margin:0 0 8px!important;border-bottom:1px solid #999!important}
-  #vehicleMatrixModal .vehicle-matrix-head button{display:none!important}
-  #vehicleMatrixModal .vehicle-matrix-head h2{font-size:16px!important}
-  #vehicleMatrixModal .vehicle-matrix-wrap{overflow:visible!important;max-height:none!important}
-  #vehicleMatrixModal .vehicle-matrix-scale{transform:none!important;width:100%!important;margin:0!important}
-  #vehicleMatrixModal .vehicle-matrix{width:100%!important;min-width:0!important;font-size:9px!important}
-  #vehicleMatrixModal .vehicle-matrix th,#vehicleMatrixModal .vehicle-matrix td{padding:3px!important}
-  #vehicleMatrixModal .vehicle-matrix thead th{position:static!important;min-width:0!important;width:auto!important}
-  #vehicleMatrixModal .vehicle-matrix thead th:first-child,#vehicleMatrixModal .vehicle-matrix tbody th{position:static!important;min-width:0!important;width:58px!important}
-  #vehicleMatrixModal .vehicle-matrix .vm-cell{min-width:0!important;height:auto!important}
-  #vehicleMatrixModal .vehicle-matrix .vm-event{padding:3px 4px!important;margin-bottom:2px!important;font-size:8px!important;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)!important}
-  #vehicleMatrixModal .vehicle-matrix .vm-site{font-size:8px!important}
-  #vehicleMatrixModal .vehicle-matrix .vm-time,#vehicleMatrixModal .vehicle-matrix .vm-people{font-size:7px!important}
-  #vehicleMatrixModal .vehicle-matrix .vm-kind{font-size:6px!important}
-  #vehicleMatrixModal .vehicle-matrix .rest-label{font-size:7px!important}
-  #vehicleMatrixModal .vehicle-matrix .vm-empty{padding-top:5px!important;font-size:8px!important}
-  @page{size:landscape;margin:8mm}
-}
+
 </style><style>
 /* v47fix40: 車両別一覧だけを拡大・縮小。固定ヘッダーや通常画面には影響しない。 */
 .vm-zoom-tools,.vm-print-tools{display:flex;align-items:center;gap:3px;flex:0 0 auto;}
@@ -231,19 +209,7 @@
 .vm-zoom-tools .vm-zoom-value{min-width:52px;font-size:11px;}
 #vehicleMatrixBody{overflow:auto;touch-action:pan-x pan-y;overscroll-behavior:contain;}
 #vehicleMatrixBody .vehicle-matrix-scale{transform-origin:top left;width:100%;}
-@media print{
-  #vehicleMatrixModal{display:block!important;position:static!important;background:#fff!important;}
-  #vehicleMatrixModal .vehicle-matrix-card{width:100%!important;max-width:none!important;max-height:none!important;overflow:visible!important;box-shadow:none!important;border:0!important;padding:0!important;}
-  #vehicleMatrixModal .vehicle-matrix-head{display:none!important;}
-  #vehicleMatrixBody{overflow:visible!important;max-height:none!important;width:100%!important;}
-  #vehicleMatrixBody .vehicle-matrix-scale{transform-origin:top left!important;width:calc(100% / var(--vm-print-scale,1))!important;transform:scale(var(--vm-print-scale,1))!important;}
-  #vehicleMatrixBody .vehicle-matrix{font-size:10px!important;}
-  #vehicleMatrixBody .vehicle-matrix th,#vehicleMatrixBody .vehicle-matrix td{padding:3px!important;}
-  #vehicleMatrixBody .vehicle-matrix .vm-cell{height:auto!important;min-height:0!important;}
-  #vehicleMatrixBody .vehicle-matrix .vm-event{padding:3px 4px!important;margin-bottom:2px!important;}
-  #vehicleMatrixBody .vehicle-matrix .vm-site{font-size:9px!important;}
-  #vehicleMatrixBody .vehicle-matrix .vm-time,#vehicleMatrixBody .vehicle-matrix .vm-people{font-size:8px!important;}
-}
+
 @media(max-width:700px){.vm-zoom-tools button,.vm-print-tools button{height:36px;font-size:14px;padding:0 7px}.vm-zoom-tools .vm-zoom-value{min-width:58px;font-size:12px}.vehicle-matrix-head{flex-wrap:wrap;gap:5px}.vehicle-matrix-head h2{flex:1 1 auto;min-width:130px}}
 /* v47fix14: 月予定の1日セル内スクロール + ヘッダー非拡大ズーム */
 .day{display:flex;flex-direction:column;min-height:0;overflow:hidden;}
@@ -608,40 +574,63 @@ function buildVehicleMatrixPrintPages(orientation){
   let host=document.getElementById('vmPrintContainer');
   if(host)host.remove();
   host=document.createElement('div');host.id='vmPrintContainer';host.className='vm-print-container '+orientation;
-  const pageW=orientation==='portrait'?277:400, pageH=orientation==='portrait'?404:277;
+  const pageW=orientation==='portrait'?277:400;
+  const pageH=orientation==='portrait'?404:277;
   const mmToPx=96/25.4, availW=pageW*mmToPx, availH=pageH*mmToPx;
   const allRows=[...source.querySelectorAll('tbody tr')];
   const head=source.querySelector('thead');
   const measure=document.createElement('table');
-  measure.className='vehicle-matrix';measure.style.cssText=`width:${availW}px;min-width:0;table-layout:fixed;font-size:10px;`;
+  measure.className='vehicle-matrix';
+  measure.style.cssText=`width:${availW}px;min-width:0;table-layout:fixed;font-size:10px;border-collapse:collapse;`;
   if(head)measure.appendChild(head.cloneNode(true));
   const mb=document.createElement('tbody');measure.appendChild(mb);
-  document.body.appendChild(host);host.style.cssText=`position:absolute;left:-100000px;top:0;width:${availW}px;visibility:hidden;`;
-  host.appendChild(measure);
+  host.style.cssText=`position:absolute;left:-100000px;top:0;width:${availW}px;visibility:hidden;`;
+  document.body.appendChild(host);host.appendChild(measure);
   const headerH=head?Math.ceil(head.getBoundingClientRect().height):36;
-  const rows=allRows.map(r=>{const c=r.cloneNode(true);mb.innerHTML='';mb.appendChild(c);return Math.max(28,Math.ceil(c.getBoundingClientRect().height));});
+  const rowHeights=allRows.map(r=>{mb.innerHTML='';mb.appendChild(r.cloneNode(true));return Math.max(24,Math.ceil(mb.firstElementChild.getBoundingClientRect().height));});
   measure.remove();
-  // 縦は「1枚に収められるだけ収める」。ただし2枚目が極端に少なくなる場合は1枚に集約。
+
+  // A3縦は「日付行」を単位に、実際の高さを見ながらページを作る。
+  // まず1枚に入る最大日数を求め、残りが極端に少なくならないよう均等化する。
   const usable=Math.max(180,availH-headerH-8);
-  let maxRows=0,used=0;
-  for(let i=0;i<rows.length;i++){if(i&&used+rows[i]>usable)break;used+=rows[i];maxRows++;}
-  maxRows=Math.max(1,maxRows);
-  let chunks=[];
-  if(orientation==='portrait' && rows.length>maxRows){
-    const pages=Math.ceil(rows.length/maxRows);
-    const base=Math.ceil(rows.length/pages);
-    // 2枚目などが5日未満になる分割は避け、1枚に戻す。
-    if(pages===2 && rows.length-base<5){chunks=[allRows];}
-    else {
-      for(let i=0;i<rows.length;i+=base)chunks.push(allRows.slice(i,i+base));
-    }
-  }else chunks=[allRows];
-  // 1枚に収められるなら、多少小さくしても1枚を優先。
-  if(orientation==='portrait' && chunks.length>1){
-    const lastCount=chunks[chunks.length-1].length;
-    if(lastCount<5)chunks=[allRows];
+  let fit=0,used=0;
+  for(let i=0;i<rowHeights.length;i++){
+    if(i>0 && used+rowHeights[i]>usable)break;
+    used+=rowHeights[i];fit++;
   }
-  chunks.forEach((chunk,idx)=>{
+  fit=Math.max(1,fit);
+  let chunks=[];
+  if(orientation==='portrait' && allRows.length>fit){
+    let pages=Math.ceil(allRows.length/fit);
+    // 2ページ目以降が極端に少なくならないよう、日数をできるだけ均等化。
+    // 2枚なら5日未満しか残らない場合は、1枚へ戻す。
+    let base=Math.ceil(allRows.length/pages);
+    if(pages===2 && allRows.length-base<5){
+      chunks=[allRows];
+    }else{
+      for(let i=0;i<allRows.length;i+=base)chunks.push(allRows.slice(i,i+base));
+    }
+    if(chunks.length>1 && chunks[chunks.length-1].length<5)chunks=[allRows];
+  }else{
+    chunks=[allRows];
+  }
+
+  // 分割後の各ページが実寸を超える場合は、そのページだけさらに日付単位で分割。
+  if(orientation==='portrait' && chunks.length){
+    const balanced=[];
+    chunks.forEach(chunk=>{
+      let cur=[],h=headerH;
+      chunk.forEach(r=>{
+        const idx=allRows.indexOf(r), rh=rowHeights[idx]||24;
+        if(cur.length && h+rh>availH-8){balanced.push(cur);cur=[];h=headerH;}
+        cur.push(r);h+=rh;
+      });
+      if(cur.length)balanced.push(cur);
+    });
+    chunks=balanced.length?balanced:chunks;
+  }
+
+  chunks.forEach(chunk=>{
     const page=document.createElement('div');page.className='vm-print-page';page.style.cssText=`width:${pageW}mm;height:${pageH}mm;`;
     const wrap=document.createElement('div');wrap.className='vm-print-page-inner';
     const table=source.cloneNode(false);
@@ -649,7 +638,7 @@ function buildVehicleMatrixPrintPages(orientation){
     const body=document.createElement('tbody');chunk.forEach(r=>body.appendChild(r.cloneNode(true)));table.appendChild(body);
     wrap.appendChild(table);page.appendChild(wrap);host.appendChild(page);
   });
-  document.body.appendChild(host);
+  host.style.visibility='hidden';
   return host;
 }
 function openVehiclePrintSettings(){const m=document.getElementById('vehiclePrintSettings');if(m)m.classList.add('open');}
@@ -659,12 +648,13 @@ function printVehicleMatrix(orientation='landscape'){
   const m=document.getElementById('vehicleMatrixModal');if(!m||!m.classList.contains('open'))return;
   let st=document.getElementById('vmPrintStyle');if(!st){st=document.createElement('style');st.id='vmPrintStyle';document.head.appendChild(st);}
   document.body.dataset.vmPrintOrientation=orientation;
+  document.body.dataset.vmPrintActive='1';
   st.textContent=`@media print{ @page{size:A3 ${orientation};margin:8mm} body>*{display:none!important} #vmPrintContainer{display:block!important;position:static!important;visibility:visible!important;width:auto!important;height:auto!important} #vmPrintContainer .vm-print-page{display:block!important;position:relative!important;box-sizing:border-box!important;page-break-after:always!important;break-after:page!important;overflow:hidden!important;margin:0!important;padding:0!important;background:#fff!important} #vmPrintContainer .vm-print-page:last-child{page-break-after:auto!important;break-after:auto!important} #vmPrintContainer .vm-print-page-inner{width:100%!important;height:100%!important;display:flex!important;align-items:flex-start!important;justify-content:flex-start!important;overflow:hidden!important} #vmPrintContainer .vehicle-matrix{width:100%!important;min-width:0!important;table-layout:fixed!important;font-size:10px!important;border-collapse:collapse!important} #vmPrintContainer .vehicle-matrix th,#vmPrintContainer .vehicle-matrix td{padding:3px!important} #vmPrintContainer .vehicle-matrix thead th{position:static!important;min-width:0!important} #vmPrintContainer .vehicle-matrix thead th:first-child,#vmPrintContainer .vehicle-matrix tbody th{position:static!important;width:58px!important;min-width:58px!important} #vmPrintContainer .vehicle-matrix .vm-cell{min-width:0!important;height:auto!important} #vmPrintContainer .vehicle-matrix .vm-event{padding:3px 4px!important;margin-bottom:2px!important;font-size:8px!important} #vmPrintContainer .vehicle-matrix .vm-site{font-size:8px!important} #vmPrintContainer .vehicle-matrix .vm-time,#vmPrintContainer .vehicle-matrix .vm-people{font-size:7px!important} #vmPrintContainer .vehicle-matrix .vm-kind{font-size:6px!important} #vmPrintContainer .vehicle-matrix .rest-label{font-size:7px!important} }`;
   buildVehicleMatrixPrintPages(orientation);
   const host=document.getElementById('vmPrintContainer');
   // 各ページはA3の横幅いっぱい。縦は内容量に応じて自然に伸び、無理な一律縮小をしない。
   if(host)requestAnimationFrame(()=>window.print());else window.print();
-  setTimeout(()=>{if(host)host.remove();},1500);
+  setTimeout(()=>{if(host)host.remove();delete document.body.dataset.vmPrintActive;delete document.body.dataset.vmPrintOrientation;},1500);
 }
 
 
