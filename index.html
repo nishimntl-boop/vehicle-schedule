@@ -590,80 +590,56 @@ function buildVehicleMatrixPrintPages(orientation){
   const rowHeights=allRows.map(r=>{mb.innerHTML='';mb.appendChild(r.cloneNode(true));return Math.max(24,Math.ceil(mb.firstElementChild.getBoundingClientRect().height));});
   measure.remove();
 
-  // A3縦は「日付行」を単位に、実際の高さを見ながらページを作る。
-  // まず1枚に入る最大日数を求め、残りが極端に少なくならないよう均等化する。
-  const usable=Math.max(180,availH-headerH-8);
-  let fit=0,used=0;
-  for(let i=0;i<rowHeights.length;i++){
-    if(i>0 && used+rowHeights[i]>usable)break;
-    used+=rowHeights[i];fit++;
-  }
-  fit=Math.max(1,fit);
+  // まず「1枚に収まるか」を実寸で判定。収まる場合は1枚にする。
+  // 収まらない場合だけ、日付行単位でできるだけ均等な高さに分割する。
+  const usableH=Math.max(180,availH-8);
+  const totalH=headerH+rowHeights.reduce((a,b)=>a+b,0);
   let chunks=[];
-  if(orientation==='portrait'){
-    // A3縦は30日を無理に1枚へ詰め込まず、15日前後を基準に分割する。
-    // 予定が多い日でも、最後の日付行がページ下端で切れないことを優先する。
-    const targetDays=15;
-    if(allRows.length<=targetDays){
-      chunks=[allRows];
-    }else{
-      const pages=Math.ceil(allRows.length/targetDays);
-      const base=Math.floor(allRows.length/pages);
-      const extra=allRows.length%pages;
-      let pos=0;
-      for(let i=0;i<pages;i++){
-        const count=base+(i<extra?1:0);
-        chunks.push(allRows.slice(pos,pos+count));
-        pos+=count;
-      }
-    }
-  }else{
+  if(totalH<=usableH || allRows.length<=1){
     chunks=[allRows];
-  }
-
-
-  // 分割後の各ページが実寸を超える場合は、そのページだけさらに日付単位で分割。
-  if(orientation==='portrait' && chunks.length){
-    const balanced=[];
-    chunks.forEach(chunk=>{
-      let cur=[],h=headerH;
-      chunk.forEach(r=>{
-        const idx=allRows.indexOf(r), rh=rowHeights[idx]||24;
-        if(cur.length && h+rh>availH-8){balanced.push(cur);cur=[];h=headerH;}
-        cur.push(r);h+=rh;
-      });
-      if(cur.length)balanced.push(cur);
-    });
-    chunks=balanced.length?balanced:chunks;
+  }else{
+    const pages=Math.max(2,Math.ceil(totalH/usableH));
+    const targetH=(totalH-headerH)/pages;
+    let cur=[],curH=0,remaining=allRows.length;
+    for(let i=0;i<allRows.length;i++){
+      const rh=rowHeights[i]||24;
+      const left=allRows.length-i-1;
+      const minForRest=left>0?1:0;
+      if(cur.length && curH+rh>targetH && (remaining>minForRest)){
+        chunks.push(cur);remaining-=cur.length;cur=[];curH=0;
+      }
+      cur.push(allRows[i]);curH+=rh;
+    }
+    if(cur.length)chunks.push(cur);
   }
 
   chunks.forEach(chunk=>{
-    const page=document.createElement('div');page.className='vm-print-page';page.style.cssText=`width:${pageW}mm;height:${pageH}mm;`;
+    const page=document.createElement('div');
+    page.className='vm-print-page';
+    page.style.cssText=`width:${pageW}mm;height:${pageH}mm;`;
     const wrap=document.createElement('div');wrap.className='vm-print-page-inner';
     const table=source.cloneNode(false);
     if(head)table.appendChild(head.cloneNode(true));
     const body=document.createElement('tbody');chunk.forEach(r=>body.appendChild(r.cloneNode(true)));table.appendChild(body);
     wrap.appendChild(table);page.appendChild(wrap);host.appendChild(page);
   });
-  // 印刷時のCSSで行高が再計算されても、最後の日付行がページ下端で切れないようにする。
-  // 各ページを実測し、A3の印刷可能高さを超える場合だけ全体を縮小する。
-  if(orientation==='portrait'){
-    const printPageH=pageH*mmToPx;
-    [...host.querySelectorAll('.vm-print-page')].forEach(page=>{
-      const inner=page.querySelector('.vm-print-page-inner');
-      const table=inner&&inner.querySelector('.vehicle-matrix');
-      if(!inner||!table)return;
-      const actualH=Math.ceil(table.getBoundingClientRect().height);
-      const maxH=Math.max(100,printPageH-8*mmToPx);
-      if(actualH>maxH){
-        const scale=Math.max(0.35,Math.min(1,maxH/actualH));
-        inner.style.transformOrigin='top left';
-        inner.style.transform=`scale(${scale})`;
-        inner.style.width=`${100/scale}%`;
-        inner.style.height=`${actualH*scale}px`;
-      }
-    });
-  }
+
+  // 各ページを「用紙いっぱい」に近づける。
+  // 1枚に収まるときも、分割したときも、余白だけを残さず高さを拡大。
+  // 横幅は100%を維持したまま transform で縦横比を保つ。
+  const maxH=usableH;
+  [...host.querySelectorAll('.vm-print-page')].forEach(page=>{
+    const inner=page.querySelector('.vm-print-page-inner');
+    const table=inner&&inner.querySelector('.vehicle-matrix');
+    if(!inner||!table)return;
+    const actualW=Math.max(1,table.getBoundingClientRect().width);
+    const actualH=Math.max(1,table.getBoundingClientRect().height);
+    const scale=Math.max(0.35,Math.min(2.0,maxH/actualH,availW/actualW));
+    inner.style.transformOrigin='top left';
+    inner.style.transform=`scale(${scale})`;
+    inner.style.width=`${100/scale}%`;
+    inner.style.height=`${actualH*scale}px`;
+  });
   host.style.visibility='hidden';
   return host;
 }
