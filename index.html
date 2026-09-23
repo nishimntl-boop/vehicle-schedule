@@ -101,6 +101,8 @@
 /* 予定入力モーダル */
 .event-modal{position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:4000;display:none;align-items:center;justify-content:center;padding:12px}
 .event-modal.open{display:flex}
+#eventModal{z-index:5000!important}
+#vehicleMatrixModal{z-index:3000!important}
 .event-card{width:min(720px,96vw);max-height:94vh;overflow:auto;background:#fff;border-radius:12px;box-shadow:0 16px 50px rgba(0,0,0,.3);padding:14px}
 .event-card .modal-head{display:flex;align-items:center;gap:8px;border-bottom:1px solid #d3dae5;padding:4px 2px 12px;margin-bottom:10px}
 .event-card .modal-head h2{margin:0;font-size:18px;flex:1}
@@ -496,7 +498,7 @@ function addDays(ds,n){const d=new Date(ds+'T00:00');d.setDate(d.getDate()+n);re
 function toggleOvernight(prefix){const ot=document.getElementById(prefix+'overnight');const sd=document.getElementById(prefix+'sd');const ed=document.getElementById(prefix+'ed');if(!ot||!sd||!ed)return;if(ot.checked){if(!ed.value||ed.value===sd.value)ed.value=addDays(sd.value,1);}else ed.value=sd.value;}
 
 function openEventModal(){document.getElementById('eventModal').classList.add('open');document.body.style.overflow='hidden';}
-function closeEventModal(){document.getElementById('eventModal').classList.remove('open');document.body.style.overflow='';}
+function closeEventModal(){document.getElementById('eventModal').classList.remove('open');const vm=document.getElementById('vehicleMatrixModal');document.body.style.overflow=(vm&&vm.classList.contains('open'))?'hidden':'';}
 function vehicleMatrixLabel(d){return `${d.getFullYear()}年${d.getMonth()+1}月`;}
 function vehicleMatrixDayLabel(d){return `${d.getMonth()+1}/${d.getDate()}（${'日月火水木金土'[d.getDay()]}）`;}
 function vehicleMatrixEventsFor(e,d){try{return safeON(e,d);}catch(err){return false;}}
@@ -525,7 +527,7 @@ function renderVehicleMatrix(){
     const d=new Date(y,m,day);
     const ds=K(d),dow=d.getDay(),weekend=dow===0||dow===6;
     const restNames=[...new Set(events.filter(e=>e.kind==='off'&&vehicleMatrixEventsFor(e,d)).flatMap(e=>e.people||[]))];
-    h+=`<tr><th class="${weekend?'vm-weekend':''}"><div class="date-label">${vehicleMatrixDayLabel(d)}</div>${restNames.length?`<div class="rest-label">休み：${E(restNames.join('・'))}</div>`:''}</th>`;
+    h+=`<tr data-vm-date="${ds}"><th class="${weekend?'vm-weekend':''}"><div class="date-label">${vehicleMatrixDayLabel(d)}</div>${restNames.length?`<div class="rest-label">休み：${E(restNames.join('・'))}</div>`:''}</th>`;
     VEH.forEach(v=>{
       const es=events.filter(e=>e.kind!=='off'&&vehicleMatrixEventsFor(e,d)&&(e.vehicles||[]).map(String).includes(String(v[0]))).sort((a,b)=>String(a.start||'').localeCompare(String(b.start||'')));
       h+=`<td class="vm-cell ${weekend?'vm-weekend':''}">${es.length?es.map(e=>vehicleMatrixEventHtml(e,d)).join(''):'<div class="vm-empty">－</div>'}</td>`;
@@ -667,7 +669,17 @@ function closeVehicleMatrix(){
   if(!document.getElementById('eventModal').classList.contains('open')&&!document.getElementById('personListModal').classList.contains('open'))document.body.style.overflow='';
 }
 function shiftVehicleMatrix(n){cur.setMonth(cur.getMonth()+n);render();renderVehicleMatrix();}
-function goVehicleMatrixToday(){cur=new Date();render();renderVehicleMatrix();}
+function goVehicleMatrixToday(){
+  const t=new Date(); t.setHours(0,0,0,0);
+  cur=t;
+  render();
+  renderVehicleMatrix();
+  requestAnimationFrame(()=>{
+    const box=document.getElementById('vehicleMatrixBody');
+    const row=box?.querySelector(`tr[data-vm-date="${K(t)}"]`);
+    if(row)row.scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'});
+  });
+}
 function openPersonList(){
   const modal=document.getElementById('personListModal'); if(!modal)return;
   const sel=document.getElementById('personListSelect');
