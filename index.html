@@ -297,7 +297,7 @@
 </div>
 <div id="vehicleMatrixModal" class="event-modal" onclick="if(event.target===this)closeVehicleMatrix()">
   <div class="event-card vehicle-matrix-card">
-    <div class="vehicle-matrix-head"><button type="button" onclick="shiftVehicleMatrix(-1)">◀</button><h2 id="vehicleMatrixTitle">🚚 日付別・車両別一覧</h2><button type="button" onclick="shiftVehicleMatrix(1)">▶</button><div class="vm-zoom-tools" aria-label="車両別一覧の表示倍率"><button type="button" onclick="changeVehicleMatrixZoom(-0.1)" aria-label="縮小">−</button><button type="button" class="vm-zoom-value" id="vehicleMatrixZoomValue" onclick="resetVehicleMatrixZoom()">100%</button><button type="button" onclick="changeVehicleMatrixZoom(0.1)" aria-label="拡大">＋</button></div><div class="vm-print-tools"><button type="button" onclick="printVehicleMatrix()">🖨 印刷</button></div><button type="button" onclick="closeVehicleMatrix()">×</button></div>
+    <div class="vehicle-matrix-head"><button type="button" onclick="shiftVehicleMatrix(-1)">◀</button><h2 id="vehicleMatrixTitle">🚚 日付別・車両別一覧</h2><button type="button" onclick="shiftVehicleMatrix(1)">▶</button><button type="button" class="vm-add-event" onclick="newEventFromVehicleMatrix()">＋ 予定追加</button><div class="vm-zoom-tools" aria-label="車両別一覧の表示倍率"><button type="button" onclick="changeVehicleMatrixZoom(-0.1)" aria-label="縮小">−</button><button type="button" class="vm-zoom-value" id="vehicleMatrixZoomValue" onclick="resetVehicleMatrixZoom()">100%</button><button type="button" onclick="changeVehicleMatrixZoom(0.1)" aria-label="拡大">＋</button></div><div class="vm-print-tools"><button type="button" onclick="printVehicleMatrix()">🖨 印刷</button></div><button type="button" onclick="closeVehicleMatrix()">×</button></div>
     <div id="vehicleMatrixBody" class="vehicle-matrix-wrap"></div>
   </div>
 </div>
@@ -658,6 +658,10 @@ function openVehicleMatrix(){
   renderVehicleMatrix();
   modal.classList.add('open');document.body.style.overflow='hidden';
 }
+function newEventFromVehicleMatrix(){
+  // 車両別一覧を閉じず、その画面を下に残したまま予定追加を開く。
+  newEvent();
+}
 function closeVehicleMatrix(){
   const m=document.getElementById('vehicleMatrixModal'); if(m)m.classList.remove('open');
   if(!document.getElementById('eventModal').classList.contains('open')&&!document.getElementById('personListModal').classList.contains('open'))document.body.style.overflow='';
@@ -746,6 +750,9 @@ function saveEvent(fromModal=false){
   if(old)markDirtyEvent(e,old.updatedAt,preserveAssignments);else markDirtyEvent(e,0,false);
   if(old)events=events.map(x=>String(x.id)===id?e:x);else events.push(e);
   colorPreparedFor='';persistLocal();render();
+  // 車両別一覧から登録・編集した場合も、同じ画面を維持して最新データを即時反映。
+  const vehicleMatrixWasOpen=document.getElementById('vehicleMatrixModal')?.classList.contains('open');
+  if(vehicleMatrixWasOpen)renderVehicleMatrix();
   if(fromModal)closeEventModal();
   eid=null;editAssignmentSnapshot=null;assignmentTouched={desktop:false,mobile:false};
   queueCloudSave();
