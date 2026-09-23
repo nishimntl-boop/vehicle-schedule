@@ -543,7 +543,15 @@ let vehicleMatrixZoom=Number(localStorage.getItem('vehicleMatrixZoom')||'1');
 function applyVehicleMatrixZoom(){
   vehicleMatrixZoom=Math.max(0.4,Math.min(1.6,Math.round(vehicleMatrixZoom*10)/10));
   const z=document.querySelector('#vehicleMatrixBody .vehicle-matrix-scale');
-  if(z){z.style.transform=`scale(${vehicleMatrixZoom})`;z.style.width=`${100/vehicleMatrixZoom}%`;z.style.marginBottom=`${Math.max(0,(z.scrollHeight||0)*(vehicleMatrixZoom-1))}px`;}
+  if(z){
+    // transform:scale() は sticky の基準を壊すブラウザがあるため使わない。
+    // zoom で拡大縮小すると、日付行・車両列の position:sticky を維持したまま
+    // スクロール領域も拡大縮小に追従できる。
+    z.style.transform='none';
+    z.style.width='100%';
+    z.style.marginBottom='0';
+    z.style.zoom=String(vehicleMatrixZoom);
+  }
   const v=document.getElementById('vehicleMatrixZoomValue');if(v)v.textContent=Math.round(vehicleMatrixZoom*100)+'%';
   localStorage.setItem('vehicleMatrixZoom',String(vehicleMatrixZoom));
 }
