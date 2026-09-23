@@ -99,7 +99,7 @@
 }
 
 /* 予定入力モーダル */
-.event-modal{position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:2000;display:none;align-items:center;justify-content:center;padding:12px}
+.event-modal{position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:3000;display:none;align-items:center;justify-content:center;padding:12px}
 .event-modal.open{display:flex}
 .event-card{width:min(720px,96vw);max-height:94vh;overflow:auto;background:#fff;border-radius:12px;box-shadow:0 16px 50px rgba(0,0,0,.3);padding:14px}
 .event-card .modal-head{display:flex;align-items:center;gap:8px;border-bottom:1px solid #d3dae5;padding:4px 2px 12px;margin-bottom:10px}
@@ -297,7 +297,7 @@
 </div>
 <div id="vehicleMatrixModal" class="event-modal" onclick="if(event.target===this)closeVehicleMatrix()">
   <div class="event-card vehicle-matrix-card">
-    <div class="vehicle-matrix-head"><button type="button" onclick="shiftVehicleMatrix(-1)">◀</button><h2 id="vehicleMatrixTitle">🚚 日付別・車両別一覧</h2><button type="button" onclick="shiftVehicleMatrix(1)">▶</button><button type="button" class="vm-add-event" onclick="newEventFromVehicleMatrix()">＋ 予定追加</button><div class="vm-zoom-tools" aria-label="車両別一覧の表示倍率"><button type="button" onclick="changeVehicleMatrixZoom(-0.1)" aria-label="縮小">−</button><button type="button" class="vm-zoom-value" id="vehicleMatrixZoomValue" onclick="resetVehicleMatrixZoom()">100%</button><button type="button" onclick="changeVehicleMatrixZoom(0.1)" aria-label="拡大">＋</button></div><div class="vm-print-tools"><button type="button" onclick="printVehicleMatrix()">🖨 印刷</button></div><button type="button" onclick="closeVehicleMatrix()">×</button></div>
+    <div class="vehicle-matrix-head"><button type="button" onclick="shiftVehicleMatrix(-1)">◀</button><h2 id="vehicleMatrixTitle">🚚 日付別・車両別一覧</h2><button type="button" onclick="shiftVehicleMatrix(1)">▶</button><button type="button" class="vm-today" onclick="goVehicleMatrixToday()">今日に移動</button><button type="button" class="vm-add-event" onclick="newEventFromVehicleMatrix()">＋ 予定追加</button><div class="vm-zoom-tools" aria-label="車両別一覧の表示倍率"><button type="button" onclick="changeVehicleMatrixZoom(-0.1)" aria-label="縮小">−</button><button type="button" class="vm-zoom-value" id="vehicleMatrixZoomValue" onclick="resetVehicleMatrixZoom()">100%</button><button type="button" onclick="changeVehicleMatrixZoom(0.1)" aria-label="拡大">＋</button></div><div class="vm-print-tools"><button type="button" onclick="printVehicleMatrix()">🖨 印刷</button></div><button type="button" onclick="closeVehicleMatrix()">×</button></div>
     <div id="vehicleMatrixBody" class="vehicle-matrix-wrap"></div>
   </div>
 </div>
@@ -667,6 +667,7 @@ function closeVehicleMatrix(){
   if(!document.getElementById('eventModal').classList.contains('open')&&!document.getElementById('personListModal').classList.contains('open'))document.body.style.overflow='';
 }
 function shiftVehicleMatrix(n){cur.setMonth(cur.getMonth()+n);render();renderVehicleMatrix();}
+function goVehicleMatrixToday(){cur=new Date();render();renderVehicleMatrix();}
 function openPersonList(){
   const modal=document.getElementById('personListModal'); if(!modal)return;
   const sel=document.getElementById('personListSelect');
