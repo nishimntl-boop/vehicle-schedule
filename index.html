@@ -510,7 +510,7 @@ function vehicleMatrixEventHtml(e,d){
   const time=off?'':`${E(e.start||'')}～${E(e.end||'')}${e.endDate&&e.endDate!==e.date?'（翌日）':''}`;
   const people=off?'':E((e.people||[]).join('・')||'人員なし');
   const bg=safeBG(e,d);
-  return `<button class="vm-event ${off?'off':e.kind==='plan'?'plan':''} ${safeCF(e)?'conflict':''} ${night?'overnight':''}" style="background:${bg}" onclick="closeVehicleMatrix();editEvent('${E(e.id)}','${K(d)}');event.stopPropagation()"><div class="vm-site"><span class="vm-kind">${kind}</span>${site}</div>${time?`<div class="vm-time">${time}</div>`:''}${people?`<div class="vm-people">👤 ${people}</div>`:''}</button>`;
+  return `<button class="vm-event ${off?'off':e.kind==='plan'?'plan':''} ${safeCF(e)?'conflict':''} ${night?'overnight':''}" style="background:${bg}" onclick="editEvent('${E(e.id)}','${K(d)}');event.stopPropagation()"><div class="vm-site"><span class="vm-kind">${kind}</span>${site}</div>${time?`<div class="vm-time">${time}</div>`:''}${people?`<div class="vm-people">👤 ${people}</div>`:''}</button>`;
 }
 function renderVehicleMatrix(){
   const modal=document.getElementById('vehicleMatrixModal'),box=document.getElementById('vehicleMatrixBody'),title=document.getElementById('vehicleMatrixTitle');
@@ -677,7 +677,14 @@ function goVehicleMatrixToday(){
   requestAnimationFrame(()=>{
     const box=document.getElementById('vehicleMatrixBody');
     const row=box?.querySelector(`tr[data-vm-date="${K(t)}"]`);
-    if(row)row.scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'});
+    if(!box||!row)return;
+    // scrollIntoView() だとスマホでは車両別一覧モーダル全体を動かしてしまい、
+    // 上部の「今日に移動」「予定追加」などの操作部まで画面外へ移動する。
+    // 車両別一覧のスクロール領域だけを動かす。
+    const header=box.previousElementSibling;
+    const headerH=header?header.getBoundingClientRect().height:0;
+    const top=row.offsetTop-Math.max(0,headerH-8);
+    box.scrollTo({top:Math.max(0,top),left:box.scrollLeft,behavior:'smooth'});
   });
 }
 function openPersonList(){
