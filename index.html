@@ -891,12 +891,16 @@ function removeVehicle(i){const v=vehicleList[i];if(!confirm(v.id+' を削除し
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{view=b.dataset.v;render();});
 document.getElementById('prev').onclick=()=>shift(-1);document.getElementById('next').onclick=()=>shift(1);document.getElementById('today').onclick=()=>{cur=new Date();cur.setHours(0,0,0,0);render();};document.getElementById('subPrev').onclick=()=>shift(-1);document.getElementById('subNext').onclick=()=>shift(1);
 rebuildChecks();render();applyZoom();loadCloud();
-setInterval(()=>{if(!cloudSaving&&!cloudLoading)loadCloud();},7000);
+// 共有は手動の「共有診断」を押さなくても自動同期する。
+// 短い間隔でGASを確認し、タブ/アプリを前面に戻した時も即時確認する。
+let cloudPollTimer=setInterval(()=>{if(document.visibilityState==='visible'&&!cloudSaving&&!cloudLoading)loadCloud();},3000);
+window.addEventListener('focus',()=>{if(!cloudSaving&&!cloudLoading)loadCloud();});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&!cloudSaving&&!cloudLoading)loadCloud();});
 
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;const b=document.getElementById('installBtn');if(b)b.style.display='';});
 window.addEventListener('appinstalled',()=>{deferredInstallPrompt=null;const b=document.getElementById('installBtn');if(b)b.style.display='none';});
 async function installApp(){if(deferredInstallPrompt){deferredInstallPrompt.prompt();try{await deferredInstallPrompt.userChoice;}catch(e){}deferredInstallPrompt=null;const b=document.getElementById('installBtn');if(b)b.style.display='none';return;}alert('iPhone/iPad：共有ボタン →「ホーム画面に追加」\nAndroid：ブラウザの「アプリをインストール」または「ホーム画面に追加」から登録してください。');}
-if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/vehicle-schedule/sw.js?v=47fix24-android-icon').catch(err=>console.warn('PWA登録失敗',err)));
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/vehicle-schedule/sw.js?v=48fix58fix6').catch(err=>console.warn('PWA登録失敗',err)));
 
 </script>
 <div id="settings" class="settings" onclick="if(event.target===this)closeSettings()">
