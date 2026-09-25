@@ -74,7 +74,8 @@
   .manage-add{flex-wrap:wrap;}
   .manage-add input{width:100%;min-height:44px;font-size:16px;}
 }
-@media(min-width:701px) and (max-width:1000px){
+@media(min-width:701px) and (max-width:1200px){
+  /* 4:3前後のPCでは右サイド欄が月予定の横幅を圧迫して右端の日付が切れないよう、縦1列にする */
   .app{grid-template-columns:1fr;}
   .side{order:initial;}
 }
