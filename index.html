@@ -888,11 +888,34 @@ async function postCloud(){
     sentDeletes.forEach((meta,id)=>{if(!pendingDeletes.has(id))events=events.filter(e=>String(e.id)!==id);});
     cloudMasterUpdatedAt=Number(server.masterUpdatedAt||cloudMasterUpdatedAt);
     persistLocal();
-    const conflictCount=Array.from(sentIds.keys()).filter(id=>dirtyEvents.has(id)).length+Array.from(sentDeletes.keys()).filter(id=>pendingDeletes.has(id)).length+(sentMaster&&masterDirty?1:0);
-    if(conflictCount){setCloudStatus('共有競合あり：最新データを確認してください');}
-    else {setCloudStatus('共有保存・同期済み');}
+    // サーバー側で競合判定された場合でも、手動の「共有診断」を要求せず自動で再同期する。
+    // まずサーバーの最新版を基準にして、端末側で今回変更した内容をそのまま再送できる状態に戻す。
+    // これにより、別端末の更新やGAS側の時刻差で「共有競合あり」で止まり続けることを防ぐ。
+    let conflictCount=0;
+    sentIds.forEach((meta,id)=>{
+      if(!dirtyEvents.has(id))return;
+      const r=remoteById.get(id);
+      const current=dirtyEvents.get(id);
+      if(r){
+        const base=Number(r.updatedAt||0);
+        const localEvent=Object.assign({},current.event);
+        localEvent.updatedAt=base;
+        localEvent.updatedBy='';
+        dirtyEvents.set(id,{event:localEvent,baseUpdatedAt:base,preserveAssignments:!!current.preserveAssignments});
+      }
+      conflictCount++;
+    });
+    sentDeletes.forEach((meta,id)=>{if(pendingDeletes.has(id))conflictCount++;});
+    if(sentMaster&&masterDirty)conflictCount++;
+    if(conflictCount){
+      persistLocal();
+      setCloudStatus('共有再同期中…');
+      retry=true;
+    } else {
+      setCloudStatus('共有保存・同期済み');
+    }
   }catch(err){console.warn('共有保存失敗',err);setCloudStatus('共有保存失敗：再試行待ち');retry=true;}
-  finally{cloudSaving=false;if(retry&& (dirtyEvents.size||pendingDeletes.size||masterDirty)){if(cloudTimer)clearTimeout(cloudTimer);cloudTimer=setTimeout(postCloud,5000);}}
+  finally{cloudSaving=false;if(retry&& (dirtyEvents.size||pendingDeletes.size||masterDirty)){if(cloudTimer)clearTimeout(cloudTimer);cloudTimer=setTimeout(postCloud,700);}}
 }
 function mergeRemote(d,fromSave=false){
   const remote=Array.isArray(d.events)?d.events.map(normalizeEvent):[];const remoteDeleted=d&&d.deleted&&typeof d.deleted==='object'?d.deleted:{};const localById=new Map(events.map(e=>[String(e.id),e]));const remoteById=new Map(remote.map(e=>[String(e.id),e]));
@@ -942,7 +965,7 @@ window.addEventListener('online',()=>setTimeout(autoCloudSync,100));
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;const b=document.getElementById('installBtn');if(b)b.style.display='';});
 window.addEventListener('appinstalled',()=>{deferredInstallPrompt=null;const b=document.getElementById('installBtn');if(b)b.style.display='none';});
 async function installApp(){if(deferredInstallPrompt){deferredInstallPrompt.prompt();try{await deferredInstallPrompt.userChoice;}catch(e){}deferredInstallPrompt=null;const b=document.getElementById('installBtn');if(b)b.style.display='none';return;}alert('iPhone/iPad：共有ボタン →「ホーム画面に追加」\nAndroid：ブラウザの「アプリをインストール」または「ホーム画面に追加」から登録してください。');}
-if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/vehicle-schedule/sw.js?v=48fix58fix11').catch(err=>console.warn('PWA登録失敗',err)));
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/vehicle-schedule/sw.js?v=48fix58fix12').catch(err=>console.warn('PWA登録失敗',err)));
 
 </script>
 <div id="settings" class="settings" onclick="if(event.target===this)closeSettings()">
