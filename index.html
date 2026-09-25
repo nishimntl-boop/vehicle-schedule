@@ -974,8 +974,8 @@ async function autoCloudSync(){
     }
   }finally{cloudAutoBusy=false;}
 }
-setTimeout(autoCloudSync,700);
-setInterval(autoCloudSync,3000);
+setTimeout(autoCloudSync,300);
+setInterval(autoCloudSync,1000);
 window.addEventListener('focus',()=>setTimeout(autoCloudSync,150));
 window.addEventListener('pageshow',()=>setTimeout(autoCloudSync,150));
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(autoCloudSync,150);});
