@@ -830,92 +830,106 @@ function buildPatch(){const changes=[...dirtyEvents.values()].map(x=>Object.assi
 async function postCloud(){
   if(cloudSaving||(!dirtyEvents.size&&!pendingDeletes.size&&!masterDirty))return;
   cloudSaving=true;setCloudStatus('共有保存中…');
-  const patch=buildPatch();
-  const sentIds=new Map([...dirtyEvents].map(([id,x])=>[id,{baseUpdatedAt:Number(x.baseUpdatedAt||0),event:x.event,preserveAssignments:!!x.preserveAssignments}]));
-  const sentDeletes=new Map([...pendingDeletes]);
-  const sentMaster=masterDirty, sentMasterBase=cloudMasterUpdatedAt;
   let retry=false;
   try{
+    // 保存対象をこの1回の処理に固定。自動読込は保存完了まで絶対に割り込ませない。
+    const patch=buildPatch();
+    const sentIds=new Map([...dirtyEvents].map(([id,x])=>[id,{baseUpdatedAt:Number(x.baseUpdatedAt||0),event:normalizeEvent(x.event),preserveAssignments:!!x.preserveAssignments}]));
+    const sentDeletes=new Map([...pendingDeletes]);
+    const sentMaster=masterDirty, sentMasterBase=cloudMasterUpdatedAt;
+
     await postForm(patch,20000);
-    const server=await jsonpGet(10000,true);
+    const server=await jsonpGet(12000);
     if(!server||!server.hasData)throw new Error('保存確認データを取得できませんでした');
-    const remoteEvents=(server.events||[]).map(normalizeEvent), remoteById=new Map(remoteEvents.map(e=>[String(e.id),e]));
+
+    const remoteEvents=(server.events||[]).map(normalizeEvent);
+    const remoteById=new Map(remoteEvents.map(e=>[String(e.id),e]));
     const isPatchBackend=Object.prototype.hasOwnProperty.call(server,'masterUpdatedAt')&&Object.prototype.hasOwnProperty.call(server,'deleted');
-    const accepted=[];
+
+    // 新しいGAS（patch backend）なら、サーバーに反映されたものだけを確定する。
+    let unresolved=[];
     sentIds.forEach((meta,id)=>{
       const r=remoteById.get(id);
-      if(r&&String(r.updatedBy||'')===CLIENT_ID&&Number(r.updatedAt||0)>meta.baseUpdatedAt){
-        const acceptedEvent=Object.assign({},r);
-        // ステータス変更だけで保存した予定は、サーバー応答でも元の割当を優先して保持。
-        if(meta.preserveAssignments){acceptedEvent.vehicles=(meta.event.vehicles||[]).map(String);acceptedEvent.people=(meta.event.people||[]).map(String);}
-        events=events.map(e=>String(e.id)===id?normalizeEvent(acceptedEvent):e);dirtyEvents.delete(id);accepted.push(id);
+      const current=dirtyEvents.get(id);
+      if(!current)return;
+      const local=current.event;
+      const localStamp=Number(local.updatedAt||0);
+      const remoteStamp=Number(r&&r.updatedAt||0);
+      const sameByClient=r&&String(r.updatedBy||'')===CLIENT_ID;
+      if(r && ((sameByClient&&remoteStamp>Number(meta.baseUpdatedAt||0)) || remoteStamp>=localStamp)){
+        let accepted=Object.assign({},r);
+        if(meta.preserveAssignments){accepted.vehicles=(meta.event.vehicles||[]).map(String);accepted.people=(meta.event.people||[]).map(String);}
+        events=events.map(e=>String(e.id)===id?normalizeEvent(accepted):e);
+        dirtyEvents.delete(id);
+      }else{
+        unresolved.push({id,meta,r});
       }
     });
-    const remoteDeleted=server.deleted||{};
-    sentDeletes.forEach((meta,id)=>{const tomb=remoteDeleted[id];if(!remoteById.has(id)&&tomb&&Number(tomb.updatedAt||0)>Number(meta.baseUpdatedAt||0)&&String(tomb.deletedBy||'')===CLIENT_ID){pendingDeletes.delete(id);}});
 
-    // 旧v47 GASがまだ公開先に残っている場合は、旧save形式へ一度だけフォールバックする。
-    // 新patch backendで競合した場合は勝手に上書きせず、競合として止める。
+    const remoteDeleted=server.deleted||{};
+    sentDeletes.forEach((meta,id)=>{
+      const tomb=remoteDeleted[id];
+      if(!pendingDeletes.has(id))return;
+      if(!remoteById.has(id)&&tomb&&Number(tomb.updatedAt||0)>Number(meta.baseUpdatedAt||0)&&String(tomb.deletedBy||'')===CLIENT_ID){
+        pendingDeletes.delete(id);
+      }
+    });
+
+    // 旧GASの場合は従来のsave形式を1回だけ使用。
     if(!isPatchBackend && (sentIds.size||sentDeletes.size||sentMaster)){
       const legacy={action:'save',events:events,vehicles:vehicleList,people:peopleList,logs:[],lastUpdated:Date.now(),deletedIds:[...pendingDeletes.keys()],saveToken:CLIENT_ID+'_'+Date.now()};
       await postForm(legacy,20000);
-      const latest=await jsonpGet(10000,true);
+      const latest=await jsonpGet(12000);
       if(!latest||!latest.hasData)throw new Error('旧GASへの保存確認に失敗しました');
       events=(latest.events||[]).map(normalizeEvent);
       if(Array.isArray(latest.people)&&latest.people.length)peopleList=latest.people.map(String);
       if(Array.isArray(latest.vehicles)&&latest.vehicles.length)vehicleList=latest.vehicles.map(v=>({id:String(v.id||''),detail:String(v.detail||'2t'),memo:String(v.memo||'')})).filter(v=>v.id);
-      syncMaster();
-      dirtyEvents.clear();pendingDeletes.clear();masterDirty=false;
+      syncMaster();dirtyEvents.clear();pendingDeletes.clear();masterDirty=false;
       cloudMasterUpdatedAt=Number(latest.masterUpdatedAt||cloudMasterUpdatedAt||0);
-      persistLocal();colorPreparedFor='';render();setCloudStatus('共有保存・同期済み');return;
+      persistLocal();colorPreparedFor='';render();setCloudStatus('共有保存・同期済み');
+      return;
     }
 
-    if(sentMaster&&Number(server.masterUpdatedAt||0)>Number(sentMasterBase||0)&&Number(server.masterUpdatedAt||0)>0){cloudMasterUpdatedAt=Number(server.masterUpdatedAt);masterDirty=false;}
-    mergeRemote(server,true);
-    accepted.forEach(id=>{
-      const r=remoteById.get(id);
-      const meta=sentIds.get(id);
-      if(r){
-        const acceptedEvent=Object.assign({},r);
-        if(meta&&meta.preserveAssignments){
-          acceptedEvent.vehicles=(meta.event.vehicles||[]).map(String);
-          acceptedEvent.people=(meta.event.people||[]).map(String);
-        }
-        events=events.map(e=>String(e.id)===id?normalizeEvent(acceptedEvent):e);
-        dirtyEvents.delete(id);
-      }
-    });
-    sentDeletes.forEach((meta,id)=>{if(!pendingDeletes.has(id))events=events.filter(e=>String(e.id)!==id);});
-    cloudMasterUpdatedAt=Number(server.masterUpdatedAt||cloudMasterUpdatedAt);
-    persistLocal();
-    // サーバー側で競合判定された場合でも、手動の「共有診断」を要求せず自動で再同期する。
-    // まずサーバーの最新版を基準にして、端末側で今回変更した内容をそのまま再送できる状態に戻す。
-    // これにより、別端末の更新やGAS側の時刻差で「共有競合あり」で止まり続けることを防ぐ。
-    let conflictCount=0;
-    sentIds.forEach((meta,id)=>{
-      if(!dirtyEvents.has(id))return;
-      const r=remoteById.get(id);
+    // master変更がサーバーに反映されたか確認。
+    if(sentMaster){
+      if(Number(server.masterUpdatedAt||0)>Number(sentMasterBase||0)){cloudMasterUpdatedAt=Number(server.masterUpdatedAt);masterDirty=false;}
+    }
+
+    // 未反映の変更だけ、サーバー最新版を基準に「次の1回」だけ再送する。
+    // 自動読込側からの再保存は行わないため、保存→読込→保存のループにならない。
+    unresolved.forEach(({id,meta,r})=>{
       const current=dirtyEvents.get(id);
-      if(r){
-        const base=Number(r.updatedAt||0);
-        const localEvent=Object.assign({},current.event);
-        localEvent.updatedAt=base;
-        localEvent.updatedBy='';
-        dirtyEvents.set(id,{event:localEvent,baseUpdatedAt:base,preserveAssignments:!!current.preserveAssignments});
-      }
-      conflictCount++;
+      if(!current)return;
+      const base=Number(r&&r.updatedAt||meta.baseUpdatedAt||0);
+      const next=Object.assign({},current.event);
+      next.updatedAt=Math.max(Date.now(),base+1);
+      next.updatedBy=CLIENT_ID;
+      dirtyEvents.set(id,{event:next,baseUpdatedAt:base,preserveAssignments:!!current.preserveAssignments});
     });
-    sentDeletes.forEach((meta,id)=>{if(pendingDeletes.has(id))conflictCount++;});
-    if(sentMaster&&masterDirty)conflictCount++;
-    if(conflictCount){
-      persistLocal();
-      setCloudStatus('共有再同期中…');
+
+    // 保存確認後はローカルをサーバー状態へ寄せる。ただし未保存変更は保持。
+    mergeRemote(server,true);
+    persistLocal();
+    colorPreparedFor='';render();
+
+    if(unresolved.length || (sentMaster&&masterDirty) || [...sentDeletes.keys()].some(id=>pendingDeletes.has(id))){
+      setCloudStatus('共有再保存中…');
       retry=true;
-    } else {
+    }else{
       setCloudStatus('共有保存・同期済み');
     }
-  }catch(err){console.warn('共有保存失敗',err);setCloudStatus('共有保存失敗：再試行待ち');retry=true;}
-  finally{cloudSaving=false;if(retry&& (dirtyEvents.size||pendingDeletes.size||masterDirty)){if(cloudTimer)clearTimeout(cloudTimer);cloudTimer=setTimeout(postCloud,700);}}
+  }catch(err){
+    console.warn('共有保存失敗',err);
+    setCloudStatus('共有保存失敗：再試行待ち');
+    retry=true;
+  }finally{
+    cloudSaving=false;
+    if(retry && (dirtyEvents.size||pendingDeletes.size||masterDirty)){
+      if(cloudTimer)clearTimeout(cloudTimer);
+      // 1回だけ少し待って再保存。自動読込はこの間もdirtyがあるため実行しない。
+      cloudTimer=setTimeout(()=>{cloudTimer=null;postCloud();},1200);
+    }
+  }
 }
 function mergeRemote(d,fromSave=false){
   const remote=Array.isArray(d.events)?d.events.map(normalizeEvent):[];const remoteDeleted=d&&d.deleted&&typeof d.deleted==='object'?d.deleted:{};const localById=new Map(events.map(e=>[String(e.id),e]));const remoteById=new Map(remote.map(e=>[String(e.id),e]));
@@ -946,26 +960,31 @@ function removeVehicle(i){const v=vehicleList[i];if(!confirm(v.id+' を削除し
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{view=b.dataset.v;render();});
 document.getElementById('prev').onclick=()=>shift(-1);document.getElementById('next').onclick=()=>shift(1);document.getElementById('today').onclick=()=>{cur=new Date();cur.setHours(0,0,0,0);render();};document.getElementById('subPrev').onclick=()=>shiftSecondary(-1);document.getElementById('subNext').onclick=()=>shiftSecondary(1);
 rebuildChecks();render();applyZoom();
-// 共有は「共有診断」を押さなくても自動同期する。
-// 保存/読込中に一度飛ばされた場合も、終了後に再確認する。
-let cloudAutoPending=false;
+// 自動同期：未保存変更がある間は「読込」を行わず、保存を優先する。
+// これで共有読込→共有保存→共有読込…のループを防ぐ。
+let cloudAutoBusy=false;
 async function autoCloudSync(){
-  if(cloudSaving||cloudLoading){cloudAutoPending=true;return;}
-  cloudAutoPending=false;
-  await loadCloud();
-  if(cloudAutoPending&&!cloudSaving&&!cloudLoading){cloudAutoPending=false;setTimeout(autoCloudSync,100);}
+  if(cloudAutoBusy||cloudSaving||cloudLoading)return;
+  cloudAutoBusy=true;
+  try{
+    if(dirtyEvents.size||pendingDeletes.size||masterDirty){
+      await postCloud();
+    }else{
+      await loadCloud();
+    }
+  }finally{cloudAutoBusy=false;}
 }
-setTimeout(autoCloudSync,500);
-setInterval(autoCloudSync,2000);
-window.addEventListener('focus',()=>setTimeout(autoCloudSync,100));
-window.addEventListener('pageshow',()=>setTimeout(autoCloudSync,100));
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(autoCloudSync,100);});
-window.addEventListener('online',()=>setTimeout(autoCloudSync,100));
+setTimeout(autoCloudSync,700);
+setInterval(autoCloudSync,3000);
+window.addEventListener('focus',()=>setTimeout(autoCloudSync,150));
+window.addEventListener('pageshow',()=>setTimeout(autoCloudSync,150));
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(autoCloudSync,150);});
+window.addEventListener('online',()=>setTimeout(autoCloudSync,150));
 
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;const b=document.getElementById('installBtn');if(b)b.style.display='';});
 window.addEventListener('appinstalled',()=>{deferredInstallPrompt=null;const b=document.getElementById('installBtn');if(b)b.style.display='none';});
 async function installApp(){if(deferredInstallPrompt){deferredInstallPrompt.prompt();try{await deferredInstallPrompt.userChoice;}catch(e){}deferredInstallPrompt=null;const b=document.getElementById('installBtn');if(b)b.style.display='none';return;}alert('iPhone/iPad：共有ボタン →「ホーム画面に追加」\nAndroid：ブラウザの「アプリをインストール」または「ホーム画面に追加」から登録してください。');}
-if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/vehicle-schedule/sw.js?v=48fix58fix12').catch(err=>console.warn('PWA登録失敗',err)));
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/vehicle-schedule/sw.js?v=48fix58fix13').catch(err=>console.warn('PWA登録失敗',err)));
 
 </script>
 <div id="settings" class="settings" onclick="if(event.target===this)closeSettings()">
