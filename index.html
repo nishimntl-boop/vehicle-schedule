@@ -984,7 +984,24 @@ window.addEventListener('online',()=>setTimeout(autoCloudSync,150));
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;const b=document.getElementById('installBtn');if(b)b.style.display='';});
 window.addEventListener('appinstalled',()=>{deferredInstallPrompt=null;const b=document.getElementById('installBtn');if(b)b.style.display='none';});
 async function installApp(){if(deferredInstallPrompt){deferredInstallPrompt.prompt();try{await deferredInstallPrompt.userChoice;}catch(e){}deferredInstallPrompt=null;const b=document.getElementById('installBtn');if(b)b.style.display='none';return;}alert('iPhone/iPad：共有ボタン →「ホーム画面に追加」\nAndroid：ブラウザの「アプリをインストール」または「ホーム画面に追加」から登録してください。');}
-if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/vehicle-schedule/sw.js?v=48fix58fix13').catch(err=>console.warn('PWA登録失敗',err)));
+// fix15: スマホに残った旧Service Worker/キャッシュが最新版を隠さないように初回だけ掃除する。
+const APP_CACHE_CLEAN_KEY='vehicleScheduleFix15CacheClean';
+async function cleanupOldAppCache(){
+  try{
+    if('serviceWorker' in navigator){
+      const regs=await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r=>r.unregister().catch(()=>false)));
+    }
+    if(window.caches&&caches.keys){
+      const keys=await caches.keys();
+      await Promise.all(keys.map(k=>caches.delete(k).catch(()=>false)));
+    }
+    localStorage.setItem(APP_CACHE_CLEAN_KEY,'1');
+  }catch(err){console.warn('旧キャッシュ整理失敗',err)}
+}
+window.addEventListener('load',()=>{
+  if(localStorage.getItem(APP_CACHE_CLEAN_KEY)!=='1') cleanupOldAppCache();
+});
 
 </script>
 <div id="settings" class="settings" onclick="if(event.target===this)closeSettings()">
