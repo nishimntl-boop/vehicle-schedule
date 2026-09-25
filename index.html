@@ -211,7 +211,7 @@
 .vm-zoom-tools button,.vm-print-tools button{border:1px solid #cbd3df;border-radius:5px;background:#fff;color:#172033;font-weight:900;height:34px;padding:0 8px;line-height:1;}
 .vm-zoom-tools .vm-zoom-value{min-width:52px;font-size:11px;}
 #vehicleMatrixBody{overflow:auto;touch-action:pan-x pan-y;overscroll-behavior:contain;}
-#vehicleMatrixBody .vehicle-matrix-scale{transform-origin:top left;width:100%;}
+#vehicleMatrixBody .vehicle-matrix-scale{transform-origin:top left;width:100%;}\n#vehicleMatrixBody .vm-date-select{cursor:pointer;transition:box-shadow .12s,background .12s;}\n#vehicleMatrixBody .vm-date-select:hover{background:#eaf3ff!important;}\n#vehicleMatrixBody .vm-date-select.vm-date-selected{background:#f7fbff!important;box-shadow:inset 0 0 0 3px #1769e0!important;}
 
 @media(max-width:700px){.vm-zoom-tools button,.vm-print-tools button{height:36px;font-size:14px;padding:0 7px}.vm-zoom-tools .vm-zoom-value{min-width:58px;font-size:12px}.vehicle-matrix-head{flex-wrap:wrap;gap:5px}.vehicle-matrix-head h2{flex:1 1 auto;min-width:130px}}
 /* v47fix14: 月予定の1日セル内スクロール + ヘッダー非拡大ズーム */
@@ -528,7 +528,7 @@ function renderVehicleMatrix(){
     const d=new Date(y,m,day);
     const ds=K(d),dow=d.getDay(),weekend=dow===0||dow===6;
     const restNames=[...new Set(events.filter(e=>e.kind==='off'&&vehicleMatrixEventsFor(e,d)).flatMap(e=>e.people||[]))];
-    h+=`<tr data-vm-date="${ds}"><th class="${weekend?'vm-weekend':''}"><div class="date-label">${vehicleMatrixDayLabel(d)}</div>${restNames.length?`<div class="rest-label">休み：${E(restNames.join('・'))}</div>`:''}</th>`;
+    h+=`<tr data-vm-date="${ds}"><th class="vm-date-select ${weekend?'vm-weekend':''} ${K(cur)===ds?'vm-date-selected':''}" title="この日を選択" onclick="selectVehicleMatrixDate('${ds}',event)"><div class="date-label">${vehicleMatrixDayLabel(d)}</div>${restNames.length?`<div class="rest-label">休み：${E(restNames.join('・'))}</div>`:''}</th>`;
     VEH.forEach(v=>{
       const es=events.filter(e=>e.kind!=='off'&&vehicleMatrixEventsFor(e,d)&&(e.vehicles||[]).map(String).includes(String(v[0]))).sort((a,b)=>String(a.start||'').localeCompare(String(b.start||'')));
       h+=`<td class="vm-cell ${weekend?'vm-weekend':''}">${es.length?es.map(e=>vehicleMatrixEventHtml(e,d)).join(''):'<div class="vm-empty">－</div>'}</td>`;
@@ -661,8 +661,14 @@ function openVehicleMatrix(){
   renderVehicleMatrix();
   modal.classList.add('open');document.body.style.overflow='hidden';
 }
+function selectVehicleMatrixDate(ds,ev){
+  if(ev)ev.stopPropagation();
+  cur=new Date(ds+'T00:00');
+  render();
+  renderVehicleMatrix();
+}
 function newEventFromVehicleMatrix(){
-  // 車両別一覧を閉じず、その画面を下に残したまま予定追加を開く。
+  // 車両別一覧で選択した日付を、そのまま予定追加の日付に使う。
   newEvent();
 }
 function closeVehicleMatrix(){
