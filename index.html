@@ -832,35 +832,92 @@ async function postCloud(){
   cloudSaving=true;setCloudStatus('共有保存中…');
   let retry=false;
   try{
-    // 送信対象を固定。保存完了後の「確認用GET」を待たず、画面側は先に完了扱いにする。
-    // 相手端末の自動読込は別途行うため、ここで1往復分の待ち時間を削減する。
+    // 保存対象をこの1回の処理に固定。自動読込は保存完了まで絶対に割り込ませない。
     const patch=buildPatch();
-    const sentIds=new Map([...dirtyEvents].map(([id,x])=>[id,{event:normalizeEvent(x.event),preserveAssignments:!!x.preserveAssignments}]));
+    const sentIds=new Map([...dirtyEvents].map(([id,x])=>[id,{baseUpdatedAt:Number(x.baseUpdatedAt||0),event:normalizeEvent(x.event),preserveAssignments:!!x.preserveAssignments}]));
     const sentDeletes=new Map([...pendingDeletes]);
-    const sentMaster=masterDirty;
+    const sentMaster=masterDirty, sentMasterBase=cloudMasterUpdatedAt;
 
     await postForm(patch,20000);
+    const server=await jsonpGet(12000);
+    if(!server||!server.hasData)throw new Error('保存確認データを取得できませんでした');
 
-    // POST完了時点でローカルの送信済み変更を確定。
-    // 直後の共有読込でサーバー側の状態と再照合する。
+    const remoteEvents=(server.events||[]).map(normalizeEvent);
+    const remoteById=new Map(remoteEvents.map(e=>[String(e.id),e]));
+    const isPatchBackend=Object.prototype.hasOwnProperty.call(server,'masterUpdatedAt')&&Object.prototype.hasOwnProperty.call(server,'deleted');
+
+    // 新しいGAS（patch backend）なら、サーバーに反映されたものだけを確定する。
+    let unresolved=[];
     sentIds.forEach((meta,id)=>{
+      const r=remoteById.get(id);
       const current=dirtyEvents.get(id);
       if(!current)return;
       const local=current.event;
-      events=events.map(e=>String(e.id)===id?normalizeEvent(local):e);
-      dirtyEvents.delete(id);
+      const localStamp=Number(local.updatedAt||0);
+      const remoteStamp=Number(r&&r.updatedAt||0);
+      const sameByClient=r&&String(r.updatedBy||'')===CLIENT_ID;
+      if(r && ((sameByClient&&remoteStamp>Number(meta.baseUpdatedAt||0)) || remoteStamp>=localStamp)){
+        let accepted=Object.assign({},r);
+        if(meta.preserveAssignments){accepted.vehicles=(meta.event.vehicles||[]).map(String);accepted.people=(meta.event.people||[]).map(String);}
+        events=events.map(e=>String(e.id)===id?normalizeEvent(accepted):e);
+        dirtyEvents.delete(id);
+      }else{
+        unresolved.push({id,meta,r});
+      }
     });
+
+    const remoteDeleted=server.deleted||{};
     sentDeletes.forEach((meta,id)=>{
-      pendingDeletes.delete(id);
-      events=events.filter(e=>String(e.id)!==id);
+      const tomb=remoteDeleted[id];
+      if(!pendingDeletes.has(id))return;
+      if(!remoteById.has(id)&&tomb&&Number(tomb.updatedAt||0)>Number(meta.baseUpdatedAt||0)&&String(tomb.deletedBy||'')===CLIENT_ID){
+        pendingDeletes.delete(id);
+      }
     });
-    if(sentMaster)masterDirty=false;
+
+    // 旧GASの場合は従来のsave形式を1回だけ使用。
+    if(!isPatchBackend && (sentIds.size||sentDeletes.size||sentMaster)){
+      const legacy={action:'save',events:events,vehicles:vehicleList,people:peopleList,logs:[],lastUpdated:Date.now(),deletedIds:[...pendingDeletes.keys()],saveToken:CLIENT_ID+'_'+Date.now()};
+      await postForm(legacy,20000);
+      const latest=await jsonpGet(12000);
+      if(!latest||!latest.hasData)throw new Error('旧GASへの保存確認に失敗しました');
+      events=(latest.events||[]).map(normalizeEvent);
+      if(Array.isArray(latest.people)&&latest.people.length)peopleList=latest.people.map(String);
+      if(Array.isArray(latest.vehicles)&&latest.vehicles.length)vehicleList=latest.vehicles.map(v=>({id:String(v.id||''),detail:String(v.detail||'2t'),memo:String(v.memo||'')})).filter(v=>v.id);
+      syncMaster();dirtyEvents.clear();pendingDeletes.clear();masterDirty=false;
+      cloudMasterUpdatedAt=Number(latest.masterUpdatedAt||cloudMasterUpdatedAt||0);
+      persistLocal();colorPreparedFor='';render();setCloudStatus('共有保存・同期済み');
+      return;
+    }
+
+    // master変更がサーバーに反映されたか確認。
+    if(sentMaster){
+      if(Number(server.masterUpdatedAt||0)>Number(sentMasterBase||0)){cloudMasterUpdatedAt=Number(server.masterUpdatedAt);masterDirty=false;}
+    }
+
+    // 未反映の変更だけ、サーバー最新版を基準に「次の1回」だけ再送する。
+    // 自動読込側からの再保存は行わないため、保存→読込→保存のループにならない。
+    unresolved.forEach(({id,meta,r})=>{
+      const current=dirtyEvents.get(id);
+      if(!current)return;
+      const base=Number(r&&r.updatedAt||meta.baseUpdatedAt||0);
+      const next=Object.assign({},current.event);
+      next.updatedAt=Math.max(Date.now(),base+1);
+      next.updatedBy=CLIENT_ID;
+      dirtyEvents.set(id,{event:next,baseUpdatedAt:base,preserveAssignments:!!current.preserveAssignments});
+    });
+
+    // 保存確認後はローカルをサーバー状態へ寄せる。ただし未保存変更は保持。
+    mergeRemote(server,true);
     persistLocal();
     colorPreparedFor='';render();
-    setCloudStatus('共有保存済み');
 
-    // 保存確認を画面操作と切り離して非同期実行。スマホでも待ち時間を表示しない。
-    setTimeout(()=>{if(!cloudSaving&&!cloudLoading)loadCloud();},250);
+    if(unresolved.length || (sentMaster&&masterDirty) || [...sentDeletes.keys()].some(id=>pendingDeletes.has(id))){
+      setCloudStatus('共有再保存中…');
+      retry=true;
+    }else{
+      setCloudStatus('共有保存・同期済み');
+    }
   }catch(err){
     console.warn('共有保存失敗',err);
     setCloudStatus('共有保存失敗：再試行待ち');
@@ -869,11 +926,11 @@ async function postCloud(){
     cloudSaving=false;
     if(retry && (dirtyEvents.size||pendingDeletes.size||masterDirty)){
       if(cloudTimer)clearTimeout(cloudTimer);
+      // 1回だけ少し待って再保存。自動読込はこの間もdirtyがあるため実行しない。
       cloudTimer=setTimeout(()=>{cloudTimer=null;postCloud();},1200);
     }
   }
 }
-
 function mergeRemote(d,fromSave=false){
   const remote=Array.isArray(d.events)?d.events.map(normalizeEvent):[];const remoteDeleted=d&&d.deleted&&typeof d.deleted==='object'?d.deleted:{};const localById=new Map(events.map(e=>[String(e.id),e]));const remoteById=new Map(remote.map(e=>[String(e.id),e]));
   const merged=[];
@@ -918,7 +975,7 @@ async function autoCloudSync(){
   }finally{cloudAutoBusy=false;}
 }
 setTimeout(autoCloudSync,300);
-setInterval(autoCloudSync,700);
+setInterval(autoCloudSync,1000);
 window.addEventListener('focus',()=>setTimeout(autoCloudSync,150));
 window.addEventListener('pageshow',()=>setTimeout(autoCloudSync,150));
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(autoCloudSync,150);});
