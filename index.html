@@ -938,7 +938,7 @@ function mergeRemote(d,fromSave=false){
   localById.forEach((l,id)=>{if(remoteById.has(id)||pendingDeletes.has(id))return;const tomb=remoteDeleted[id];if(tomb&&Number(tomb.updatedAt||tomb.deletedAt||0)>=Number(l.updatedAt||0))return;merged.push(l);});
   events=merged; cloudMasterUpdatedAt=Number(d.masterUpdatedAt||cloudMasterUpdatedAt||0); if(Array.isArray(d.people)&&d.people.length&&!masterDirty)peopleList=d.people.map(String); if(Array.isArray(d.vehicles)&&d.vehicles.length&&!masterDirty)vehicleList=d.vehicles.map(v=>({id:String(v.id||''),detail:String(v.detail||'2t'),memo:String(v.memo||'')})).filter(v=>v.id); syncMaster();rebuildChecks();colorPreparedFor='';if(!fromSave)persistLocal();
 }
-async function loadCloud(){if(cloudLoading||cloudSaving)return;cloudLoading=true;setCloudStatus('共有読込中…');try{const d=await jsonpGet(15000);if(d&&d.hasData){mergeRemote(d);render();setCloudStatus(dirtyEvents.size||pendingDeletes.size||masterDirty?'共有同期済み・未保存あり':'共有同期済み');if(dirtyEvents.size||pendingDeletes.size||masterDirty)queueCloudSave();}else if(d){setCloudStatus('共有データなし');if(events.length||vehicleList.length||peopleList.length)queueCloudSave();}else setCloudStatus('共有接続エラー');}catch(err){console.warn(err);setCloudStatus('共有接続エラー')}finally{cloudLoading=false;}}
+async function loadCloud(){if(cloudLoading)return;cloudLoading=true;if(!cloudSaving)setCloudStatus('共有読込中…');try{const d=await jsonpGet(12000);if(d&&d.hasData){mergeRemote(d);render();if(!cloudSaving)setCloudStatus(dirtyEvents.size||pendingDeletes.size||masterDirty?'共有同期済み・未保存あり':'共有同期済み');if(dirtyEvents.size||pendingDeletes.size||masterDirty)queueCloudSave();}else if(d){if(!cloudSaving)setCloudStatus('共有データなし');if(events.length||vehicleList.length||peopleList.length)queueCloudSave();}else if(!cloudSaving)setCloudStatus('共有接続エラー')}catch(err){console.warn(err);if(!cloudSaving)setCloudStatus('共有接続エラー')}finally{cloudLoading=false;}}
 function persist(){masterDirty=true;persistLocal();queueCloudSave();}
 function forceCloudReload(){loadCloud();}
 
@@ -960,26 +960,24 @@ function removeVehicle(i){const v=vehicleList[i];if(!confirm(v.id+' を削除し
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{view=b.dataset.v;render();});
 document.getElementById('prev').onclick=()=>shift(-1);document.getElementById('next').onclick=()=>shift(1);document.getElementById('today').onclick=()=>{cur=new Date();cur.setHours(0,0,0,0);render();};document.getElementById('subPrev').onclick=()=>shiftSecondary(-1);document.getElementById('subNext').onclick=()=>shiftSecondary(1);
 rebuildChecks();render();applyZoom();
-// 自動同期：未保存変更がある間は「読込」を行わず、保存を優先する。
-// これで共有読込→共有保存→共有読込…のループを防ぐ。
+// 自動同期：保存とは独立してGASを定期確認する。
+// 未保存の自端末データはmergeRemote()側で保護するため、相手端末の変更を待たずに取り込める。
 let cloudAutoBusy=false;
 async function autoCloudSync(){
-  if(cloudAutoBusy||cloudSaving||cloudLoading)return;
+  if(cloudAutoBusy)return;
   cloudAutoBusy=true;
-  try{
-    if(dirtyEvents.size||pendingDeletes.size||masterDirty){
-      await postCloud();
-    }else{
-      await loadCloud();
-    }
-  }finally{cloudAutoBusy=false;}
+  try{if(dirtyEvents.size||pendingDeletes.size||masterDirty)await postCloud();}
+  catch(err){console.warn('自動保存失敗',err)}
+  finally{cloudAutoBusy=false;}
+  if(!cloudLoading)loadCloud();
 }
-setTimeout(autoCloudSync,300);
-setInterval(autoCloudSync,1000);
-window.addEventListener('focus',()=>setTimeout(autoCloudSync,150));
-window.addEventListener('pageshow',()=>setTimeout(autoCloudSync,150));
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(autoCloudSync,150);});
-window.addEventListener('online',()=>setTimeout(autoCloudSync,150));
+setTimeout(autoCloudSync,250);
+// 保存していない端末でも、GASの変更を約1.2秒ごとに確認する。
+setInterval(()=>{if(!cloudLoading)loadCloud();},1200);
+window.addEventListener('focus',()=>setTimeout(()=>{if(!cloudLoading)loadCloud();},100));
+window.addEventListener('pageshow',()=>setTimeout(()=>{if(!cloudLoading)loadCloud();},100));
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(()=>{if(!cloudLoading)loadCloud();},100);});
+window.addEventListener('online',()=>setTimeout(()=>{if(!cloudLoading)loadCloud();},100));
 
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;const b=document.getElementById('installBtn');if(b)b.style.display='';});
 window.addEventListener('appinstalled',()=>{deferredInstallPrompt=null;const b=document.getElementById('installBtn');if(b)b.style.display='none';});
