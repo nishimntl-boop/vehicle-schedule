@@ -897,7 +897,7 @@ function removeVehicle(i){const v=vehicleList[i];if(!confirm(v.id+' を削除し
 // 起動は全関数・変数の初期化後に一度だけ行う。v47系で問題になった「関数定義前のrender/checks呼び出し」を排除。
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{view=b.dataset.v;render();});
 document.getElementById('prev').onclick=()=>shift(-1);document.getElementById('next').onclick=()=>shift(1);document.getElementById('today').onclick=()=>{cur=new Date();cur.setHours(0,0,0,0);render();};document.getElementById('subPrev').onclick=()=>shiftSecondary(-1);document.getElementById('subNext').onclick=()=>shiftSecondary(1);
-rebuildChecks();render();applyZoom();
+rebuildChecks();render();
 // 自動共有診断：手動の「共有診断」で成功しているJSONP取得を、保存処理とは完全に独立して実行する。
 // 今回は「自動処理が本当に走っているか」を画面上で確認できるようにする。
 let cloudAutoTimer=null, cloudAutoRunning=false, cloudAutoCount=0, cloudAutoLastRevision=null, cloudAutoLastAt=0;
