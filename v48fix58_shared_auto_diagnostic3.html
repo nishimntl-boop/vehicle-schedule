@@ -1,0 +1,975 @@
+<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"><title>車両・人員 配置管理</title>
+<link rel="manifest" href="/vehicle-schedule/manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="/vehicle-schedule/icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/vehicle-schedule/apple-touch-icon.png">
+<meta name="theme-color" content="#101b31">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="車両人員予定表">
+
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4f6fa;font-family:Arial,"Yu Gothic",Meiryo,sans-serif;color:#172033}.top{height:58px;background:#101b31;color:white;display:flex;align-items:center;padding:0 16px;gap:5px;position:sticky;top:0;z-index:5}.logo{font-size:20px;font-weight:900;margin-right:12px}.tabs button,.nav button{border:0;border-radius:4px;padding:9px 16px;font-weight:800}.tabs button{background:#1d2943;color:#fff}.tabs .on{background:#1769e0}.nav{margin-left:auto;display:flex;gap:7px;align-items:center}.nav button{background:#fff}.title{font-size:20px;font-weight:900;min-width:125px;text-align:center}.cloud-diag{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:9999;display:none;align-items:center;justify-content:center;padding:18px}.cloud-diag.open{display:flex}.cloud-diag-card{background:#fff;border-radius:16px;max-width:520px;width:100%;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.25)}.cloud-diag-card h3{margin:0 0 12px}.cloud-diag-card pre{white-space:pre-wrap;word-break:break-word;background:#f3f5f8;border-radius:10px;padding:12px;font-size:12px;max-height:45vh;overflow:auto}.cloud-diag-actions{display:flex;gap:8px;justify-content:flex-end}.cloud-diag-actions button{padding:9px 14px;border-radius:9px;border:1px solid #ccd5e1;background:#fff;font-weight:800}.cloud-diag-actions button.primary{background:#1677e8;color:#fff;border-color:#1677e8}.cloud-status{font-size:11px;font-weight:800;opacity:.95;white-space:nowrap}.color-note{margin:8px auto 0;max-width:1600px;padding:7px 12px;background:#fff;border:1px solid #d3dae5;border-radius:6px;font-weight:900;font-size:12px}.red-note{color:#dc2626}.off-note{color:#c52f67}.app{display:grid;grid-template-columns:minmax(0,1fr) 365px;gap:10px;padding:9px;max-width:1600px;margin:auto}.panel,.box{background:#fff;border:1px solid #d3dae5;border-radius:6px;overflow:hidden;margin-bottom:9px}.legend{display:flex;gap:18px;padding:8px 12px;border-bottom:1px solid #d3dae5;font-weight:800}.dot{display:inline-block;width:13px;height:13px;border-radius:2px;margin-right:5px;vertical-align:-2px}.month{display:grid;grid-template-columns:repeat(7,minmax(110px,1fr));min-width:770px}.month .dow{background:#f8fafc;text-align:center;font-weight:900;padding:6px;border-right:1px solid #d3dae5;border-bottom:1px solid #d3dae5}.day{height:92px;padding:5px;border-right:1px solid #d3dae5;border-bottom:1px solid #d3dae5;overflow:hidden}.out{background:#fafafa;color:#a3aab5}.selected{background:#f7fbff;box-shadow:inset 0 0 0 2px #1769e0}.date{font-weight:900;font-size:15px;height:21px}.sun{color:#d11}.sat{color:#145bd7}.bar{display:block;width:100%;height:20px;margin:2px 0;border:0;border-radius:3px;color:white;padding:2px 6px;text-align:left;font-size:11px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.off{background:#f7d8e6!important;color:#c52f67!important}.off-status{color:#c52f67!important;font-weight:900}.plan{background:#9ca3af!important;color:#fff!important}.conflict,.conf{background:#dc2626!important;color:#fff!important}.conf{background:#dc2626!important}.head{height:39px;display:flex;align-items:center;gap:7px;padding:0 9px;border-bottom:1px solid #d3dae5;font-weight:900}.head span{flex:1}.head button{border:1px solid #ccd4df;background:#fff;border-radius:4px;padding:5px 9px}.add{background:#1769e0!important;color:white!important}.week{display:grid;grid-template-columns:120px repeat(7,minmax(105px,1fr));min-width:855px}.week>div{border-right:1px solid #d3dae5;border-bottom:1px solid #d3dae5;padding:5px;min-height:52px}.wh{background:#f8fafc;text-align:center;font-weight:900}.week-switch{display:flex;align-items:center;justify-content:space-between;gap:4px}.week-mode{display:flex;gap:3px}.week-mode .wm{border:1px solid #cbd3df;background:#fff;padding:3px 6px;border-radius:3px;font-size:10px;font-weight:900;cursor:pointer}.week-mode .wm.on{background:#1769e0;color:#fff;border-color:#1769e0}.week-date{cursor:pointer}.overnight{box-shadow:inset 0 0 0 2px #6b7280}.overnight-toggle{display:flex;align-items:center;gap:7px;margin:8px 0;font-weight:900}.overnight-toggle input{width:18px;height:18px}.nighttag{font-size:9px;margin-left:4px;padding:1px 3px;border-radius:2px;background:#374151;color:#fff}.week-date:hover{background:#eaf3ff;box-shadow:inset 0 0 0 2px #1769e0}.person{font-weight:900;background:#fbfcfe}.wbar{display:block;width:100%;margin:2px 0;padding:5px;border:0;border-radius:3px;color:white;font-size:11px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.timeline{min-width:950px}.times{display:grid;grid-template-columns:125px repeat(24,1fr)}.times div{padding:5px;text-align:center;border-right:1px solid #e0e5eb;border-bottom:1px solid #d3dae5;font-size:11px}.trow{display:grid;grid-template-columns:125px 1fr;min-height:58px}.who{padding:8px;font-weight:900;border-right:1px solid #d3dae5;border-bottom:1px solid #d3dae5}.track{position:relative;border-bottom:1px solid #d3dae5;background:repeating-linear-gradient(to right,#fff 0,#fff calc(4.1667% - 1px),#e1e5eb calc(4.1667% - 1px),#e1e5eb 4.1667%)}.tbar{position:absolute;top:8px;height:40px;border:0;border-radius:4px;color:#fff;padding:8px;font-weight:900;overflow:hidden;white-space:nowrap}.side .box{padding:11px}.side h3{margin:0 0 9px}.status{display:grid;grid-template-columns:1fr 1fr;gap:5px 12px}.busy{color:#16843b}.free{color:#777}.notice{line-height:1.8}.form label{display:block;font-weight:900;margin:7px 0 3px}.form input,.form select{width:100%;padding:7px;border:1px solid #ccd4df;border-radius:4px}.two{display:grid;grid-template-columns:1fr 1fr;gap:7px}.checks{display:grid;grid-template-columns:1fr 1fr;gap:4px}.check{border:1px solid #d5dbe4;border-radius:4px;padding:5px}.event-card .checks{margin-bottom:10px}.event-card .check{display:block;min-height:36px;line-height:24px}.event-card .check input{transform:scale(1.15);margin-right:6px}.check input{width:auto}.actions{display:flex;gap:7px;margin-top:10px}.actions button{flex:1;padding:9px;border:1px solid #ccd4df;background:#fff;border-radius:4px;font-weight:900}.actions .save{background:#1769e0;color:#fff}.actions .del{color:#d11;border-color:#e99}@media(max-width:1000px){.app{grid-template-columns:1fr}.side{order:-1}.logo{font-size:16px}}
+
+.settings{position:fixed;inset:0;background:rgba(10,18,35,.45);z-index:50;display:none;align-items:center;justify-content:center;padding:20px}
+.settings.open{display:flex}.settings-card{background:#fff;width:min(760px,96vw);max-height:90vh;overflow:auto;border-radius:8px;border:1px solid #cfd6e2;box-shadow:0 15px 50px rgba(0,0,0,.25)}
+.settings-head{display:flex;align-items:center;padding:13px 16px;border-bottom:1px solid #d4dae4}.settings-head h2{margin:0;font-size:18px}.settings-head button{margin-left:auto;border:0;background:#fff;font-size:22px}
+.manage-tabs{display:flex;border-bottom:1px solid #d4dae4}.manage-tabs button{flex:1;border:0;background:#f5f7fa;padding:10px;font-weight:900}.manage-tabs button.on{background:#1769e0;color:#fff}
+.manage-body{padding:14px}.manage-row{display:grid;grid-template-columns:1fr 120px 1.4fr auto;gap:7px;margin-bottom:7px}.manage-row.people{grid-template-columns:1fr auto}.manage-row input{width:100%;padding:7px;border:1px solid #cbd3df;border-radius:4px}.manage-row button{border:1px solid #e0a0a0;background:#fff;color:#c11;border-radius:4px;padding:6px 10px}.manage-add{display:flex;gap:7px;margin-top:12px}.manage-add input{flex:1;padding:8px;border:1px solid #cbd3df;border-radius:4px}.manage-add button{background:#1769e0;color:#fff;border:0;border-radius:4px;padding:8px 15px;font-weight:900}
+.settings{position:fixed;inset:0;background:rgba(10,18,35,.45);z-index:50;display:none;align-items:center;justify-content:center;padding:20px}.settings.open{display:flex}.settings-card{background:#fff;width:min(780px,96vw);max-height:90vh;overflow:auto;border-radius:8px;border:1px solid #cfd6e2}.settings-head{display:flex;align-items:center;padding:13px 16px;border-bottom:1px solid #d4dae4}.settings-head h2{margin:0}.settings-head button{margin-left:auto;border:0;background:#fff;font-size:22px}.manage-tabs{display:flex;border-bottom:1px solid #d4dae4}.manage-tabs button{flex:1;border:0;background:#f5f7fa;padding:10px;font-weight:900}.manage-tabs button.on{background:#1769e0;color:#fff}.manage-body{padding:14px}.manage-row{display:grid;grid-template-columns:1fr 120px 1.3fr auto auto;gap:6px;margin-bottom:7px}.manage-row.people{grid-template-columns:1fr auto auto}.manage-row input{width:100%;padding:7px;border:1px solid #cbd3df;border-radius:4px}.manage-row button{border:1px solid #dfa0a0;background:#fff;color:#c11;border-radius:4px;padding:6px 9px}.manage-add{display:flex;gap:6px;margin-top:12px}.manage-add input{flex:1;padding:8px;border:1px solid #cbd3df;border-radius:4px}.manage-add button{background:#1769e0;color:#fff;border:0;border-radius:4px;padding:8px 13px;font-weight:900}.settings{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px}.settings.open{display:flex}.settings-card{width:min(900px,96vw);max-height:90vh;overflow:auto;background:#fff;border-radius:8px;box-shadow:0 12px 40px rgba(0,0,0,.25)}.settings-head{display:flex;align-items:center;padding:14px 18px;border-bottom:1px solid #d3dae5}.settings-head h2{margin:0;font-size:18px}.settings-head button{margin-left:auto;border:0;background:transparent;font-size:26px;cursor:pointer}.manage-tabs{display:flex;border-bottom:1px solid #d3dae5}.manage-tabs button{flex:1;border:0;background:#f1f4f8;padding:11px;font-weight:900;cursor:pointer}.manage-tabs button.on{background:#1769e0;color:#fff}.manage-body{padding:16px}.manage-row{display:grid;grid-template-columns:110px 110px 1fr auto auto;gap:7px;margin:7px 0}.manage-row.people{grid-template-columns:1fr auto auto}.manage-row input,.manage-add input{min-width:0;padding:8px;border:1px solid #cbd3df;border-radius:4px}.manage-row button{padding:7px 10px;border:1px solid #b9c3d1;background:#fff;border-radius:4px;cursor:pointer}.manage-add{display:flex;gap:7px;margin-top:14px}.manage-add button{border:0;background:#1769e0;color:#fff;border-radius:4px;padding:8px 13px;font-weight:900;cursor:pointer}@media(max-width:700px){.manage-row{grid-template-columns:1fr 1fr}.manage-row.people{grid-template-columns:1fr auto auto}.manage-add{flex-wrap:wrap}.manage-add input{width:100%}}
+/* smartphone usability */
+@media(max-width:700px){
+  body{font-size:14px;overflow-x:hidden;-webkit-text-size-adjust:100%;}
+  .top{height:auto;min-height:0;padding:7px 8px;gap:7px;flex-wrap:wrap;align-items:center;position:sticky;top:0;}
+  .logo{display:none;}
+  .tabs{order:1;width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:5px;}
+  .tabs button{min-height:44px;padding:9px 6px;font-size:14px;border-radius:6px;}
+  .nav{order:2;width:100%;margin-left:0;display:flex;gap:5px;overflow-x:auto;overflow-y:hidden;padding-bottom:2px;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+  .nav::-webkit-scrollbar{display:none;}
+  .nav button{flex:0 0 auto;min-width:44px;min-height:44px;padding:9px 11px;font-size:14px;border-radius:6px;}
+  .nav .title{flex:0 0 140px;min-width:140px;font-size:17px;line-height:44px;}
+  .app{display:flex;flex-direction:column;gap:8px;padding:7px;margin:0;max-width:none;}
+  main{min-width:0;display:flex;flex-direction:column;gap:8px;}
+  .panel{margin-bottom:0;border-radius:7px;overflow:hidden;}
+  main>.panel{overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;}
+  #main,#secondary{min-width:max-content;}
+  .month{grid-template-columns:repeat(7,minmax(112px,1fr));min-width:784px;}
+  .month .dow{padding:9px 5px;font-size:13px;}
+  .day{height:108px;padding:6px;}
+  .date{font-size:14px;height:23px;}
+  .bar{height:23px;padding:3px 6px;font-size:11px;}
+  .head{min-height:48px;height:auto;padding:6px 7px;position:sticky;left:0;z-index:2;}
+  .head span{font-size:15px;}
+  .head button{min-height:40px;padding:7px 10px;font-size:13px;}
+  .week{grid-template-columns:116px repeat(7,minmax(128px,1fr));min-width:1012px;}
+  .week>div{min-height:62px;padding:6px;font-size:12px;}
+  .week .person{font-size:13px;position:sticky;left:0;z-index:1;}
+  .wh{font-size:12px;}
+  .week-mode{gap:4px;}
+  .week-mode .wm{min-height:36px;padding:7px 9px;font-size:12px;}
+  .week-date{min-width:128px;}
+  .wbar{min-height:34px;padding:7px 6px;font-size:11px;line-height:1.2;}
+  .timeline{min-width:950px;}
+  .side{order:initial;min-width:0;}
+  .side .box{padding:10px;margin-bottom:8px;}
+  .side h3{font-size:16px;}
+  .status{grid-template-columns:1fr 1fr;gap:6px 8px;}
+  .form label{font-size:14px;margin-top:9px;}
+  .form input,.form select{min-height:44px;padding:9px;font-size:16px;}
+  .two{grid-template-columns:1fr;gap:2px;}
+  .checks{grid-template-columns:1fr 1fr;gap:6px;}
+  .check{min-height:42px;padding:8px 6px;display:flex;align-items:center;gap:4px;}
+  .check input{transform:scale(1.15);}
+  .actions{position:sticky;bottom:0;background:#fff;padding:7px 0 2px;z-index:3;}
+  .actions button{min-height:46px;padding:10px 7px;font-size:14px;}
+  .settings{padding:7px;align-items:flex-end;}
+  .settings-card{width:100%;max-height:94vh;border-radius:10px 10px 0 0;}
+  .settings-head{padding:12px 14px;position:sticky;top:0;background:#fff;z-index:2;}
+  .manage-tabs button{min-height:46px;font-size:14px;}
+  .manage-body{padding:11px;}
+  .manage-row{grid-template-columns:1fr 1fr;gap:6px;}
+  .manage-row.people{grid-template-columns:1fr auto auto;}
+  .manage-row input{min-height:42px;font-size:16px;}
+  .manage-row button,.manage-add button{min-height:42px;padding:8px 10px;}
+  .manage-add{flex-wrap:wrap;}
+  .manage-add input{width:100%;min-height:44px;font-size:16px;}
+}
+@media(min-width:701px) and (max-width:1200px){
+  /* 4:3前後のPCでは右サイド欄が月予定の横幅を圧迫して右端の日付が切れないよう、縦1列にする */
+  .app{grid-template-columns:1fr;}
+  .side{order:initial;}
+}
+@media(max-width:700px){.cloud-status{display:none}.top{padding:0 6px;gap:3px}.logo{font-size:14px;margin-right:3px}.tabs button{padding:8px 8px}.nav{gap:3px}.nav button{padding:8px 9px}.title{min-width:78px;font-size:16px}}
+/* v24 smartphone layout fix */
+.mobile-add{display:none;}
+/* v47fix12: 予定入力はモーダルだけにする */
+.desktop-form{display:none!important;}
+@media(max-width:700px){
+  .mobile-add{display:block!important;background:#1769e0!important;color:#fff!important;}
+  .app{display:flex!important;flex-direction:column!important;}
+  .side{order:-1!important;min-width:0!important;width:100%!important;}
+  main{order:2!important;min-width:0!important;width:100%!important;}
+  main>.panel{width:100%;overflow-x:auto;overflow-y:hidden;}
+  #main,#secondary{min-width:0!important;width:100%;}
+  .month{grid-template-columns:repeat(7,minmax(0,1fr))!important;min-width:0!important;width:100%!important;}
+  .month .dow{font-size:12px;padding:7px 2px;}
+  .day{height:86px!important;padding:4px!important;}
+  .date{font-size:14px!important;height:20px!important;}
+  .bar{font-size:9px!important;padding:2px 3px!important;height:20px!important;}
+  .head{position:sticky;left:0;}
+}
+
+/* 予定入力モーダル */
+.event-modal{position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:4000;display:none;align-items:center;justify-content:center;padding:12px}
+.event-modal.open{display:flex}
+#eventModal{z-index:5000!important}
+#vehicleMatrixModal{z-index:3000!important}
+.event-card{width:min(720px,96vw);max-height:94vh;overflow:auto;background:#fff;border-radius:12px;box-shadow:0 16px 50px rgba(0,0,0,.3);padding:14px}
+.event-card .modal-head{display:flex;align-items:center;gap:8px;border-bottom:1px solid #d3dae5;padding:4px 2px 12px;margin-bottom:10px}
+.event-card .modal-head h2{margin:0;font-size:18px;flex:1}
+.event-card .modal-head button{border:0;background:transparent;font-size:26px;padding:4px 10px}
+@media(max-width:700px){
+  .event-modal{padding:0;align-items:stretch}
+  .event-card{width:100%;max-width:none;max-height:none;height:100%;border-radius:0;padding:12px;overflow:auto}
+  .event-card .form{display:block}
+  .event-card .actions{position:sticky;bottom:0;background:#fff;padding:8px 0 4px}
+  .mobile-add{display:inline-block!important}
+}
+
+/* v44 smartphone readability and touch usability */
+@media (max-width:1000px) and (pointer:coarse){
+  html,body{font-size:16px;}
+  body{-webkit-text-size-adjust:100%;overflow-x:hidden;}
+  .top{padding:8px 10px;gap:8px;position:sticky;top:0;}
+  .tabs{width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;order:1;}
+  .tabs button{min-height:50px;padding:10px 6px;font-size:16px;border-radius:8px;}
+  .nav{order:2;width:100%;margin-left:0;display:flex;gap:6px;overflow-x:auto;padding:2px 0 3px;}
+  .nav button{min-width:48px;min-height:48px;padding:10px 12px;font-size:15px;border-radius:8px;}
+  .nav .title{flex:0 0 150px;min-width:150px;font-size:19px;line-height:48px;}
+  .cloud-status{font-size:13px;}
+  .color-note{margin:8px 8px 0;padding:10px 8px;font-size:14px;line-height:1.45;text-align:center;}
+  .app{display:flex;flex-direction:column;gap:10px;padding:8px;margin:0;max-width:none;}
+  .panel,.box{border-radius:9px;margin-bottom:0;}
+  .head{min-height:54px;height:auto;padding:7px 8px;gap:6px;}
+  .head span{font-size:17px;}
+  .head button{min-width:44px;min-height:44px;padding:8px 10px;font-size:15px;}
+  .add{min-width:110px!important;}
+  /* 月予定：スマホ幅に合わせ、横スクロールを基本にしない */
+  .month{grid-template-columns:repeat(7,minmax(0,1fr));min-width:0;width:100%;}
+  .month .dow{padding:8px 2px;font-size:13px;}
+  .day{height:88px;padding:4px 3px;}
+  .date{font-size:14px;height:21px;}
+  .bar{height:21px;padding:2px 3px;font-size:10px;line-height:17px;border-radius:4px;}
+  /* 週予定は内容量が多いため横スクロール可能。ただし文字は大きくする */
+  main>.panel{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  #main,#secondary{min-width:0;}
+  .week{grid-template-columns:105px repeat(7,minmax(115px,1fr));min-width:910px;}
+  .week>div{min-height:64px;padding:7px 6px;font-size:13px;}
+  .wh{font-size:13px;}
+  .week .person{font-size:14px;}
+  .week-mode .wm{min-height:40px;padding:8px 10px;font-size:13px;}
+  .wbar{min-height:38px;padding:8px 7px;font-size:12px;line-height:1.25;}
+  /* 日予定も横スクロール可能 */
+  .timeline{min-width:900px;}
+  .times div{font-size:12px;padding:7px 4px;}
+  .trow{min-height:64px;}
+  .who{padding:9px;font-size:14px;}
+  .tbar{top:8px;height:46px;padding:9px;font-size:13px;}
+  /* 入力欄・チェックを指で押しやすく */
+  .side{min-width:0;}
+  .side .box{padding:12px;}
+  .side h3{font-size:19px;margin-bottom:10px;}
+  .notice{font-size:15px;line-height:1.9;}
+  .form label{font-size:16px;margin:11px 0 5px;}
+  .form input,.form select{min-height:50px;padding:10px 11px;font-size:17px;border-radius:7px;}
+  .two{grid-template-columns:1fr;gap:3px;}
+  .checks{grid-template-columns:1fr 1fr;gap:7px;}
+  .check{min-height:48px;padding:9px 7px;font-size:15px;line-height:1.35;border-radius:7px;}
+  .check input{transform:scale(1.35);margin-right:5px;}
+  .actions{gap:8px;margin-top:12px;padding:8px 0 3px;}
+  .actions button{min-height:52px;padding:11px 8px;font-size:16px;border-radius:7px;}
+  .settings{padding:6px;align-items:flex-end;}
+  .settings-card{width:100%;max-height:94vh;border-radius:12px 12px 0 0;}
+  .settings-head{padding:14px 15px;}
+  .settings-head h2{font-size:19px;}
+  .settings-head button{font-size:28px;padding:6px 10px;}
+  .manage-tabs button{min-height:50px;font-size:16px;}
+  .manage-body{padding:12px;}
+  .manage-row{grid-template-columns:1fr 1fr;gap:7px;}
+  .manage-row input{min-height:46px;font-size:16px;padding:9px;}
+  .manage-row button,.manage-add button{min-height:46px;font-size:15px;padding:9px 11px;}
+  .manage-add input{min-height:48px;font-size:16px;}
+  .cloud-diag{padding:12px;}
+  .cloud-diag-card{max-width:none;padding:18px;border-radius:14px;}
+  .cloud-diag-card h3{font-size:20px;}
+  .cloud-diag-card pre{font-size:14px;line-height:1.55;max-height:50vh;}
+  .cloud-diag-actions button{min-height:48px;padding:10px 14px;font-size:15px;}
+}
+@media (max-width:480px) and (pointer:coarse){
+  .tabs button{font-size:15px;}
+  .nav .title{flex-basis:130px;min-width:130px;font-size:17px;}
+  .month .dow{font-size:12px;}
+  .day{height:82px;}
+  .date{font-size:13px;}
+  .bar{font-size:9px;height:20px;}
+  .checks{grid-template-columns:1fr;}
+}
+
+.vm-print-settings{position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:2500;display:none;align-items:center;justify-content:center;padding:14px}
+.vm-print-settings.open{display:flex}.vm-print-settings-card{width:min(460px,94vw);background:#fff;border-radius:12px;box-shadow:0 16px 50px rgba(0,0,0,.3);padding:16px}.vm-print-settings-head{display:flex;align-items:center;border-bottom:1px solid #d3dae5;padding-bottom:10px;margin-bottom:12px}.vm-print-settings-head h3{margin:0;font-size:18px}.vm-print-settings-head button{margin-left:auto;border:0;background:transparent;font-size:26px}.vm-print-setting-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #edf0f4}.vm-print-orientation{display:flex;gap:8px}.vm-print-orientation button{min-width:110px;min-height:46px;border:1px solid #cbd3df;border-radius:7px;background:#fff;font-weight:900;font-size:14px}.vm-print-orientation button.on{background:#e8f0ff;border-color:#2563eb;box-shadow:inset 0 0 0 2px #2563eb}.vm-print-copies{width:110px;height:42px;border:1px solid #cbd3df;border-radius:7px;padding:0 10px;font-size:16px;font-weight:700}.vm-print-start{width:100%;margin-top:14px;min-height:48px;border:0;border-radius:8px;background:#2563eb;color:#fff;font-size:16px;font-weight:900}.vm-print-help{font-size:12px;line-height:1.6;color:#5b6472;margin:12px 0 0}
+@media(max-width:700px){.vm-print-settings{padding:8px;align-items:flex-end}.vm-print-settings-card{width:100%;border-radius:12px 12px 0 0}.vm-print-orientation button{min-height:50px}}
+@media print{.vm-print-settings{display:none!important}}
+#vmPrintContainer{display:none;}
+.vm-print-page{background:#fff;}
+@media print{
+  body[data-vm-print-active="1"] #vmPrintContainer{display:block;}
+}
+
+</style><style>
+/* v47fix40: 車両別一覧だけを拡大・縮小。固定ヘッダーや通常画面には影響しない。 */
+.vm-zoom-tools,.vm-print-tools{display:flex;align-items:center;gap:3px;flex:0 0 auto;}
+.vm-zoom-tools button,.vm-print-tools button{border:1px solid #cbd3df;border-radius:5px;background:#fff;color:#172033;font-weight:900;height:34px;padding:0 8px;line-height:1;}
+.vm-zoom-tools .vm-zoom-value{min-width:52px;font-size:11px;}
+#vehicleMatrixBody{overflow:auto;touch-action:pan-x pan-y;overscroll-behavior:contain;}
+#vehicleMatrixBody .vehicle-matrix-scale{transform-origin:top left;width:100%;}
+#vehicleMatrixBody .vm-date-select{cursor:pointer;transition:box-shadow .12s,background .12s;position:relative;}
+#vehicleMatrixBody .vm-date-select:hover{background:#eaf3ff!important;}
+#vehicleMatrixBody .vm-date-select.vm-date-selected{background:#eaf3ff!important;box-shadow:inset 0 0 0 3px #1769e0!important;color:#1769e0!important;}
+#vehicleMatrixBody tr.vm-row-selected .vm-cell{box-shadow:inset 0 1px 0 rgba(23,105,224,.35),inset 0 -1px 0 rgba(23,105,224,.35);}
+#vehicleMatrixBody tr.vm-row-selected .vm-cell:last-child{box-shadow:inset 0 1px 0 rgba(23,105,224,.35),inset 0 -1px 0 rgba(23,105,224,.35),inset -1px 0 0 rgba(23,105,224,.35);}
+#vehicleMatrixBody .vm-date-select{user-select:none;}
+
+@media(max-width:700px){.vm-zoom-tools button,.vm-print-tools button{height:36px;font-size:14px;padding:0 7px}.vm-zoom-tools .vm-zoom-value{min-width:58px;font-size:12px}.vehicle-matrix-head{flex-wrap:wrap;gap:5px}.vehicle-matrix-head h2{flex:1 1 auto;min-width:130px}}
+/* v47fix14: 月予定の1日セル内スクロール + ヘッダー非拡大ズーム */
+.day{display:flex;flex-direction:column;min-height:0;overflow:hidden;}
+.day-events{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding-right:2px;}
+.day-events .bar{margin:2px 0;}
+</style><style>
+/* v47fix18: スマホ週予定の左軸を本当に固定。既存の月予定セル内スクロールは触らない。 */
+@media(max-width:700px){
+  main>.panel{position:relative;}
+  .week .week-switch{
+    position:sticky!important;
+    left:0!important;
+    z-index:30!important;
+    background:#f8fafc!important;
+    min-width:116px!important;
+  }
+  .week .person{
+    position:sticky!important;
+    left:0!important;
+    z-index:20!important;
+    background:#fbfcfe!important;
+  }
+  .week .wh.week-date{position:relative;z-index:2;}
+  .week-mode{position:relative;z-index:31;}
+  /* 横スクロール領域を明確化 */
+  main>.panel:has(.week){overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch;}
+}
+/* v47fix18: スマホ週予定だけをピンチ縮小/拡大。トップ固定ヘッダーは一切拡大しない。 */
+@media(max-width:700px){
+  .week{--week-scale:1;grid-template-columns:calc(116px * var(--week-scale)) repeat(7,calc(128px * var(--week-scale)));min-width:calc(1012px * var(--week-scale));transform:none!important;}
+  .week>div{min-height:calc(62px * var(--week-scale));padding:calc(6px * var(--week-scale));font-size:calc(12px * var(--week-scale));}
+  .week .week-switch{min-width:calc(116px * var(--week-scale))!important;}
+  .week .person{font-size:calc(13px * var(--week-scale));}
+  .week .wm{min-height:calc(36px * var(--week-scale));padding:calc(7px * var(--week-scale)) calc(9px * var(--week-scale));font-size:calc(12px * var(--week-scale));}
+  .week .wbar{min-height:calc(34px * var(--week-scale));padding:calc(7px * var(--week-scale)) calc(6px * var(--week-scale));font-size:calc(11px * var(--week-scale));}
+}
+/* v47fix24: 日予定は24時間の枠＝24区間。0:00～24:00は25本の境界位置を同じ24区間グリッド上に表示 */
+.times{position:relative!important;grid-template-columns:125px repeat(24,minmax(43.75px,1fr))!important;}
+.times .time-end{position:absolute!important;right:0;top:0;bottom:0;width:0!important;padding:5px 0!important;border-right:0!important;transform:translateX(0);white-space:nowrap;overflow:visible;z-index:2;}
+.times .time-end::before{content:'';position:absolute;right:0;top:0;bottom:0;border-right:1px solid #e0e5eb;}
+.times .time-end span{position:absolute;right:0;top:0;transform:translateX(50%);background:#fff;padding:5px 0;}
+.timeline{min-width:1175px!important;}
+</style><style>
+.overnight-toggle{display:flex!important;align-items:center!important;gap:10px!important;margin:10px 0!important;padding:10px 12px!important;border:2px solid #64748b!important;border-radius:8px!important;background:#f1f5f9!important;cursor:pointer!important;}
+.overnight-toggle input{width:22px!important;height:22px!important;flex:0 0 auto!important;}
+.overnight-toggle span{display:flex;flex-direction:column;line-height:1.25;}
+.overnight-toggle b{font-size:15px;}
+.overnight-toggle small{font-size:11px;color:#475569;font-weight:700;margin-top:2px;}
+@media(max-width:700px){.overnight-toggle{min-height:58px!important;padding:11px 12px!important;margin:11px 0!important;}.overnight-toggle input{width:24px!important;height:24px!important;}.overnight-toggle b{font-size:16px;}.overnight-toggle small{font-size:12px;}}
+
+
+.vehicle-matrix-card{width:min(1500px,98vw)!important;max-height:94vh;overflow:hidden}.vehicle-matrix-head{display:flex;align-items:center;gap:8px;border-bottom:1px solid #d3dae5;padding:4px 2px 10px;margin-bottom:8px}.vehicle-matrix-head h2{margin:0;flex:1;font-size:18px}.vehicle-matrix-head button{border:1px solid #ccd4df;background:#fff;border-radius:6px;padding:7px 10px;font-weight:900}.vehicle-matrix-month{font-weight:900;min-width:120px;text-align:center}.vehicle-matrix-wrap{overflow:auto;max-height:calc(94vh - 85px);-webkit-overflow-scrolling:touch}.vehicle-matrix{border-collapse:separate;border-spacing:0;min-width:max-content;width:100%;font-size:12px}.vehicle-matrix th,.vehicle-matrix td{border-right:1px solid #d3dae5;border-bottom:1px solid #d3dae5;padding:5px;vertical-align:top}.vehicle-matrix thead th{position:sticky;top:0;z-index:4;background:#f8fafc;text-align:center;font-weight:900;min-width:155px}.vehicle-matrix thead th:first-child{left:0;z-index:6;min-width:88px;width:88px}.vehicle-matrix tbody th{position:sticky;left:0;z-index:3;background:#fff;font-weight:900;text-align:center;min-width:88px;width:88px}.vehicle-matrix .date-label{font-size:13px}.vehicle-matrix .rest-label{margin-top:4px;color:#c52f67;font-size:10px;line-height:1.3}.vehicle-matrix .vm-cell{min-width:155px;height:78px;background:#fff}.vehicle-matrix .vm-unassigned{background:#fafafa}.vehicle-matrix thead th:last-child{min-width:170px}.vehicle-matrix .vm-event{display:block;width:100%;margin:0 0 4px;padding:5px 6px;border:0;border-radius:5px;color:#fff;text-align:left;cursor:pointer;font-weight:800;line-height:1.28;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}.vehicle-matrix .vm-event:last-child{margin-bottom:0}.vehicle-matrix .vm-site{font-size:12px;font-weight:900;white-space:normal;word-break:break-word}.vehicle-matrix .vm-time,.vehicle-matrix .vm-people{font-size:11px;margin-top:2px;white-space:normal;word-break:break-word}.vehicle-matrix .vm-kind{font-size:9px;font-weight:900;opacity:.9;margin-right:4px}.vehicle-matrix .vm-empty{color:#a3aab5;text-align:center;padding-top:22px;font-weight:800}.vehicle-matrix .vm-offday{background:#fff7fa}.vehicle-matrix .vm-weekend{background:#fcfcfd}@media(max-width:700px){.vehicle-matrix-card{width:100%!important;max-width:none;max-height:none;height:100%;border-radius:0;padding:8px}.vehicle-matrix-wrap{max-height:calc(100vh - 80px);width:100%;overflow-x:auto!important}.vehicle-matrix{width:100%!important;min-width:0!important}.vehicle-matrix thead th,.vehicle-matrix .vm-cell{min-width:105px}.vehicle-matrix thead th:first-child,.vehicle-matrix tbody th{min-width:58px;width:58px}.vehicle-matrix .vm-event{padding:5px;font-size:11px}.vehicle-matrix .vm-site{font-size:11px}.vehicle-matrix .vm-time,.vehicle-matrix .vm-people{font-size:10px}.vehicle-matrix-month{min-width:90px;font-size:14px}}
+@media(max-width:480px){.vehicle-matrix thead th,.vehicle-matrix .vm-cell{min-width:88px}.vehicle-matrix thead th:first-child,.vehicle-matrix tbody th{min-width:52px;width:52px}.vehicle-matrix .vm-event{padding:4px;font-size:10px}.vehicle-matrix .vm-site{font-size:10px}.vehicle-matrix .vm-time,.vehicle-matrix .vm-people{font-size:9px}}
+.person-list-card{width:min(900px,96vw)!important;max-height:90vh;overflow:auto}.person-list-tools{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid #dce3eb;font-weight:800}.person-list-tools select{padding:9px 12px;border:1px solid #bfc9d6;border-radius:6px;min-width:180px}.person-list-body{padding:12px 16px 18px}.person-list-row{display:grid;grid-template-columns:110px 1fr;gap:10px;align-items:start;border-bottom:1px solid #e5e7eb;padding:10px 0}.person-list-date{font-weight:800;color:#334155}.person-list-item{border:1px solid #d8dee8;border-radius:6px;padding:7px 9px;margin-bottom:6px;background:#fff}.person-list-item.off{background:#fff0f5;border-color:#efb5cb;color:#a11}.person-list-item .kind{font-size:11px;font-weight:800;margin-right:6px}.person-list-item .meta{font-size:12px;color:#64748b;margin-top:3px}.person-list-empty{padding:20px;text-align:center;color:#64748b}.person-list-open{cursor:pointer}@media(max-width:700px){.person-list-card{width:96vw!important}.person-list-tools{flex-wrap:wrap}.person-list-tools select{flex:1;min-width:160px}.person-list-row{grid-template-columns:82px 1fr;gap:7px}.person-list-body{padding:10px}}
+</style>
+<body>
+<header class="top"><div class="logo">🚚 車両・人員 配置管理</div><div class="tabs"><button data-v="day">日予定</button><button data-v="week">週予定</button><button data-v="month" class="on">月予定</button></div><div class="nav"><button id="prev">◀</button><div id="title" class="title"></div><span id="cloudStatus" class="cloud-status">共有確認中…</span><span id="autoCloudStatus" class="cloud-status" style="font-size:11px;opacity:.85">自動共有: 待機中</span><button id="cloudDiagBtn" type="button" onclick="openCloudDiag()">🔄 共有診断</button><button id="next">▶</button><button id="today">今日</button><button type="button" onclick="openPersonList()">👤 人員一覧</button><button type="button" onclick="openVehicleMatrix()">🚚 車両別一覧</button><button type="button" onclick="printTop()">🖨 印刷</button><button id="installBtn" type="button" onclick="installApp()" style="display:none">📱 アプリ追加</button><button class="mobile-add" type="button" onclick="newEvent()">＋ 予定</button><button id="settingsBtn" type="button" onclick="openSettings()">⚙ 設定</button></div></header>
+<div id="cloudDiag" class="cloud-diag"><div class="cloud-diag-card"><h3>🔄 共有診断</h3><pre id="cloudDiagText">確認中…</pre><div class="cloud-diag-actions"><button type="button" onclick="closeCloudDiag()">閉じる</button><button type="button" class="primary" onclick="runCloudDiag()">今すぐ確認</button></div></div></div><div id="zoomContent"><div class="color-note">現場ごとに色分け　｜　<span class="red-note">赤＝車両・人員のダブルブッキング</span>　｜　<span class="off-note">休み</span></div><div class="app"><main><section class="panel"><div id="main"></div></section>
+<section class="panel"><div class="head"><span id="sub"></span><button id="subPrev" onclick="shift(-1)">◀</button><button id="subNext" onclick="shift(1)">▶</button><button class="add" onclick="newEvent()">＋ 予定追加</button></div><div id="secondary"></div></section></main>
+<aside class="side"><div class="box"><h3 id="stitle">空き状況</h3><div id="status" class="status"></div></div><div class="box"><h3>お知らせ</h3><div class="notice">・予定／確定をクリックして編集<br>・人員の「休み」を登録<br>・重複した車両／人員だけ赤色<br>・選択した日は青枠で表示</div></div>
+<div class="box form desktop-form"><h3 id="ftitle">予定の追加</h3><label>区分</label><select id="kind"><option value="plan">予定</option><option value="confirmed">確定</option><option value="off">休み</option></select><label>現場</label><input id="site" placeholder="現場A"><label>仕事内容</label><input id="work" placeholder="資材搬入など"><div class="two"><div><label>開始日</label><input id="sd" type="date"></div><div><label>開始</label><input id="st" type="time" value="08:00"></div></div><div class="two"><div><label>終了日</label><input id="ed" type="date"></div><div><label>終了</label><input id="et" type="time" value="16:00"></div></div><label class="overnight-toggle"><input id="overnight" type="checkbox" onchange="toggleOvernight('')"><span><b>🌙 日またぎ</b><small> 翌日まで続く予定</small></span></label><label>車両（複数選択可）</label><div id="vs" class="checks"></div><label>人員（複数選択可）</label><div id="ps" class="checks"></div><div class="actions"><button class="del" onclick="delEvent()">削除</button><button onclick="newEvent()">キャンセル</button><button class="save" onclick="saveEvent()">更新</button></div></div></aside></div></div>
+<div id="eventModal" class="event-modal" onclick="if(event.target===this)closeEventModal()">
+  <div class="event-card">
+    <div class="modal-head"><h2 id="mftitle">予定の追加</h2><button type="button" onclick="closeEventModal()">×</button></div>
+    <div class="box form" style="border:0;margin:0;overflow:visible">
+      <label>区分</label><select id="mkind"><option value="plan">予定</option><option value="confirmed">確定</option><option value="off">休み</option></select>
+      <label>現場</label><input id="msite" placeholder="現場A">
+      <label>仕事内容</label><input id="mwork" placeholder="資材搬入など">
+      <div class="two"><div><label>開始日</label><input id="msd" type="date"></div><div><label>開始</label><input id="mst" type="time" value="08:00"></div></div>
+      <div class="two"><div><label>終了日</label><input id="med" type="date"></div><div><label>終了</label><input id="met" type="time" value="16:00"></div></div><label class="overnight-toggle"><input id="movernight" type="checkbox" onchange="toggleOvernight('m')"><span><b>🌙 日またぎ</b><small> 翌日まで続く予定</small></span></label>
+      <label>車両（複数選択可）</label><div id="mvs" class="checks"></div>
+      <label>人員（複数選択可）</label><div id="mps" class="checks"></div>
+      <div class="actions"><button class="del" type="button" onclick="delEvent(true)">削除</button><button id="copyEventBtn" type="button" onclick="copyEventToDate()" style="display:none">📋 別日にコピー</button><button type="button" onclick="closeEventModal()">キャンセル</button><button class="save" type="button" onclick="saveEvent(true)">保存</button></div>
+    </div>
+  </div>
+</div>
+<div id="personListModal" class="event-modal" onclick="if(event.target===this)closePersonList()">
+  <div class="event-card person-list-card">
+    <div class="modal-head"><h2>👤 人員別 予定・休み一覧</h2><button type="button" onclick="closePersonList()">×</button></div>
+    <div class="person-list-tools">
+      <label>人員</label><select id="personListSelect" onchange="renderPersonList()"></select>
+    </div>
+    <div id="personListBody" class="person-list-body"></div>
+  </div>
+</div>
+<div id="vehicleMatrixModal" class="event-modal" onclick="if(event.target===this)closeVehicleMatrix()">
+  <div class="event-card vehicle-matrix-card">
+    <div class="vehicle-matrix-head"><button type="button" onclick="shiftVehicleMatrix(-1)">◀</button><h2 id="vehicleMatrixTitle">🚚 日付別・車両別一覧</h2><button type="button" onclick="shiftVehicleMatrix(1)">▶</button><button type="button" class="vm-today" onclick="goVehicleMatrixToday()">今日に移動</button><button type="button" class="vm-add-event" onclick="newEventFromVehicleMatrix()">＋ 予定追加</button><div class="vm-zoom-tools" aria-label="車両別一覧の表示倍率"><button type="button" onclick="changeVehicleMatrixZoom(-0.1)" aria-label="縮小">−</button><button type="button" class="vm-zoom-value" id="vehicleMatrixZoomValue" onclick="resetVehicleMatrixZoom()">100%</button><button type="button" onclick="changeVehicleMatrixZoom(0.1)" aria-label="拡大">＋</button></div><div class="vm-print-tools"><button type="button" onclick="printVehicleMatrix()">🖨 印刷</button></div><button type="button" onclick="closeVehicleMatrix()">×</button></div>
+    <div id="vehicleMatrixBody" class="vehicle-matrix-wrap"></div>
+  </div>
+</div>
+    <div class="vm-print-setting-row"><strong>部数</strong><input id="topPrintCopies" class="vm-print-copies" type="number" min="1" max="99" value="1" inputmode="numeric"></div>
+    <div class="vm-print-setting-row"><strong>向き</strong><div class="vm-print-orientation"><button id="topPortraitBtn" type="button" onclick="setTopPrintOrientation('portrait')">縦</button><button id="topLandscapeBtn" type="button" onclick="setTopPrintOrientation('landscape')">横</button></div></div>
+        <button type="button" class="vm-print-start" onclick="startTopPrint()">🖨 この設定で印刷</button>
+    <p class="vm-print-help">現在表示している予定表を印刷します。</p>
+  </div>
+</div>
+<script>
+const DEFAULT_VEH=[['001','2t'],['002','4t'],['003','2t'],['004','4t'],['005','2t'],['006','4t'],['007','2t']];
+const DEFAULT_PEOPLE=['田中','鈴木','佐藤','山田','高橋','伊藤','渡辺','小林'];
+// 赤系は競合表示専用にするため、通常色には使わない。
+const COL=['#2563eb','#0891b2','#0f766e','#15803d','#65a30d','#ca8a04','#d97706','#ea580c','#c026d3','#9333ea','#7c3aed','#4f46e5','#4338ca','#1d4ed8','#0369a1','#0e7490','#166534','#365314','#4d7c0f','#854d0e','#a16207','#57534e','#475569','#334155','#0f3d56','#14532d','#6b21a8','#1e3a8a','#164e63','#312e81'];
+const GAS_URL='https://script.google.com/macros/s/AKfycbw6NI9FHyRj1afnCuPNeuUZCcFGP3n0n0OIlMEvlSrridqC1FcQl6166th9gGSmtzTP/exec';
+const CLIENT_ID=localStorage.getItem('vehicleClientId')||((crypto.randomUUID&&crypto.randomUUID())||('client_'+Date.now()+'_'+Math.random().toString(36).slice(2)));
+localStorage.setItem('vehicleClientId',CLIENT_ID);
+
+let peopleList=JSON.parse(localStorage.getItem('vehiclePeopleList')||'null');
+if(!Array.isArray(peopleList)||!peopleList.length) peopleList=DEFAULT_PEOPLE.slice();
+let vehicleList=JSON.parse(localStorage.getItem('vehicleList')||'null');
+if(!Array.isArray(vehicleList)||!vehicleList.length) vehicleList=DEFAULT_VEH.map(v=>({id:v[0],detail:v[1],memo:''}));
+vehicleList=vehicleList.filter(v=>v&&String(v.id||'').trim()).map(v=>({id:String(v.id),detail:String(v.detail||'2t'),memo:String(v.memo||'')}));
+
+const VEH=[];
+const PEOPLE=[];
+function syncMaster(){
+  PEOPLE.splice(0,PEOPLE.length,...peopleList);
+  VEH.splice(0,VEH.length,...vehicleList.map(v=>[v.id,v.detail]));
+}
+syncMaster();
+
+let events=(JSON.parse(localStorage.getItem('vehicleScheduleExact')||'null')||[]).map(normalizeEvent);
+let cur=new Date();cur.setHours(0,0,0,0);
+let view='month',eid=null,weekMode=localStorage.getItem('vehicleWeekMode')||'people';
+let dirtyEvents=new Map();
+let pendingDeletes=new Map();
+let assignmentTouched={desktop:false,mobile:false};
+let editAssignmentSnapshot=null;
+let masterDirty=false;
+let cloudSaving=false,cloudLoading=false,cloudTimer=null;
+let cloudMasterUpdatedAt=Number(localStorage.getItem('vehicleCloudMasterUpdatedAt')||0);
+let colorCache=new Map();
+let colorPreparedFor='';
+let siteColorMap=new Map();
+try{
+  const saved=JSON.parse(localStorage.getItem('vehicleSiteColorMap')||'{}');
+  if(saved&&typeof saved==='object') siteColorMap=new Map(Object.entries(saved).filter(([k,v])=>COL.includes(v)));
+}catch(e){siteColorMap=new Map();}
+let deferredInstallPrompt=null;
+
+function normalizeEvent(e){
+  const x=Object.assign({},e||{});
+  x.id=x.id||Date.now()+'_'+Math.random().toString(36).slice(2);
+  if(!Array.isArray(x.vehicles)) x.vehicles=x.vehicle?[x.vehicle]:[];
+  if(!Array.isArray(x.people)) x.people=x.person?[x.person]:[];
+  x.vehicles=x.vehicles.map(String); x.people=x.people.map(String);
+  if(!x.kind&&x.status) x.kind=x.status==='確定'?'confirmed':'plan';
+  if(x.kind==='work') x.kind='confirmed';
+  if(!x.kind) x.kind='plan';
+  if(!x.start)x.start='08:00'; if(!x.end)x.end='16:00';
+  if(!x.date)x.date=K(cur); if(!x.endDate)x.endDate=x.date;
+  x.updatedAt=Number(x.updatedAt||0);
+  x.updatedBy=String(x.updatedBy||'');
+  if(x.siteColor && !COL.includes(x.siteColor)) delete x.siteColor;
+  return x;
+}
+function K(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`;}
+function E(x){return String(x??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function setCloudStatus(t){const el=document.getElementById('cloudStatus');if(el)el.textContent=t;}
+function hash(s){let h=2166136261;for(let i=0;i<String(s).length;i++){h^=String(s).charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function rgb(hex){return [parseInt(hex.slice(1,3),16),parseInt(hex.slice(3,5),16),parseInt(hex.slice(5,7),16)];}
+function colorDist(a,b){const x=rgb(a),y=rgb(b);return Math.sqrt((x[0]-y[0])**2+(x[1]-y[1])**2+(x[2]-y[2])**2);}
+function siteColorKey(site){return String(site||'未設定').trim().replace(/\s+/g,' ')||'未設定';}
+function prepareColors(startDate,endDate){
+  const key=events.map(e=>`${e.id}:${siteColorKey(e.site)}:${e.kind}:${e.date}:${e.endDate}`).join(';');
+  if(colorPreparedFor===key)return;
+  colorCache.clear();
+  const sites=[...new Set(events.filter(e=>['confirmed','work'].includes(e.kind)&&siteColorKey(e.site)!=='未設定').map(e=>siteColorKey(e.site)))];
+  const assigned=new Map();
+  const used=[];
+  sites.sort((a,b)=>hash(a)-hash(b));
+  sites.forEach(site=>{
+    let best=null,bestScore=-1e9;
+    COL.forEach(c=>{
+      if(used.includes(c))return;
+      const score=used.length?Math.min(...used.map(u=>colorDist(c,u))):999;
+      if(score>bestScore){bestScore=score;best=c;}
+    });
+    if(!best)best=COL[hash(site)%COL.length];
+    assigned.set(site,best);used.push(best);
+  });
+  assigned.forEach((color,site)=>colorCache.set('site|'+site,color));
+  colorPreparedFor=key;
+}
+function C(site,date){
+  const name=siteColorKey(site);
+  if(!colorCache.has('site|'+name)){
+    const c=assignSiteColor(name,date||K(cur));
+    if(c){colorCache.set('site|'+name,c);saveSiteColorMap();}
+  }
+  return colorCache.get('site|'+name)||COL[hash(name)%COL.length];
+}
+function R(e){let a=DT(e.date,e.start),b=DT(e.endDate||e.date,e.end);if(b<=a)b=new Date(a.getTime()+3600000);return[a,b];}
+function TM(t){const m=String(t||'00:00').match(/^(\d+):(\d{2})$/);return m?Number(m[1])*60+Number(m[2]):0;}
+function DT(ds,tm){const d=new Date(ds+'T00:00');d.setMinutes(TM(tm));return d;}
+function O(a,b){const[x,y]=R(a),[u,v]=R(b);return x<v&&u<y;}
+function CF(e){return ['plan','confirmed','work'].includes(e.kind)&&events.some(x=>x!==e&&['plan','confirmed','work'].includes(x.kind)&&O(e,x)&&(((e.vehicles||[]).some(v=>(x.vehicles||[]).includes(v)))||((e.people||[]).some(p=>(x.people||[]).includes(p)))));}
+function ON(e,d){const day=new Date(K(d)+'T00:00'),next=new Date(day);next.setDate(next.getDate()+1);const[a,b]=R(e);return a<next&&b>day;}
+function SEG(e,d){const day=new Date(K(d)+'T00:00'),next=new Date(day);next.setDate(next.getDate()+1);const[a,b]=R(e),s=a<day?day:a,t=b>next?next:b;return t>s?[s,t]:null;}
+function nightOnDay(e,d){const day=K(d);return e.date!==day||String(e.endDate||e.date)!==String(e.date)||R(e)[1].getTime()>new Date(day+'T23:59:59').getTime();}
+function BG(e,d){if(e.kind==='plan')return '#9ca3af';if(e.kind==='off')return '#f7d8e6';if(CF(e))return '#dc2626';return C(e.site||'未設定',d);}
+function WTXT(e,d){return e.kind==='off'?((e.people||[]).join(', ')+' 休み').trim():(nightOnDay(e,d)?'🌙 ':'')+(e.kind==='plan'?'予定 ':'')+(e.site||'未設定')+' '+e.start+'-'+e.end;}
+// v47fix32: 1件の壊れた/不完全な予定データで月・週・日表示全体が止まらないようにする。
+function safeON(e,d){try{return !!e&&ON(e,d);}catch(err){console.warn('予定判定をスキップ',e,err);return false;}}
+function safeCF(e){try{return !!e&&CF(e);}catch(err){console.warn('重複判定をスキップ',e,err);return false;}}
+function safeBG(e,d){try{return BG(e,d);}catch(err){console.warn('色判定をスキップ',e,err);return e&&e.kind==='off'?'#f7d8e6':e&&e.kind==='plan'?'#9ca3af':'#64748b';}}
+function safeWTXT(e,d){try{return WTXT(e,d);}catch(err){console.warn('予定文字をスキップ',e,err);return e&&e.site?String(e.site):'予定';}}
+function BAR(e,d){const night=(()=>{try{return nightOnDay(e,d)}catch(err){return false}})(),bg=safeBG(e,d);return `<button class="bar ${e.kind==='off'?'off ':e.kind==='plan'?'plan ':''}${safeCF(e)?'conf ':''}${night?'overnight':''}" style="background:${bg}" onclick="editEvent('${E(e.id)}','${K(d)}');event.stopPropagation()">${E(safeWTXT(e,d))}</button>`;}
+function MONTH(){
+  const y=cur.getFullYear(),m=cur.getMonth(),s=new Date(y,m,1);s.setDate(1-((s.getDay()+6)%7));const end=new Date(s);end.setDate(end.getDate()+41);prepareColors(s,end);
+  let h='<div class="month">';['月','火','水','木','金','土','日'].forEach(x=>h+=`<div class="dow">${x}</div>`);
+  for(let i=0;i<42;i++){const d=new Date(s);d.setDate(s.getDate()+i);const cn='day '+(d.getMonth()!=m?'out ':'')+(K(d)===K(cur)?'selected':'');const dn=d.getDay()===0?'sun':d.getDay()===6?'sat':'';const dayEvents=events.filter(e=>safeON(e,d));h+=`<div class="${cn}" onclick="selectDay('${K(d)}')"><div class="date ${dn}">${d.getDate()}</div><div class="day-events">${dayEvents.map(e=>BAR(e,d)).join('')}</div></div>`;}return h+'</div>';
+}
+function WEEK(){
+  const s=new Date(cur);s.setDate(s.getDate()-((s.getDay()+6)%7));const end=new Date(s);end.setDate(end.getDate()+6);prepareColors(s,end);
+  let h='<div class="week"><div class="wh week-switch"><span>週予定</span><div class="week-mode"><button class="wm '+(weekMode==='people'?'on':'')+'" onclick="setWeekMode(\'people\',event)">人員別</button><button class="wm '+(weekMode==='vehicle'?'on':'')+'" onclick="setWeekMode(\'vehicle\',event)">車両別</button></div></div>';
+  for(let i=0;i<7;i++){const d=new Date(s);d.setDate(s.getDate()+i);h+='<div class="wh week-date '+(K(d)===K(cur)?'selected':'')+'" onclick="selectDay(\''+K(d)+'\')">'+(d.getMonth()+1)+'/'+d.getDate()+'（'+'日月火水木金土'[d.getDay()]+'）</div>'; }
+  const rows=weekMode==='vehicle'?VEH.map(v=>({label:v[0]+'（'+v[1]+'）',id:v[0],field:'vehicles'})):PEOPLE.map(p=>({label:p,id:p,field:'people'}));
+  rows.forEach(r=>{
+    h+='<div class="person">'+E(r.label)+'</div>';
+    for(let i=0;i<7;i++){
+      const d=new Date(s);d.setDate(s.getDate()+i);const es=events.filter(e=>safeON(e,d)&&(e[r.field]||[]).includes(r.id));
+      let cell='';
+      es.forEach(e=>{cell+='<button class="wbar '+(e.kind==='off'?'off':e.kind==='plan'?'plan':'')+' '+(safeCF(e)?'conf ':'')+' '+(nightOnDay(e,d)?'overnight':'')+'" style="background:'+BG(e,d)+'" onclick="editEvent(\''+E(e.id)+'\',\''+K(d)+'\');event.stopPropagation()">'+E(WTXT(e,d))+'</button>';});
+      h+='<div>'+(cell||'－')+'</div>';
+    }
+  });
+  // 割当なし予定も専用行で表示し、スマホでも未割当を見落とさない。
+  const field=weekMode==='vehicle'?'vehicles':'people';
+  h+='<div class="person">未割当</div>';
+  for(let i=0;i<7;i++){const d=new Date(s);d.setDate(s.getDate()+i);const es=events.filter(e=>safeON(e,d)&&!(e[field]||[]).length);let cell='';es.forEach(e=>{cell+='<button class="wbar '+(e.kind==='off'?'off':e.kind==='plan'?'plan':'')+' '+(safeCF(e)?'conf ':'')+' '+(nightOnDay(e,d)?'overnight':'')+'" style="background:'+BG(e,d)+'" onclick="editEvent(\''+E(e.id)+'\',\''+K(d)+'\');event.stopPropagation()">'+E(WTXT(e,d))+'</button>';});h+='<div>'+(cell||'－')+'</div>';}
+  return h+'</div>';
+}
+function DAY(){
+  const start=new Date(cur);start.setDate(start.getDate()-1);const end=new Date(cur);end.setDate(end.getDate()+1);prepareColors(start,end);
+  const labels=Array.from({length:24},(_,i)=>String(i).padStart(2,'0')+':00');
+  let h='<div class="timeline"><div class="times"><div>車両 / 人員</div>'+labels.map(x=>`<div>${x}</div>`).join('')+'<div class="time-end"><span>24:00</span></div></div>';
+  events.filter(e=>safeON(e,cur)).forEach(e=>{let seg=null;try{seg=SEG(e,cur)}catch(err){console.warn('日予定の区間をスキップ',e,err);return;}if(!seg)return;const[a,b]=seg;const dayStart=new Date(K(cur)+'T00:00');const nextDay=new Date(dayStart);nextDay.setDate(nextDay.getDate()+1);const sh=Math.max(0,Math.min(24,(a-dayStart)/3600000));const eh=Math.max(0,Math.min(24,(b-dayStart)/3600000));const l=(sh/24)*100,r=(eh/24)*100;if(r<=0||l>=100||r<=l)return;const w=Math.max(1,r-l),night=nightOnDay(e,cur);h+=`<div class="trow"><div class="who">${E((e.vehicles||[]).join(', '))}<br>${E((e.people||[]).join(', '))}</div><div class="track"><button class="tbar ${e.kind==='off'?'off':e.kind==='plan'?'plan':''} ${CF(e)?'conflict':''} ${night?'overnight':''}" style="left:${l}%;width:${w}%;background:${safeBG(e,cur)}" onclick="editEvent('${E(e.id)}','${K(cur)}')">${E(e.kind==='off'?(((e.people||[]).join(', ')+' 休み').trim()):((night?'🌙 ':'')+(e.kind==='plan'?'予定 ':'')+(e.site||'未設定')+' '+e.start+'～'+e.end))}</button></div></div>`;});
+  return h+'</div>';
+}
+/* v47fix18: 週予定だけの2本指ピンチ縮小/拡大。固定ヘッダー・月予定・日予定には影響しない。 */
+(function(){
+  let pinch={el:null,startDist:0,startScale:1};
+  function dist(t){const a=t[0],b=t[1];return Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);}
+  function weekAt(target){return target&&target.closest?target.closest('.week'):null;}
+  document.addEventListener('touchstart',e=>{if(e.touches.length!==2)return;const w=weekAt(e.target);if(!w)return;pinch={el:w,startDist:dist(e.touches),startScale:Number(getComputedStyle(w).getPropertyValue('--week-scale'))||1};},{passive:true});
+  document.addEventListener('touchmove',e=>{if(!pinch.el||e.touches.length!==2)return;const d=dist(e.touches);if(!d)return;const scale=Math.max(.55,Math.min(1.25,pinch.startScale*d/pinch.startDist));pinch.el.style.setProperty('--week-scale',String(Math.round(scale*100)/100));e.preventDefault();},{passive:false});
+  document.addEventListener('touchend',e=>{if(e.touches.length<2)pinch.el=null;},{passive:true});
+})();
+function render(){
+  document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===view));
+  document.getElementById('title').textContent=`${cur.getFullYear()}年${cur.getMonth()+1}月`;
+  document.getElementById('sub').textContent=view==='month'?'週予定':view==='week'?'日予定':'月予定';
+  try{document.getElementById('main').innerHTML=view==='month'?MONTH():view==='week'?WEEK():DAY();}
+  catch(err){console.error('メイン表示エラー',err);document.getElementById('main').innerHTML='<div style="padding:24px;color:#b91c1c;font-weight:700">表示処理中に一部データを読み込めませんでした。共有データは保持されています。</div>';}
+  try{document.getElementById('secondary').innerHTML=view==='month'?WEEK():view==='week'?DAY():MONTH();}
+  catch(err){console.error('サブ表示エラー',err);document.getElementById('secondary').innerHTML='<div style="padding:16px;color:#b91c1c">この期間の予定表示を一部スキップしました。</div>';}
+  try{status();}catch(err){console.error('空き状況表示エラー',err);}
+}
+function status(){
+  const bv=new Set(),bp=new Set(),op=new Set();events.filter(e=>['plan','confirmed','work'].includes(e.kind)&&ON(e,cur)).forEach(e=>{(e.vehicles||[]).forEach(v=>bv.add(v));(e.people||[]).forEach(p=>bp.add(p));});events.filter(e=>e.kind==='off'&&ON(e,cur)).forEach(e=>(e.people||[]).forEach(p=>op.add(p)));
+  document.getElementById('stitle').textContent='空き状況（'+K(cur)+'）';
+  document.getElementById('status').innerHTML=VEH.map(v=>`<div>${E(v[0])}（${E(v[1])}） <span class="${bv.has(v[0])?'busy':'free'}">${bv.has(v[0])?'● 稼働':'○ 空き'}</span></div>`).join('')+PEOPLE.map(p=>{const off=op.has(p),busy=bp.has(p);return `<div>${E(p)} <span class="${off?'off-status':busy?'busy':'free'}">${off?'● 休み':busy?'● 稼働':'○ 空き'}</span></div>`;}).join('');
+}
+function rebuildChecks(){
+  const currentDesktopV=assignmentTouched.desktop?[...document.querySelectorAll('.v:checked')].map(x=>x.value):null;
+  const currentDesktopP=assignmentTouched.desktop?[...document.querySelectorAll('.p:checked')].map(x=>x.value):null;
+  const currentMobileV=assignmentTouched.mobile?[...document.querySelectorAll('.mv:checked')].map(x=>x.value):null;
+  const currentMobileP=assignmentTouched.mobile?[...document.querySelectorAll('.mp:checked')].map(x=>x.value):null;
+  document.getElementById('vs').innerHTML=VEH.map(v=>`<label class="check"><input class="v" type="checkbox" value="${E(v[0])}"> ${E(v[0])} (${E(v[1])})</label>`).join('');
+  document.getElementById('ps').innerHTML=PEOPLE.map(p=>`<label class="check"><input class="p" type="checkbox" value="${E(p)}"> ${E(p)}</label>`).join('');
+  document.getElementById('mvs').innerHTML=VEH.map(v=>`<label class="check"><input class="mv" type="checkbox" value="${E(v[0])}"> ${E(v[0])} (${E(v[1])})</label>`).join('');
+  document.getElementById('mps').innerHTML=PEOPLE.map(p=>`<label class="check"><input class="mp" type="checkbox" value="${E(p)}"> ${E(p)}</label>`).join('');
+  const old=eid?events.find(x=>String(x.id)===String(eid)):null;
+  const dv=currentDesktopV??(old?(old.vehicles||[]):[]),dp=currentDesktopP??(old?(old.people||[]):[]);
+  const mv=currentMobileV??(old?(old.vehicles||[]):[]),mp=currentMobileP??(old?(old.people||[]):[]);
+  document.querySelectorAll('.v').forEach(x=>x.checked=dv.includes(x.value));
+  document.querySelectorAll('.p').forEach(x=>x.checked=dp.includes(x.value));
+  document.querySelectorAll('.mv').forEach(x=>x.checked=mv.includes(x.value));
+  document.querySelectorAll('.mp').forEach(x=>x.checked=mp.includes(x.value));
+}
+function setFormValues(prefix,e){document.getElementById(prefix+'kind').value=e.kind||'plan';document.getElementById(prefix+'site').value=e.site||'';document.getElementById(prefix+'work').value=e.work||'';document.getElementById(prefix+'sd').value=e.date||K(cur);document.getElementById(prefix+'ed').value=e.endDate||e.date||K(cur);document.getElementById(prefix+'st').value=e.start||'08:00';document.getElementById(prefix+'et').value=e.end||'16:00';document.querySelectorAll('.'+(prefix==='m'?'mv':'v')).forEach(x=>x.checked=(e.vehicles||[]).includes(x.value));document.querySelectorAll('.'+(prefix==='m'?'mp':'p')).forEach(x=>x.checked=(e.people||[]).includes(x.value));;const ot=document.getElementById(prefix+'overnight');if(ot)ot.checked=(e.endDate||e.date)!==e.date;}
+function getFormValues(prefix){return {kind:document.getElementById(prefix+'kind').value,site:document.getElementById(prefix+'site').value,work:document.getElementById(prefix+'work').value,date:document.getElementById(prefix+'sd').value,endDate:document.getElementById(prefix+'ed').value,start:document.getElementById(prefix+'st').value,end:document.getElementById(prefix+'et').value,vehicles:[...document.querySelectorAll('.'+(prefix==='m'?'mv':'v')+':checked')].map(x=>x.value),people:[...document.querySelectorAll('.'+(prefix==='m'?'mp':'p')+':checked')].map(x=>x.value)};}
+function addDays(ds,n){const d=new Date(ds+'T00:00');d.setDate(d.getDate()+n);return K(d);}
+function toggleOvernight(prefix){const ot=document.getElementById(prefix+'overnight');const sd=document.getElementById(prefix+'sd');const ed=document.getElementById(prefix+'ed');if(!ot||!sd||!ed)return;if(ot.checked){if(!ed.value||ed.value===sd.value)ed.value=addDays(sd.value,1);}else ed.value=sd.value;}
+
+function openEventModal(){document.getElementById('eventModal').classList.add('open');document.body.style.overflow='hidden';}
+function closeEventModal(){document.getElementById('eventModal').classList.remove('open');const vm=document.getElementById('vehicleMatrixModal');document.body.style.overflow=(vm&&vm.classList.contains('open'))?'hidden':'';}
+function vehicleMatrixLabel(d){return `${d.getFullYear()}年${d.getMonth()+1}月`;}
+function vehicleMatrixDayLabel(d){return `${d.getMonth()+1}/${d.getDate()}（${'日月火水木金土'[d.getDay()]}）`;}
+function vehicleMatrixEventsFor(e,d){try{return safeON(e,d);}catch(err){return false;}}
+function vehicleMatrixEventHtml(e,d){
+  const off=e.kind==='off';
+  const night=!off&&nightOnDay(e,d);
+  const kind=off?'休み':e.kind==='confirmed'?'確定':'予定';
+  const site=off?`${E((e.people||[]).join('・'))}さん　休み`:`${night?'🌙 ':''}${E(e.site||'未設定')}`;
+  const time=off?'':`${E(e.start||'')}～${E(e.end||'')}${e.endDate&&e.endDate!==e.date?'（翌日）':''}`;
+  const people=off?'':E((e.people||[]).join('・')||'人員なし');
+  const bg=safeBG(e,d);
+  return `<button class="vm-event ${off?'off':e.kind==='plan'?'plan':''} ${safeCF(e)?'conflict':''} ${night?'overnight':''}" style="background:${bg}" onclick="editEvent('${E(e.id)}','${K(d)}');event.stopPropagation()"><div class="vm-site"><span class="vm-kind">${kind}</span>${site}</div>${time?`<div class="vm-time">${time}</div>`:''}${people?`<div class="vm-people">👤 ${people}</div>`:''}</button>`;
+}
+function renderVehicleMatrix(){
+  const modal=document.getElementById('vehicleMatrixModal'),box=document.getElementById('vehicleMatrixBody'),title=document.getElementById('vehicleMatrixTitle');
+  if(!modal||!box)return;
+  const y=cur.getFullYear(),m=cur.getMonth(),days=new Date(y,m+1,0).getDate();
+  title.innerHTML=`<span class="vehicle-matrix-month">${vehicleMatrixLabel(cur)}</span>`;
+  const monthStart=new Date(y,m,1),monthEnd=new Date(y,m,days);
+  prepareColors(monthStart,monthEnd);
+  let h='<table class="vehicle-matrix"><thead><tr><th>日付</th>';
+  VEH.forEach(v=>{h+=`<th>🚚 ${E(v[0])}<br><small>${E(v[1])}</small></th>`;});
+  h+='<th>📌 配置なし</th>';
+  h+='</tr></thead><tbody>';
+  for(let day=1;day<=days;day++){
+    const d=new Date(y,m,day);
+    const ds=K(d),dow=d.getDay(),weekend=dow===0||dow===6;
+    const restNames=[...new Set(events.filter(e=>e.kind==='off'&&vehicleMatrixEventsFor(e,d)).flatMap(e=>e.people||[]))];
+    h+=`<tr data-vm-date="${ds}" class="${K(cur)===ds?'vm-row-selected':''}"><th class="vm-date-select ${weekend?'vm-weekend':''} ${K(cur)===ds?'vm-date-selected':''}" title="この日を選択" onclick="selectVehicleMatrixDate('${ds}')"><div class="date-label">${vehicleMatrixDayLabel(d)}</div>${restNames.length?`<div class="rest-label">休み：${E(restNames.join('・'))}</div>`:''}</th>`;
+    VEH.forEach(v=>{
+      const es=events.filter(e=>e.kind!=='off'&&vehicleMatrixEventsFor(e,d)&&(e.vehicles||[]).map(String).includes(String(v[0]))).sort((a,b)=>String(a.start||'').localeCompare(String(b.start||'')));
+      h+=`<td class="vm-cell ${weekend?'vm-weekend':''}">${es.length?es.map(e=>vehicleMatrixEventHtml(e,d)).join(''):'<div class="vm-empty">－</div>'}</td>`;
+    });
+    const unassigned=events.filter(e=>e.kind!=='off'&&vehicleMatrixEventsFor(e,d)&&!(e.vehicles||[]).length).sort((a,b)=>String(a.start||'').localeCompare(String(b.start||'')));
+    h+=`<td class="vm-cell vm-unassigned ${weekend?'vm-weekend':''}">${unassigned.length?unassigned.map(e=>vehicleMatrixEventHtml(e,d)).join(''):'<div class="vm-empty">－</div>'}</td>`;
+    h+='</tr>';
+  }
+  h+='</tbody></table>';
+  box.innerHTML=`<div class="vehicle-matrix-scale">${h}</div>`;
+  applyVehicleMatrixZoom();
+  initVehicleMatrixPinch();
+}
+let vehicleMatrixZoom=Number(localStorage.getItem('vehicleMatrixZoom')||'1');
+function applyVehicleMatrixZoom(){
+  vehicleMatrixZoom=Math.max(0.4,Math.min(1.6,Math.round(vehicleMatrixZoom*10)/10));
+  const z=document.querySelector('#vehicleMatrixBody .vehicle-matrix-scale');
+  if(z){
+    // transform:scale() は sticky の基準を壊すブラウザがあるため使わない。
+    // zoom で拡大縮小すると、日付行・車両列の position:sticky を維持したまま
+    // スクロール領域も拡大縮小に追従できる。
+    z.style.transform='none';
+    z.style.width='100%';
+    z.style.marginBottom='0';
+    z.style.zoom=String(vehicleMatrixZoom);
+  }
+  const v=document.getElementById('vehicleMatrixZoomValue');if(v)v.textContent=Math.round(vehicleMatrixZoom*100)+'%';
+  localStorage.setItem('vehicleMatrixZoom',String(vehicleMatrixZoom));
+}
+function changeVehicleMatrixZoom(delta){vehicleMatrixZoom=Math.round((vehicleMatrixZoom+delta)*10)/10;applyVehicleMatrixZoom();}
+function resetVehicleMatrixZoom(){vehicleMatrixZoom=1;applyVehicleMatrixZoom();}
+let vmPinchStartDistance=0,vmPinchStartZoom=1,vmPinchActive=false;
+function vmTouchDistance(t){const dx=t[0].clientX-t[1].clientX,dy=t[0].clientY-t[1].clientY;return Math.hypot(dx,dy);}
+function initVehicleMatrixPinch(){
+  const box=document.getElementById('vehicleMatrixBody');if(!box||box.dataset.pinchReady)return;
+  box.dataset.pinchReady='1';
+  box.addEventListener('touchstart',e=>{if(e.touches.length===2){vmPinchActive=true;vmPinchStartDistance=vmTouchDistance(e.touches);vmPinchStartZoom=vehicleMatrixZoom;e.preventDefault();}},{passive:false});
+  box.addEventListener('touchmove',e=>{if(!vmPinchActive||e.touches.length!==2)return;
+    const d=vmTouchDistance(e.touches);if(!vmPinchStartDistance)return;
+    vehicleMatrixZoom=Math.max(.4,Math.min(1.6,Math.round((vmPinchStartZoom*d/vmPinchStartDistance)*20)/20));
+    applyVehicleMatrixZoom();e.preventDefault();
+  },{passive:false});
+  const end=()=>{if(vmPinchActive){vmPinchActive=false;localStorage.setItem('vehicleMatrixZoom',String(vehicleMatrixZoom));}};
+  box.addEventListener('touchend',end,{passive:true});box.addEventListener('touchcancel',end,{passive:true});
+}
+function fitVehicleMatrixForPrint(){
+  return 1;
+}
+
+// 印刷はアプリ側で用紙・向きを固定せず、ブラウザ標準の印刷設定を使う。
+// そのため印刷プレビュー側で「用紙サイズ」「縦／横」「部数」を選択できる。
+function printTop(){
+  let st=document.getElementById('topPrintStyle');
+  if(!st){st=document.createElement('style');st.id='topPrintStyle';document.head.appendChild(st);}
+  document.body.dataset.topPrintActive='1';
+  st.textContent=`@media print{
+    @page{margin:8mm;}
+    .top,.tabs,.nav,.event-modal,#vehicleMatrixModal,#vehiclePrintSettings,#topPrintSettings{display:none!important}
+    body{background:#fff!important;margin:0!important}
+    body[data-top-print-active="1"] main{display:block!important}
+    body[data-top-print-active="1"] .calendar-wrap{width:100%!important;max-width:none!important;overflow:visible!important}
+    body[data-top-print-active="1"] table{break-inside:auto}
+    body[data-top-print-active="1"] thead{display:table-header-group}
+    body[data-top-print-active="1"] tr{break-inside:avoid;page-break-inside:avoid}
+  }`;
+  requestAnimationFrame(()=>window.print());
+  setTimeout(()=>{delete document.body.dataset.topPrintActive;if(st&&st.parentNode)st.remove();},1500);
+}
+
+function prepareVehicleMatrixPrint(){
+  const source=document.querySelector('#vehicleMatrixBody .vehicle-matrix');
+  if(!source)return null;
+  let host=document.getElementById('vmPrintContainer');
+  if(host)host.remove();
+  host=document.createElement('div');
+  host.id='vmPrintContainer';
+  document.body.appendChild(host);
+  const table=source.cloneNode(true);
+  // 通常画面のズームを印刷へ持ち込まない。
+  table.removeAttribute('style');
+  table.classList.remove('vehicle-matrix-scale');
+  host.appendChild(table);
+  return host;
+}
+
+function printVehicleMatrix(){
+  const m=document.getElementById('vehicleMatrixModal');
+  if(!m||!m.classList.contains('open'))return;
+  const host=prepareVehicleMatrixPrint();
+  let st=document.getElementById('vmPrintStyle');
+  if(!st){st=document.createElement('style');st.id='vmPrintStyle';document.head.appendChild(st);}
+  document.body.dataset.vmPrintActive='1';
+  st.textContent=`@media print{
+    @page{margin:8mm;}
+    body>*{display:none!important}
+    #vmPrintContainer{display:block!important;position:static!important;visibility:visible!important;width:100%!important;height:auto!important;margin:0!important;padding:0!important}
+    #vmPrintContainer .vehicle-matrix{display:table!important;width:100%!important;min-width:0!important;max-width:none!important;height:auto!important;table-layout:fixed!important;border-collapse:collapse!important;font-size:10px!important}
+    #vmPrintContainer .vehicle-matrix thead{display:table-header-group!important}
+    #vmPrintContainer .vehicle-matrix tr{break-inside:avoid!important;page-break-inside:avoid!important}
+    #vmPrintContainer .vehicle-matrix th,#vmPrintContainer .vehicle-matrix td{padding:3px!important;vertical-align:top!important}
+    #vmPrintContainer .vehicle-matrix thead th{position:static!important;min-width:0!important}
+    #vmPrintContainer .vehicle-matrix thead th:first-child,#vmPrintContainer .vehicle-matrix tbody th{position:static!important;width:58px!important;min-width:58px!important}
+    #vmPrintContainer .vehicle-matrix .vm-cell{min-width:0!important;height:auto!important}
+    #vmPrintContainer .vehicle-matrix .vm-event{padding:3px 4px!important;margin-bottom:2px!important;font-size:8px!important;break-inside:avoid!important}
+    #vmPrintContainer .vehicle-matrix .vm-site{font-size:8px!important}
+    #vmPrintContainer .vehicle-matrix .vm-time,#vmPrintContainer .vehicle-matrix .vm-people{font-size:7px!important}
+    #vmPrintContainer .vehicle-matrix .vm-kind{font-size:6px!important}
+    #vmPrintContainer .vehicle-matrix .rest-label{font-size:7px!important}
+    @media (orientation:landscape){
+      #vmPrintContainer .vehicle-matrix{font-size:10px!important}
+    }
+    @media (orientation:portrait){
+      #vmPrintContainer .vehicle-matrix{font-size:8px!important}
+      #vmPrintContainer .vehicle-matrix th,#vmPrintContainer .vehicle-matrix td{padding:2px!important}
+      #vmPrintContainer .vehicle-matrix thead th:first-child,#vmPrintContainer .vehicle-matrix tbody th{width:48px!important;min-width:48px!important}
+      #vmPrintContainer .vehicle-matrix .vm-event{padding:2px 3px!important;font-size:7px!important}
+      #vmPrintContainer .vehicle-matrix .vm-site{font-size:7px!important}
+      #vmPrintContainer .vehicle-matrix .vm-time,#vmPrintContainer .vehicle-matrix .vm-people{font-size:6px!important}
+      #vmPrintContainer .vehicle-matrix .vm-kind{font-size:5px!important}
+      #vmPrintContainer .vehicle-matrix .rest-label{font-size:6px!important}
+    }
+  }`;
+  requestAnimationFrame(()=>window.print());
+  setTimeout(()=>{if(host&&host.parentNode)host.remove();delete document.body.dataset.vmPrintActive;if(st&&st.parentNode)st.remove();},1500);
+}
+
+
+function openVehicleMatrix(){
+  const modal=document.getElementById('vehicleMatrixModal'); if(!modal)return;
+  renderVehicleMatrix();
+  modal.classList.add('open');document.body.style.overflow='hidden';
+}
+function selectVehicleMatrixDate(ds){
+  const d=new Date(ds+'T00:00');
+  if(Number.isNaN(d.getTime()))return;
+  cur=d;
+  renderVehicleMatrix();
+  render();
+  // render() does not close the matrix, so the selected day remains visible.
+  requestAnimationFrame(()=>{
+    const box=document.getElementById('vehicleMatrixBody');
+    const row=box&&box.querySelector('tr[data-vm-date="'+ds+'"]');
+    if(row){
+      row.querySelector('th.vm-date-select')?.scrollIntoView({block:'nearest',inline:'nearest'});
+    }
+  });
+}
+function newEventFromVehicleMatrix(){
+  // 車両別一覧で選択した日付を、そのまま予定追加の日付に使う。
+  newEvent();
+}
+function closeVehicleMatrix(){
+  const m=document.getElementById('vehicleMatrixModal'); if(m)m.classList.remove('open');
+  if(!document.getElementById('eventModal').classList.contains('open')&&!document.getElementById('personListModal').classList.contains('open'))document.body.style.overflow='';
+}
+function shiftVehicleMatrix(n){cur.setMonth(cur.getMonth()+n);render();renderVehicleMatrix();}
+function goVehicleMatrixToday(){
+  const t=new Date(); t.setHours(0,0,0,0);
+  cur=t;
+  render();
+  renderVehicleMatrix();
+  requestAnimationFrame(()=>{
+    const box=document.getElementById('vehicleMatrixBody');
+    const row=box?.querySelector(`tr[data-vm-date="${K(t)}"]`);
+    if(!box||!row)return;
+    // scrollIntoView() だとスマホでは車両別一覧モーダル全体を動かしてしまい、
+    // 上部の「今日に移動」「予定追加」などの操作部まで画面外へ移動する。
+    // 車両別一覧のスクロール領域だけを動かす。
+    const header=box.previousElementSibling;
+    const headerH=header?header.getBoundingClientRect().height:0;
+    const top=row.offsetTop-Math.max(0,headerH-8);
+    box.scrollTo({top:Math.max(0,top),left:box.scrollLeft,behavior:'smooth'});
+  });
+}
+function openPersonList(){
+  const modal=document.getElementById('personListModal'); if(!modal)return;
+  const sel=document.getElementById('personListSelect');
+  const prev=sel.value;
+  sel.innerHTML=PEOPLE.map(p=>`<option value="${E(p)}">${E(p)}</option>`).join('');
+  if(prev&&PEOPLE.includes(prev))sel.value=prev;
+  else if(PEOPLE.length)sel.value=PEOPLE[0];
+  renderPersonList();
+  modal.classList.add('open');document.body.style.overflow='hidden';
+}
+function closePersonList(){const m=document.getElementById('personListModal');if(m)m.classList.remove('open');if(!document.getElementById('eventModal').classList.contains('open'))document.body.style.overflow='';}
+function renderPersonList(){
+  const p=document.getElementById('personListSelect')?.value, box=document.getElementById('personListBody');
+  if(!box)return;
+  if(!p){box.innerHTML='<div class="person-list-empty">人員がありません。</div>';return;}
+  const rows=events.filter(e=>(e.people||[]).includes(p)).sort((a,b)=>{const x=String(a.date||'');const y=String(b.date||'');return x.localeCompare(y)||String(a.start||'').localeCompare(String(b.start||''));});
+  if(!rows.length){box.innerHTML=`<div class="person-list-empty">${E(p)}さんの予定・休みはありません。</div>`;return;}
+  const groups=new Map();
+  rows.forEach(e=>{const key=String(e.date||'');if(!groups.has(key))groups.set(key,[]);groups.get(key).push(e);});
+  let html='';
+  for(const [ds,items] of groups){
+    const d=new Date(ds+'T00:00');
+    const label=`${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}（${'日月火水木金土'[d.getDay()]}）`;
+    html+=`<div class="person-list-row"><div class="person-list-date">${label}</div><div>`;
+    items.forEach(e=>{
+      const off=e.kind==='off';
+      const kind=off?'休み':e.kind==='confirmed'?'確定':'予定';
+      const site=off?'':((nightOnDay(e,d)?'🌙 ':'')+E(e.site||'未設定'));
+      const time=off?'':`${E(e.start||'')}～${E(e.end||'')}${e.endDate&&e.endDate!==e.date?'（翌日）':''}`;
+      const vehicles=off?'':((e.vehicles||[]).join('・'));
+      html+=`<div class="person-list-item ${off?'off':''}" onclick="closePersonList();editEvent('${E(e.id)}','${E(e.date||ds)}')"><span class="kind">${kind}</span><b>${off?E(p)+'さん　休み':site}</b>${time?`<div>${time}</div>`:''}${vehicles?`<div class="meta">🚚 ${E(vehicles)}</div>`:''}${e.work&&!off?`<div class="meta">${E(e.work)}</div>`:''}</div>`;
+    });
+    html+='</div></div>';
+  }
+  box.innerHTML=html;
+}
+function copyEventToDate(){
+  if(!eid)return;
+  const src=events.find(x=>String(x.id)===String(eid)); if(!src)return;
+  const target=prompt('コピー先の日付を入力してください（例：2026-09-25）',src.date||K(cur));
+  if(target===null)return;
+  const ds=String(target).trim();
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(ds))return alert('日付は YYYY-MM-DD 形式で入力してください。');
+  const check=new Date(ds+'T00:00'); if(Number.isNaN(check.getTime())||K(check)!==ds)return alert('正しい日付を入力してください。');
+  const delta=Math.round((check-new Date((src.date||ds)+'T00:00'))/86400000);
+  const endDate=src.endDate||src.date;
+  const end=new Date((endDate||src.date||ds)+'T00:00'); end.setDate(end.getDate()+delta);
+  const copy=normalizeEvent(Object.assign({},src,{id:Date.now()+'_'+Math.random().toString(36).slice(2),date:ds,endDate:K(end),updatedAt:0,updatedBy:''}));
+  const conflict=events.some(x=>O(copy,x)&&(((copy.vehicles||[]).some(v=>(x.vehicles||[]).includes(v)))||((copy.people||[]).some(p=>(x.people||[]).includes(p))))&&['plan','confirmed','work'].includes(x.kind)&&['plan','confirmed','work'].includes(copy.kind));
+  if(conflict&&!confirm('コピー先で車両または人員が重複します。コピーしますか？'))return;
+  events.push(copy);markDirtyEvent(copy,0,false);colorPreparedFor='';persistLocal();render();queueCloudSave();
+  closeEventModal();eid=null;editAssignmentSnapshot=null;assignmentTouched={desktop:false,mobile:false};
+}
+function newEvent(){eid=null;assignmentTouched={desktop:false,mobile:false};editAssignmentSnapshot=null;const cb=document.getElementById('copyEventBtn');if(cb)cb.style.display='none';const blank={kind:'plan',site:'',work:'',date:K(cur),endDate:K(cur),start:'08:00',end:'16:00',vehicles:[],people:[]};setFormValues('m',blank);document.getElementById('ftitle').textContent='予定の追加';document.getElementById('mftitle').textContent='予定の追加';openEventModal();}
+function editEvent(id,d){assignmentTouched={desktop:false,mobile:false};const e=events.find(x=>String(x.id)===String(id));if(!e)return;const cb=document.getElementById('copyEventBtn');if(cb)cb.style.display='inline-block';cur=new Date(d+'T00:00');eid=e.id;editAssignmentSnapshot={vehicles:(e.vehicles||[]).map(String),people:(e.people||[]).map(String)};setFormValues('m',e);document.getElementById('ftitle').textContent='予定の編集';document.getElementById('mftitle').textContent='予定の編集';render();openEventModal();}
+function selectDay(d){cur=new Date(d+'T00:00');render();}
+function selectWeekDate(d,ev){if(ev)ev.stopPropagation();cur=new Date(d+'T00:00');newEvent();}
+function markDirtyEvent(e,baseUpdatedAt,preserveAssignments=false){e.updatedAt=Number(e.updatedAt||baseUpdatedAt||0);const prev=dirtyEvents.get(String(e.id));dirtyEvents.set(String(e.id),{event:JSON.parse(JSON.stringify(e)),baseUpdatedAt:Number(baseUpdatedAt||0),preserveAssignments:!!preserveAssignments||!!(prev&&prev.preserveAssignments)});pendingDeletes.delete(String(e.id));}
+function sameAssignment(a,b){return JSON.stringify((a||[]).map(String).sort())===JSON.stringify((b||[]).map(String).sort());}
+function saveEvent(fromModal=false){
+  // v47fix12: 保存はモーダルの内容を正本とし、編集開始時の割当を厳密に保持する。
+  const prefix=fromModal?'m':'';
+  const form=getFormValues(prefix);
+  if(!form.date)return alert('開始日を入力してください');
+  const ot=document.getElementById(prefix+'overnight');
+  if(ot)form.endDate=ot.checked?(form.endDate&&form.endDate!==form.date?form.endDate:addDays(form.date,1)):form.date;
+  const old=eid?events.find(x=>String(x.id)===String(eid)):null;
+  let preserveAssignments=false;
+  if(old){
+    const snap=editAssignmentSnapshot||{vehicles:(old.vehicles||[]).map(String),people:(old.people||[]).map(String)};
+    // チェックボックスを触っていない編集では、フォーム再描画や共有読込に関係なくスナップショットを採用。
+    preserveAssignments=!(assignmentTouched.desktop||assignmentTouched.mobile);
+    if(preserveAssignments){
+      form.vehicles=snap.vehicles.slice();
+      form.people=snap.people.slice();
+    }
+  }
+  const id=old?String(old.id):(Date.now()+'_'+Math.random().toString(36).slice(2));
+  const e=normalizeEvent(Object.assign({},old||{},form,{id}));
+  if(e.kind==='off'){e.site='';e.work='';}
+  if(old)markDirtyEvent(e,old.updatedAt,preserveAssignments);else markDirtyEvent(e,0,false);
+  if(old)events=events.map(x=>String(x.id)===id?e:x);else events.push(e);
+  colorPreparedFor='';persistLocal();render();
+  // 車両別一覧から登録・編集した場合も、同じ画面を維持して最新データを即時反映。
+  const vehicleMatrixWasOpen=document.getElementById('vehicleMatrixModal')?.classList.contains('open');
+  if(vehicleMatrixWasOpen)renderVehicleMatrix();
+  if(fromModal)closeEventModal();
+  eid=null;editAssignmentSnapshot=null;assignmentTouched={desktop:false,mobile:false};
+  queueCloudSave();
+}
+function delEvent(fromModal=false){if(!eid)return;if(!confirm('この予定を削除しますか？'))return;const old=events.find(x=>String(x.id)===String(eid));if(old){pendingDeletes.set(String(old.id),{id:String(old.id),baseUpdatedAt:Number(old.updatedAt||0)});dirtyEvents.delete(String(old.id));events=events.filter(x=>String(x.id)!==String(eid));persistLocal();queueCloudSave();}eid=null;if(fromModal)closeEventModal();render();}
+function shift(n){if(view==='month')cur.setMonth(cur.getMonth()+n);else if(view==='week')cur.setDate(cur.getDate()+7*n);else cur.setDate(cur.getDate()+n);render();}
+
+function shiftSecondary(n){
+  // 下段の表示は「月の中の週」「週の中の日」として動かす。
+  // 月予定画面の週予定の矢印は1週間、週予定画面の日予定の矢印は1日。
+  // 日予定画面の月予定だけは1か月移動。
+  if(view==='month') cur.setDate(cur.getDate()+7*n);
+  else if(view==='week') cur.setDate(cur.getDate()+n);
+  else cur.setMonth(cur.getMonth()+n);
+  render();
+}
+function setWeekMode(mode,ev){if(ev)ev.stopPropagation();weekMode=mode;localStorage.setItem('vehicleWeekMode',mode);render();}
+
+function persistLocal(){localStorage.setItem('vehiclePeopleList',JSON.stringify(peopleList));localStorage.setItem('vehicleList',JSON.stringify(vehicleList));localStorage.setItem('vehicleScheduleExact',JSON.stringify(events));localStorage.setItem('vehicleDirtyEvents',JSON.stringify([...dirtyEvents.values()]));localStorage.setItem('vehiclePendingDeletes',JSON.stringify([...pendingDeletes.values()]));localStorage.setItem('vehicleMasterDirty',masterDirty?'1':'0');localStorage.setItem('vehicleCloudMasterUpdatedAt',String(cloudMasterUpdatedAt||0));}
+function restoreDirty(){
+  try{const a=JSON.parse(localStorage.getItem('vehicleDirtyEvents')||'[]');dirtyEvents=new Map(a.map(x=>[String(x.event.id),x]));}catch(e){dirtyEvents=new Map();}
+  try{const a=JSON.parse(localStorage.getItem('vehiclePendingDeletes')||'[]');pendingDeletes=new Map(a.map(x=>[String(x.id),x]));}catch(e){pendingDeletes=new Map();}
+  masterDirty=localStorage.getItem('vehicleMasterDirty')==='1';
+}
+restoreDirty();
+document.addEventListener('change',e=>{if(e.target.classList.contains('v')||e.target.classList.contains('p'))assignmentTouched.desktop=true;if(e.target.classList.contains('mv')||e.target.classList.contains('mp'))assignmentTouched.mobile=true;});
+
+let jsonpSeq=0;
+function cloudState(){return {events:events,vehicles:vehicleList,people:peopleList,logs:[],lastUpdated:Date.now(),deletedIds:[...pendingDeletes.keys()],saveToken:(crypto.randomUUID?crypto.randomUUID():'tok_'+Date.now()+'_'+Math.random().toString(36).slice(2))}}
+function jsonpGet(timeout=15000){return new Promise((resolve,reject)=>{const cb='__vehicleScheduleJsonp_'+Date.now()+'_'+(++jsonpSeq);let attempt=0,lastErr=null;const run=()=>{attempt++;const script=document.createElement('script');let done=false,timer=null;const cleanup=()=>{if(script.parentNode)script.parentNode.removeChild(script);clearTimeout(timer)};const fail=(msg)=>{if(done)return;done=true;cleanup();lastErr=new Error(msg);if(attempt<2)run();else{try{delete window[cb]}catch(e){window[cb]=undefined}reject(lastErr)}};timer=setTimeout(()=>fail('GAS読み込みタイムアウト（試行'+attempt+'）'),timeout);window[cb]=data=>{if(done)return;done=true;cleanup();try{delete window[cb]}catch(e){window[cb]=undefined}resolve(data)};script.onerror=()=>fail('GAS読み込みエラー（試行'+attempt+'）');const param=attempt===1?'prefix':'callback';script.src=GAS_URL+'?api=1&nocache=1&'+param+'='+encodeURIComponent(cb)+'&_='+Date.now();document.head.appendChild(script)};run()})}
+function postForm(payload,timeout=20000){return new Promise((resolve,reject)=>{const frame=document.createElement('iframe');frame.name='vehicleSaveFrame_'+Date.now()+'_'+Math.random().toString(36).slice(2);frame.style.display='none';const form=document.createElement('form');form.method='POST';form.action=GAS_URL;form.target=frame.name;form.style.display='none';const input=document.createElement('textarea');input.name='payload';input.value=JSON.stringify(payload);form.appendChild(input);document.body.appendChild(frame);document.body.appendChild(form);let done=false;const timer=setTimeout(()=>finish(false,new Error('GAS保存タイムアウト')),timeout);function finish(ok,err){if(done)return;done=true;clearTimeout(timer);setTimeout(()=>{frame.remove();form.remove()},100);ok?resolve():reject(err)}frame.addEventListener('load',()=>finish(true),{once:true});try{form.submit()}catch(err){finish(false,err)}})}
+function queueCloudSave(){if(!GAS_URL)return;if(cloudTimer)clearTimeout(cloudTimer);cloudTimer=setTimeout(()=>{cloudTimer=null;postCloud()},150)}
+async function postCloud(){
+  if(!GAS_URL||cloudSaving)return;
+  cloudSaving=true;setCloudStatus('共有保存中…');
+  const stateToSave=cloudState(),saveToken=stateToSave.saveToken;
+  try{
+    await postForm(stateToSave,20000);
+    const latest=await jsonpGet(10000);
+    if(latest&&latest.hasData&&String(latest.saveToken||'')===String(saveToken)){
+      events=(latest.events||[]).map(normalizeEvent);
+      if(Array.isArray(latest.people)&&latest.people.length)peopleList=latest.people.map(String);
+      if(Array.isArray(latest.vehicles)&&latest.vehicles.length)vehicleList=latest.vehicles.map(v=>({id:String(v.id||''),detail:String(v.detail||'2t'),memo:String(v.memo||'')})).filter(v=>v.id);
+      pendingDeletes.clear();dirtyEvents.clear();masterDirty=false;syncMaster();rebuildChecks();persistLocal();render();setCloudStatus('共有保存・同期済み');
+    }else if(latest&&latest.hasData){
+      events=(latest.events||[]).map(normalizeEvent);
+      if(Array.isArray(latest.people)&&latest.people.length)peopleList=latest.people.map(String);
+      if(Array.isArray(latest.vehicles)&&latest.vehicles.length)vehicleList=latest.vehicles.map(v=>({id:String(v.id||''),detail:String(v.detail||'2t'),memo:String(v.memo||'')})).filter(v=>v.id);
+      pendingDeletes.clear();dirtyEvents.clear();masterDirty=false;syncMaster();rebuildChecks();persistLocal();render();setCloudStatus('共有データ更新済み');
+    }else setCloudStatus('共有保存確認失敗');
+  }catch(err){console.warn('共有保存に失敗',err);setCloudStatus('共有保存失敗')}
+  finally{cloudSaving=false}
+}
+function fetchCloudStateOnce(){return jsonpGet(15000)}
+function forceCloudReload(){cloudLoading=false;loadCloud()}
+async function loadCloud(){
+  if(!GAS_URL||cloudLoading||cloudSaving)return;
+  cloudLoading=true;setCloudStatus('共有読込中…');
+  try{
+    const d=await fetchCloudStateOnce();
+    if(d&&d.hasData){
+      events=(d.events||[]).map(normalizeEvent);
+      if(Array.isArray(d.people)&&d.people.length)peopleList=d.people.map(String);
+      if(Array.isArray(d.vehicles)&&d.vehicles.length)vehicleList=d.vehicles.map(v=>({id:String(v.id||''),detail:String(v.detail||'2t'),memo:String(v.memo||'')})).filter(v=>v.id);
+      pendingDeletes.clear();dirtyEvents.clear();masterDirty=false;syncMaster();rebuildChecks();persistLocal();render();setCloudStatus('共有同期済み');
+    }else if(d){setCloudStatus('共有データなし');if(events.length||peopleList.length||vehicleList.length)postCloud()}
+    else setCloudStatus('共有接続エラー');
+  }catch(err){console.warn('共有読み込みに失敗',err);setCloudStatus('共有接続エラー')}
+  finally{cloudLoading=false}
+}
+function persist(){masterDirty=true;persistLocal();queueCloudSave();}
+
+function closeCloudDiag(){document.getElementById('cloudDiag').classList.remove('open');}
+function openCloudDiag(){document.getElementById('cloudDiag').classList.add('open');runCloudDiag();}
+async function runCloudDiag(){
+  const out=document.getElementById('cloudDiagText');
+  out.textContent='GASから最新データを確認・同期しています…';
+  const started=Date.now();
+  try{
+    const d=await jsonpGet(15000);
+    if(!d){out.textContent='【接続失敗】';return;}
+    if(d.hasData){
+      events=(d.events||[]).map(normalizeEvent);
+      if(Array.isArray(d.people)&&d.people.length)peopleList=d.people.map(String);
+      if(Array.isArray(d.vehicles)&&d.vehicles.length)vehicleList=d.vehicles.map(v=>({id:String(v.id||''),detail:String(v.detail||'2t'),memo:String(v.memo||'')})).filter(v=>v.id);
+      pendingDeletes.clear();dirtyEvents.clear();masterDirty=false;syncMaster();rebuildChecks();persistLocal();render();setCloudStatus('共有同期済み');
+    }
+    out.textContent='【GAS接続：OK】\n取得時間: '+(Date.now()-started)+'ms\nrevision: '+(d.revision||0)+'\n最終更新: '+(d.lastUpdated?new Date(Number(d.lastUpdated)).toLocaleString():'なし')+'\n予定件数(GAS): '+(d.events||[]).length+'\n予定件数(端末): '+events.length+'\n車両数: '+(d.vehicles||[]).length+'\n人員数: '+(d.people||[]).length+'\n未保存予定: '+dirtyEvents.size+'\n未保存削除: '+pendingDeletes.size+(d.hasData?'\n\n→ GASの最新データをこの端末へ同期しました。':'');
+  }catch(err){out.textContent='【接続失敗】\n'+String(err&&err.message||err);setCloudStatus('共有接続エラー');}
+}
+function closeSettings(){document.getElementById('settings').classList.remove('open');rebuildChecks();render();}
+function manageTab(m){document.getElementById('tabPeople').classList.toggle('on',m==='people');document.getElementById('tabVehicles').classList.toggle('on',m==='vehicles');let h='';if(m==='people'){h='<h3>人員の増減・名前変更</h3>';peopleList.forEach((n,i)=>h+=`<div class="manage-row people"><input id="pn${i}" value="${E(n)}"><button onclick="renamePerson(${i})">変更</button><button onclick="removePerson(${i})">削除</button></div>`);h+='<div class="manage-add"><input id="newPerson" placeholder="新しい人員名"><button onclick="addPerson()">＋ 人員追加</button></div>';}else{h='<h3>車両の増減・詳細変更</h3>';vehicleList.forEach((v,i)=>h+=`<div class="manage-row"><input id="vn${i}" value="${E(v.id)}"><input id="vd${i}" value="${E(v.detail)}"><input id="vm${i}" value="${E(v.memo)}" placeholder="詳細・メモ"><button onclick="updateVehicle(${i})">変更</button><button onclick="removeVehicle(${i})">削除</button></div>`);h+='<div class="manage-add"><input id="newVehicleId" placeholder="車両番号 008"><input id="newVehicleDetail" placeholder="2t"><input id="newVehicleMemo" placeholder="詳細・メモ"><button onclick="addVehicle()">＋ 車両追加</button></div>';}document.getElementById('manageBody').innerHTML=h;}
+function addPerson(){const n=document.getElementById('newPerson').value.trim();if(!n)return alert('人員名を入力してください');if(peopleList.includes(n))return alert('同じ名前があります');peopleList.push(n);syncMaster();masterDirty=true;persistLocal();rebuildChecks();manageTab('people');render();queueCloudSave();}
+function renamePerson(i){const old=peopleList[i],n=document.getElementById('pn'+i).value.trim();if(!n)return alert('名前を入力してください');if(n!==old&&peopleList.includes(n))return alert('同じ名前があります');events.forEach(e=>{if((e.people||[]).includes(old)){const copy=Object.assign({},e,{people:(e.people||[]).map(x=>x===old?n:x)});events=events.map(x=>String(x.id)===String(e.id)?copy:x);markDirtyEvent(copy,e.updatedAt);}});peopleList[i]=n;syncMaster();masterDirty=true;persistLocal();manageTab('people');rebuildChecks();render();queueCloudSave();}
+function removePerson(i){const n=peopleList[i];if(!confirm(n+' を削除しますか？'))return;events.forEach(e=>{if((e.people||[]).includes(n)){const copy=Object.assign({},e,{people:(e.people||[]).filter(x=>x!==n)});events=events.map(x=>String(x.id)===String(e.id)?copy:x);markDirtyEvent(copy,e.updatedAt);}});peopleList.splice(i,1);syncMaster();masterDirty=true;persistLocal();manageTab('people');rebuildChecks();render();queueCloudSave();}
+function addVehicle(){const id=document.getElementById('newVehicleId').value.trim(),detail=document.getElementById('newVehicleDetail').value.trim()||'2t',memo=document.getElementById('newVehicleMemo').value.trim();if(!id)return alert('車両番号を入力してください');if(vehicleList.some(v=>v.id===id))return alert('同じ車両番号があります');vehicleList.push({id,detail,memo});syncMaster();masterDirty=true;persistLocal();manageTab('vehicles');rebuildChecks();render();queueCloudSave();}
+function updateVehicle(i){const old=vehicleList[i].id,id=document.getElementById('vn'+i).value.trim(),detail=document.getElementById('vd'+i).value.trim()||'2t',memo=document.getElementById('vm'+i).value.trim();if(!id)return alert('車両番号を入力してください');if(id!==old&&vehicleList.some(v=>v.id===id))return alert('同じ車両番号があります');events.forEach(e=>{if((e.vehicles||[]).includes(old)){const copy=Object.assign({},e,{vehicles:(e.vehicles||[]).map(x=>x===old?id:x)});events=events.map(x=>String(x.id)===String(e.id)?copy:x);markDirtyEvent(copy,e.updatedAt);}});vehicleList[i]={id,detail,memo};syncMaster();masterDirty=true;persistLocal();manageTab('vehicles');rebuildChecks();render();queueCloudSave();}
+function removeVehicle(i){const v=vehicleList[i];if(!confirm(v.id+' を削除しますか？'))return;events.forEach(e=>{if((e.vehicles||[]).includes(v.id)){const copy=Object.assign({},e,{vehicles:(e.vehicles||[]).filter(x=>x!==v.id)});events=events.map(x=>String(x.id)===String(e.id)?copy:x);markDirtyEvent(copy,e.updatedAt);}});vehicleList.splice(i,1);syncMaster();masterDirty=true;persistLocal();manageTab('vehicles');rebuildChecks();render();queueCloudSave();}
+
+// 起動は全関数・変数の初期化後に一度だけ行う。v47系で問題になった「関数定義前のrender/checks呼び出し」を排除。
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{view=b.dataset.v;render();});
+document.getElementById('prev').onclick=()=>shift(-1);document.getElementById('next').onclick=()=>shift(1);document.getElementById('today').onclick=()=>{cur=new Date();cur.setHours(0,0,0,0);render();};document.getElementById('subPrev').onclick=()=>shiftSecondary(-1);document.getElementById('subNext').onclick=()=>shiftSecondary(1);
+rebuildChecks();render();
+// 自動共有診断：手動の「共有診断」で成功しているJSONP取得を、保存処理とは完全に独立して実行する。
+// 今回は「自動処理が本当に走っているか」を画面上で確認できるようにする。
+let cloudAutoTimer=null, cloudAutoRunning=false, cloudAutoCount=0, cloudAutoLastRevision=null, cloudAutoLastAt=0;
+function setAutoDiag(text){
+  const el=document.getElementById('autoCloudStatus');
+  if(el) el.textContent=text;
+}
+async function autoCloudPull(){
+  if(cloudAutoRunning){cloudAutoTimer=setTimeout(autoCloudPull,2000);return;}
+  cloudAutoRunning=true;
+  cloudAutoCount++;
+  const started=Date.now();
+  try{
+    // loadCloud() の cloudSaving/cloudLoading 条件には依存せず、診断と同じJSONP取得を直接実行する。
+    const d=await jsonpGet(15000);
+    const rev=Number(d&&d.revision||0);
+    cloudAutoLastRevision=rev;
+    cloudAutoLastAt=Date.now();
+    if(d&&d.hasData){
+      const remote=(d.events||[]).map(normalizeEvent);
+      // 未保存のローカル変更がある間は上書きせず、取得自体は記録する。
+      if(!cloudSaving&&!dirtyEvents.size&&!pendingDeletes.size&&!masterDirty){
+        events=remote;
+        if(Array.isArray(d.people)&&d.people.length)peopleList=d.people.map(String);
+        if(Array.isArray(d.vehicles)&&d.vehicles.length)vehicleList=d.vehicles.map(v=>({id:String(v.id||''),detail:String(v.detail||'2t'),memo:String(v.memo||'')})).filter(v=>v.id);
+        syncMaster();rebuildChecks();persistLocal();render();
+      }
+      setAutoDiag('自動共有: '+new Date().toLocaleTimeString()+' / GAS '+remote.length+'件 / rev '+rev);
+    }else{
+      setAutoDiag('自動共有: '+new Date().toLocaleTimeString()+' / GASデータなし');
+    }
+  }catch(e){
+    cloudAutoLastAt=Date.now();
+    setAutoDiag('自動共有エラー: '+String(e&&e.message||e));
+    console.warn('自動共有取得失敗',e);
+  }finally{
+    cloudAutoRunning=false;
+    cloudAutoTimer=setTimeout(autoCloudPull,2000);
+  }
+}
+setTimeout(autoCloudPull,500);
+window.addEventListener('focus',()=>setTimeout(autoCloudPull,100));
+window.addEventListener('pageshow',()=>setTimeout(autoCloudPull,100));
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(autoCloudPull,100);});
+window.addEventListener('online',()=>setTimeout(autoCloudPull,100));
+
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;const b=document.getElementById('installBtn');if(b)b.style.display='';});
+window.addEventListener('appinstalled',()=>{deferredInstallPrompt=null;const b=document.getElementById('installBtn');if(b)b.style.display='none';});
+async function installApp(){if(deferredInstallPrompt){deferredInstallPrompt.prompt();try{await deferredInstallPrompt.userChoice;}catch(e){}deferredInstallPrompt=null;const b=document.getElementById('installBtn');if(b)b.style.display='none';return;}alert('iPhone/iPad：共有ボタン →「ホーム画面に追加」\nAndroid：ブラウザの「アプリをインストール」または「ホーム画面に追加」から登録してください。');}
+// fix15: スマホに残った旧Service Worker/キャッシュが最新版を隠さないように初回だけ掃除する。
+const APP_CACHE_CLEAN_KEY='vehicleScheduleFix15CacheClean';
+async function cleanupOldAppCache(){
+  try{
+    if('serviceWorker' in navigator){
+      const regs=await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r=>r.unregister().catch(()=>false)));
+    }
+    if(window.caches&&caches.keys){
+      const keys=await caches.keys();
+      await Promise.all(keys.map(k=>caches.delete(k).catch(()=>false)));
+    }
+    localStorage.setItem(APP_CACHE_CLEAN_KEY,'1');
+  }catch(err){console.warn('旧キャッシュ整理失敗',err)}
+}
+window.addEventListener('load',()=>{
+  if(localStorage.getItem(APP_CACHE_CLEAN_KEY)!=='1') cleanupOldAppCache();
+});
+
+</script>
+<div id="settings" class="settings" onclick="if(event.target===this)closeSettings()">
+<div class="settings-card">
+<div class="settings-head"><h2>⚙ 車両・人員の設定</h2><button type="button" onclick="closeSettings()">×</button></div>
+<div class="manage-tabs"><button id="tabPeople" class="on" type="button" onclick="manageTab('people')">人員</button><button id="tabVehicles" type="button" onclick="manageTab('vehicles')">車両</button></div>
+<div id="manageBody" class="manage-body"></div>
+</div></div></html>
