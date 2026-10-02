@@ -275,7 +275,7 @@
 .person-list-card{width:min(900px,96vw)!important;max-height:90vh;overflow:auto}.person-list-tools{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid #dce3eb;font-weight:800}.person-list-tools select{padding:9px 12px;border:1px solid #bfc9d6;border-radius:6px;min-width:180px}.person-list-body{padding:12px 16px 18px}.person-list-row{display:grid;grid-template-columns:110px 1fr;gap:10px;align-items:start;border-bottom:1px solid #e5e7eb;padding:10px 0}.person-list-date{font-weight:800;color:#334155}.person-list-item{border:1px solid #d8dee8;border-radius:6px;padding:7px 9px;margin-bottom:6px;background:#fff}.person-list-item.off{background:#fff0f5;border-color:#efb5cb;color:#a11}.person-list-item .kind{font-size:11px;font-weight:800;margin-right:6px}.person-list-item .meta{font-size:12px;color:#64748b;margin-top:3px}.person-list-empty{padding:20px;text-align:center;color:#64748b}.person-list-open{cursor:pointer}@media(max-width:700px){.person-list-card{width:96vw!important}.person-list-tools{flex-wrap:wrap}.person-list-tools select{flex:1;min-width:160px}.person-list-row{grid-template-columns:82px 1fr;gap:7px}.person-list-body{padding:10px}}
 </style>
 <body>
-<header class="top"><div class="logo">🚚 車両・人員 配置管理</div><div class="tabs"><button data-v="day">日予定</button><button data-v="week">週予定</button><button data-v="month" class="on">月予定</button></div><div class="nav"><button id="prev">◀</button><div id="title" class="title"></div><span id="cloudStatus" class="cloud-status">共有確認中…</span><span id="autoCloudStatus" class="cloud-status" style="font-size:11px;opacity:.85">自動共有: 待機中</span><button id="cloudDiagBtn" type="button" onclick="openCloudDiag()">🔄 共有診断</button><button id="next">▶</button><button id="today">今日</button><button type="button" onclick="openPersonList()">👤 人員一覧</button><button type="button" onclick="openVehicleMatrix()">🚚 車両別一覧</button><button type="button" onclick="printTop()">🖨 印刷</button><button id="installBtn" type="button" onclick="installApp()" style="display:none">📱 アプリ追加</button><button class="mobile-add" type="button" onclick="newEvent()">＋ 予定</button><button id="settingsBtn" type="button" onclick="openSettings()">⚙ 設定</button></div></header>
+<header class="top"><div class="logo">🚚 車両・人員 配置管理</div><div class="tabs"><button data-v="day">日予定</button><button data-v="week">週予定</button><button data-v="month" class="on">月予定</button></div><div class="nav"><button id="prev">◀</button><div id="title" class="title"></div><button type="button" id="newEventBadgeBtn" data-new-event-badge onclick="markNewEventsSeen();alert('新着予定を確認済みにしました。')" style="display:none;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;border:0;border-radius:999px;background:#dc2626;color:#fff;font-size:11px;font-weight:900;cursor:pointer" title="新着予定">0</button><span id="cloudStatus" class="cloud-status">共有確認中…</span><button id="cloudDiagBtn" type="button" onclick="openCloudDiag()">🔄 共有診断</button><button id="next">▶</button><button id="today">今日</button><button type="button" onclick="openPersonList()">👤 人員一覧</button><button type="button" onclick="openVehicleMatrix()">🚚 車両別一覧</button><button type="button" onclick="printTop()">🖨 印刷</button><button id="installBtn" type="button" onclick="installApp()" style="display:none">📱 アプリ追加</button><button class="mobile-add" type="button" onclick="newEvent()">＋ 予定</button><button id="settingsBtn" type="button" onclick="openSettings()">⚙ 設定</button></div></header>
 <div id="cloudDiag" class="cloud-diag"><div class="cloud-diag-card"><h3>🔄 共有診断</h3><pre id="cloudDiagText">確認中…</pre><div class="cloud-diag-actions"><button type="button" onclick="closeCloudDiag()">閉じる</button><button type="button" class="primary" onclick="runCloudDiag()">今すぐ確認</button></div></div></div><div id="zoomContent"><div class="color-note">現場ごとに色分け　｜　<span class="red-note">赤＝車両・人員のダブルブッキング</span>　｜　<span class="off-note">休み</span></div><div class="app"><main><section class="panel"><div id="main"></div></section>
 <section class="panel"><div class="head"><span id="sub"></span><button id="subPrev" onclick="shift(-1)">◀</button><button id="subNext" onclick="shift(1)">▶</button><button class="add" onclick="newEvent()">＋ 予定追加</button></div><div id="secondary"></div></section></main>
 <aside class="side"><div class="box"><h3 id="stitle">空き状況</h3><div id="status" class="status"></div></div><div class="box"><h3>お知らせ</h3><div class="notice">・予定／確定をクリックして編集<br>・人員の「休み」を登録<br>・重複した車両／人員だけ赤色<br>・選択した日は青枠で表示</div></div>
@@ -321,7 +321,7 @@ const DEFAULT_VEH=[['001','2t'],['002','4t'],['003','2t'],['004','4t'],['005','2
 const DEFAULT_PEOPLE=['田中','鈴木','佐藤','山田','高橋','伊藤','渡辺','小林'];
 // 赤系は競合表示専用にするため、通常色には使わない。
 const COL=['#2563eb','#0891b2','#0f766e','#15803d','#65a30d','#ca8a04','#d97706','#ea580c','#c026d3','#9333ea','#7c3aed','#4f46e5','#4338ca','#1d4ed8','#0369a1','#0e7490','#166534','#365314','#4d7c0f','#854d0e','#a16207','#57534e','#475569','#334155','#0f3d56','#14532d','#6b21a8','#1e3a8a','#164e63','#312e81'];
-const GAS_URL='https://script.google.com/macros/s/AKfycbw6NI9FHyRj1afnCuPNeuUZCcFGP3n0n0OIlMEvlSrridqC1FcQl6166th9gGSmtzTP/exec';
+const GAS_URL='https://script.google.com/macros/s/AKfycbywG4OiBm2s5onSo1jAkF4uDpChps_do99lPsSDuD-RNN_ABU9cvaooG__WSGHjsHvs/exec';
 const CLIENT_ID=localStorage.getItem('vehicleClientId')||((crypto.randomUUID&&crypto.randomUUID())||('client_'+Date.now()+'_'+Math.random().toString(36).slice(2)));
 localStorage.setItem('vehicleClientId',CLIENT_ID);
 
@@ -340,6 +340,33 @@ function syncMaster(){
 syncMaster();
 
 let events=(JSON.parse(localStorage.getItem('vehicleScheduleExact')||'null')||[]).map(normalizeEvent);
+// 新着予定バッジ：この端末で最後に確認済みの予定IDを保存する。
+let seenEventIds;
+try{seenEventIds=new Set(JSON.parse(localStorage.getItem('vehicleSeenEventIds')||'null')||events.map(e=>String(e.id)));}catch(e){seenEventIds=new Set(events.map(e=>String(e.id)));}
+let newEventIds=new Set();
+function setAppBadgeCount(count){
+  const n=Math.max(0,Number(count)||0);
+  try{
+    if(n>0&&navigator.setAppBadge)navigator.setAppBadge(n);
+    else if(n===0&&navigator.clearAppBadge)navigator.clearAppBadge();
+  }catch(e){}
+  const els=document.querySelectorAll('[data-new-event-badge]');
+  els.forEach(el=>{el.textContent=n>0?String(n):'';el.style.display=n>0?'inline-flex':'none';});
+}
+function updateNewEventBadge(remoteEvents,initialize=false){
+  const list=Array.isArray(remoteEvents)?remoteEvents:[];
+  if(initialize){list.forEach(e=>seenEventIds.add(String(e.id)));newEventIds.clear();}
+  else list.forEach(e=>{const id=String(e.id);if(!seenEventIds.has(id))newEventIds.add(id);});
+  try{localStorage.setItem('vehicleSeenEventIds',JSON.stringify([...seenEventIds]));}catch(e){}
+  setAppBadgeCount(newEventIds.size);
+}
+function markNewEventsSeen(){
+  newEventIds.forEach(id=>seenEventIds.add(String(id)));
+  newEventIds.clear();
+  try{localStorage.setItem('vehicleSeenEventIds',JSON.stringify([...seenEventIds]));}catch(e){}
+  setAppBadgeCount(0);
+}
+
 let cur=new Date();cur.setHours(0,0,0,0);
 let view='month',eid=null,weekMode=localStorage.getItem('vehicleWeekMode')||'people';
 let dirtyEvents=new Map();
@@ -823,68 +850,131 @@ restoreDirty();
 document.addEventListener('change',e=>{if(e.target.classList.contains('v')||e.target.classList.contains('p'))assignmentTouched.desktop=true;if(e.target.classList.contains('mv')||e.target.classList.contains('mp'))assignmentTouched.mobile=true;});
 
 let jsonpSeq=0;
-function cloudState(){return {events:events,vehicles:vehicleList,people:peopleList,logs:[],lastUpdated:Date.now(),deletedIds:[...pendingDeletes.keys()],saveToken:(crypto.randomUUID?crypto.randomUUID():'tok_'+Date.now()+'_'+Math.random().toString(36).slice(2))}}
-function jsonpGet(timeout=15000){return new Promise((resolve,reject)=>{const cb='__vehicleScheduleJsonp_'+Date.now()+'_'+(++jsonpSeq);let attempt=0,lastErr=null;const run=()=>{attempt++;const script=document.createElement('script');let done=false,timer=null;const cleanup=()=>{if(script.parentNode)script.parentNode.removeChild(script);clearTimeout(timer)};const fail=(msg)=>{if(done)return;done=true;cleanup();lastErr=new Error(msg);if(attempt<2)run();else{try{delete window[cb]}catch(e){window[cb]=undefined}reject(lastErr)}};timer=setTimeout(()=>fail('GAS読み込みタイムアウト（試行'+attempt+'）'),timeout);window[cb]=data=>{if(done)return;done=true;cleanup();try{delete window[cb]}catch(e){window[cb]=undefined}resolve(data)};script.onerror=()=>fail('GAS読み込みエラー（試行'+attempt+'）');const param=attempt===1?'prefix':'callback';script.src=GAS_URL+'?api=1&nocache=1&'+param+'='+encodeURIComponent(cb)+'&_='+Date.now();document.head.appendChild(script)};run()})}
-function postForm(payload,timeout=20000){return new Promise((resolve,reject)=>{const frame=document.createElement('iframe');frame.name='vehicleSaveFrame_'+Date.now()+'_'+Math.random().toString(36).slice(2);frame.style.display='none';const form=document.createElement('form');form.method='POST';form.action=GAS_URL;form.target=frame.name;form.style.display='none';const input=document.createElement('textarea');input.name='payload';input.value=JSON.stringify(payload);form.appendChild(input);document.body.appendChild(frame);document.body.appendChild(form);let done=false;const timer=setTimeout(()=>finish(false,new Error('GAS保存タイムアウト')),timeout);function finish(ok,err){if(done)return;done=true;clearTimeout(timer);setTimeout(()=>{frame.remove();form.remove()},100);ok?resolve():reject(err)}frame.addEventListener('load',()=>finish(true),{once:true});try{form.submit()}catch(err){finish(false,err)}})}
-function queueCloudSave(){if(!GAS_URL)return;if(cloudTimer)clearTimeout(cloudTimer);cloudTimer=setTimeout(()=>{cloudTimer=null;postCloud()},150)}
+function jsonpGet(timeout=15000){return new Promise((resolve,reject)=>{const cb='__vehicleScheduleJsonp_'+Date.now()+'_'+(++jsonpSeq),script=document.createElement('script');let done=false;const timer=setTimeout(()=>finish(new Error('GAS読み込みタイムアウト')),timeout);function finish(err,data){if(done)return;done=true;clearTimeout(timer);if(script.parentNode)script.parentNode.removeChild(script);try{delete window[cb]}catch(e){window[cb]=undefined}err?reject(err):resolve(data);}window[cb]=data=>finish(null,data);script.onerror=()=>finish(new Error('GAS読み込みエラー'));script.src=GAS_URL+'?api=1&nocache=1&prefix='+encodeURIComponent(cb)+'&_='+Date.now();document.head.appendChild(script);});}
+function postForm(payload,timeout=20000){return new Promise((resolve,reject)=>{const frame=document.createElement('iframe');frame.name='vehicleSaveFrame_'+Date.now()+'_'+Math.random().toString(36).slice(2);frame.style.display='none';const form=document.createElement('form');form.method='POST';form.action=GAS_URL;form.target=frame.name;form.style.display='none';const input=document.createElement('textarea');input.name='payload';input.value=JSON.stringify(payload);form.appendChild(input);document.body.appendChild(frame);document.body.appendChild(form);let done=false;const timer=setTimeout(()=>finish(false,new Error('GAS保存タイムアウト')),timeout);function finish(ok,err){if(done)return;done=true;clearTimeout(timer);setTimeout(()=>{frame.remove();form.remove();},100);ok?resolve():reject(err);}frame.addEventListener('load',()=>finish(true),{once:true});try{form.submit();}catch(err){finish(false,err);}});}
+function queueCloudSave(){if(!GAS_URL)return;if(cloudTimer)clearTimeout(cloudTimer);cloudTimer=setTimeout(postCloud,150);}
+function buildPatch(){const changes=[...dirtyEvents.values()].map(x=>Object.assign({},x.event,{baseUpdatedAt:Number(x.baseUpdatedAt||0)}));const deletes=[...pendingDeletes.values()];return {action:'patch',clientId:CLIENT_ID,changes,deletes,vehicles:masterDirty?vehicleList:null,people:masterDirty?peopleList:null,masterChanged:masterDirty,baseMasterUpdatedAt:cloudMasterUpdatedAt};}
 async function postCloud(){
-  if(!GAS_URL||cloudSaving)return;
+  if(cloudSaving||(!dirtyEvents.size&&!pendingDeletes.size&&!masterDirty))return;
   cloudSaving=true;setCloudStatus('共有保存中…');
-  const stateToSave=cloudState(),saveToken=stateToSave.saveToken;
+  let retry=false;
   try{
-    await postForm(stateToSave,20000);
-    const latest=await jsonpGet(10000);
-    if(latest&&latest.hasData&&String(latest.saveToken||'')===String(saveToken)){
-      events=(latest.events||[]).map(normalizeEvent);
-      if(Array.isArray(latest.people)&&latest.people.length)peopleList=latest.people.map(String);
-      if(Array.isArray(latest.vehicles)&&latest.vehicles.length)vehicleList=latest.vehicles.map(v=>({id:String(v.id||''),detail:String(v.detail||'2t'),memo:String(v.memo||'')})).filter(v=>v.id);
-      pendingDeletes.clear();dirtyEvents.clear();masterDirty=false;syncMaster();rebuildChecks();persistLocal();render();setCloudStatus('共有保存・同期済み');
-    }else if(latest&&latest.hasData){
-      events=(latest.events||[]).map(normalizeEvent);
-      if(Array.isArray(latest.people)&&latest.people.length)peopleList=latest.people.map(String);
-      if(Array.isArray(latest.vehicles)&&latest.vehicles.length)vehicleList=latest.vehicles.map(v=>({id:String(v.id||''),detail:String(v.detail||'2t'),memo:String(v.memo||'')})).filter(v=>v.id);
-      pendingDeletes.clear();dirtyEvents.clear();masterDirty=false;syncMaster();rebuildChecks();persistLocal();render();setCloudStatus('共有データ更新済み');
-    }else setCloudStatus('共有保存確認失敗');
-  }catch(err){console.warn('共有保存に失敗',err);setCloudStatus('共有保存失敗')}
-  finally{cloudSaving=false}
-}
-function fetchCloudStateOnce(){return jsonpGet(15000)}
-function forceCloudReload(){cloudLoading=false;loadCloud()}
-async function loadCloud(){
-  if(!GAS_URL||cloudLoading||cloudSaving)return;
-  cloudLoading=true;setCloudStatus('共有読込中…');
-  try{
-    const d=await fetchCloudStateOnce();
-    if(d&&d.hasData){
-      events=(d.events||[]).map(normalizeEvent);
-      if(Array.isArray(d.people)&&d.people.length)peopleList=d.people.map(String);
-      if(Array.isArray(d.vehicles)&&d.vehicles.length)vehicleList=d.vehicles.map(v=>({id:String(v.id||''),detail:String(v.detail||'2t'),memo:String(v.memo||'')})).filter(v=>v.id);
-      pendingDeletes.clear();dirtyEvents.clear();masterDirty=false;syncMaster();rebuildChecks();persistLocal();render();setCloudStatus('共有同期済み');
-    }else if(d){setCloudStatus('共有データなし');if(events.length||peopleList.length||vehicleList.length)postCloud()}
-    else setCloudStatus('共有接続エラー');
-  }catch(err){console.warn('共有読み込みに失敗',err);setCloudStatus('共有接続エラー')}
-  finally{cloudLoading=false}
-}
-function persist(){masterDirty=true;persistLocal();queueCloudSave();}
+    // 保存対象をこの1回の処理に固定。自動読込は保存完了まで絶対に割り込ませない。
+    const patch=buildPatch();
+    const sentIds=new Map([...dirtyEvents].map(([id,x])=>[id,{baseUpdatedAt:Number(x.baseUpdatedAt||0),event:normalizeEvent(x.event),preserveAssignments:!!x.preserveAssignments}]));
+    const sentDeletes=new Map([...pendingDeletes]);
+    const sentMaster=masterDirty, sentMasterBase=cloudMasterUpdatedAt;
 
-function closeCloudDiag(){document.getElementById('cloudDiag').classList.remove('open');}
-function openCloudDiag(){document.getElementById('cloudDiag').classList.add('open');runCloudDiag();}
-async function runCloudDiag(){
-  const out=document.getElementById('cloudDiagText');
-  out.textContent='GASから最新データを確認・同期しています…';
-  const started=Date.now();
-  try{
-    const d=await jsonpGet(15000);
-    if(!d){out.textContent='【接続失敗】';return;}
-    if(d.hasData){
-      events=(d.events||[]).map(normalizeEvent);
-      if(Array.isArray(d.people)&&d.people.length)peopleList=d.people.map(String);
-      if(Array.isArray(d.vehicles)&&d.vehicles.length)vehicleList=d.vehicles.map(v=>({id:String(v.id||''),detail:String(v.detail||'2t'),memo:String(v.memo||'')})).filter(v=>v.id);
-      pendingDeletes.clear();dirtyEvents.clear();masterDirty=false;syncMaster();rebuildChecks();persistLocal();render();setCloudStatus('共有同期済み');
+    await postForm(patch,20000);
+    const server=await jsonpGet(12000);
+    if(!server||!server.hasData)throw new Error('保存確認データを取得できませんでした');
+
+    const remoteEvents=(server.events||[]).map(normalizeEvent);
+    const remoteById=new Map(remoteEvents.map(e=>[String(e.id),e]));
+    const isPatchBackend=Object.prototype.hasOwnProperty.call(server,'masterUpdatedAt')&&Object.prototype.hasOwnProperty.call(server,'deleted');
+
+    // 新しいGAS（patch backend）なら、サーバーに反映されたものだけを確定する。
+    let unresolved=[];
+    sentIds.forEach((meta,id)=>{
+      const r=remoteById.get(id);
+      const current=dirtyEvents.get(id);
+      if(!current)return;
+      const local=current.event;
+      const localStamp=Number(local.updatedAt||0);
+      const remoteStamp=Number(r&&r.updatedAt||0);
+      const sameByClient=r&&String(r.updatedBy||'')===CLIENT_ID;
+      if(r && ((sameByClient&&remoteStamp>Number(meta.baseUpdatedAt||0)) || remoteStamp>=localStamp)){
+        let accepted=Object.assign({},r);
+        if(meta.preserveAssignments){accepted.vehicles=(meta.event.vehicles||[]).map(String);accepted.people=(meta.event.people||[]).map(String);}
+        events=events.map(e=>String(e.id)===id?normalizeEvent(accepted):e);
+        dirtyEvents.delete(id);
+      }else{
+        unresolved.push({id,meta,r});
+      }
+    });
+
+    const remoteDeleted=server.deleted||{};
+    sentDeletes.forEach((meta,id)=>{
+      const tomb=remoteDeleted[id];
+      if(!pendingDeletes.has(id))return;
+      if(!remoteById.has(id)&&tomb&&Number(tomb.updatedAt||0)>Number(meta.baseUpdatedAt||0)&&String(tomb.deletedBy||'')===CLIENT_ID){
+        pendingDeletes.delete(id);
+      }
+    });
+
+    // 旧GASの場合は従来のsave形式を1回だけ使用。
+    if(!isPatchBackend && (sentIds.size||sentDeletes.size||sentMaster)){
+      const legacy={action:'save',events:events,vehicles:vehicleList,people:peopleList,logs:[],lastUpdated:Date.now(),deletedIds:[...pendingDeletes.keys()],saveToken:CLIENT_ID+'_'+Date.now()};
+      await postForm(legacy,20000);
+      const latest=await jsonpGet(12000);
+      if(!latest||!latest.hasData)throw new Error('旧GASへの保存確認に失敗しました');
+      events=(latest.events||[]).map(normalizeEvent);
+      if(Array.isArray(latest.people)&&latest.people.length)peopleList=latest.people.map(String);
+      if(Array.isArray(latest.vehicles)&&latest.vehicles.length)vehicleList=latest.vehicles.map(v=>({id:String(v.id||''),detail:String(v.detail||'2t'),memo:String(v.memo||'')})).filter(v=>v.id);
+      syncMaster();dirtyEvents.clear();pendingDeletes.clear();masterDirty=false;
+      cloudMasterUpdatedAt=Number(latest.masterUpdatedAt||cloudMasterUpdatedAt||0);
+      persistLocal();colorPreparedFor='';render();setCloudStatus('共有保存・同期済み');
+      return;
     }
-    out.textContent='【GAS接続：OK】\n取得時間: '+(Date.now()-started)+'ms\nrevision: '+(d.revision||0)+'\n最終更新: '+(d.lastUpdated?new Date(Number(d.lastUpdated)).toLocaleString():'なし')+'\n予定件数(GAS): '+(d.events||[]).length+'\n予定件数(端末): '+events.length+'\n車両数: '+(d.vehicles||[]).length+'\n人員数: '+(d.people||[]).length+'\n未保存予定: '+dirtyEvents.size+'\n未保存削除: '+pendingDeletes.size+(d.hasData?'\n\n→ GASの最新データをこの端末へ同期しました。':'');
-  }catch(err){out.textContent='【接続失敗】\n'+String(err&&err.message||err);setCloudStatus('共有接続エラー');}
+
+    // master変更がサーバーに反映されたか確認。
+    if(sentMaster){
+      if(Number(server.masterUpdatedAt||0)>Number(sentMasterBase||0)){cloudMasterUpdatedAt=Number(server.masterUpdatedAt);masterDirty=false;}
+    }
+
+    // 未反映の変更だけ、サーバー最新版を基準に「次の1回」だけ再送する。
+    // 自動読込側からの再保存は行わないため、保存→読込→保存のループにならない。
+    unresolved.forEach(({id,meta,r})=>{
+      const current=dirtyEvents.get(id);
+      if(!current)return;
+      const base=Number(r&&r.updatedAt||meta.baseUpdatedAt||0);
+      const next=Object.assign({},current.event);
+      next.updatedAt=Math.max(Date.now(),base+1);
+      next.updatedBy=CLIENT_ID;
+      dirtyEvents.set(id,{event:next,baseUpdatedAt:base,preserveAssignments:!!current.preserveAssignments});
+    });
+
+    // 保存確認後はローカルをサーバー状態へ寄せる。ただし未保存変更は保持。
+    mergeRemote(server,true);
+    persistLocal();
+    colorPreparedFor='';render();
+
+    if(unresolved.length || (sentMaster&&masterDirty) || [...sentDeletes.keys()].some(id=>pendingDeletes.has(id))){
+      setCloudStatus('共有再保存中…');
+      retry=true;
+    }else{
+      setCloudStatus('共有保存・同期済み');
+    }
+  }catch(err){
+    console.warn('共有保存失敗',err);
+    setCloudStatus('共有保存失敗：再試行待ち');
+    retry=true;
+  }finally{
+    cloudSaving=false;
+    if(retry && (dirtyEvents.size||pendingDeletes.size||masterDirty)){
+      if(cloudTimer)clearTimeout(cloudTimer);
+      // 1回だけ少し待って再保存。自動読込はこの間もdirtyがあるため実行しない。
+      cloudTimer=setTimeout(()=>{cloudTimer=null;postCloud();},1200);
+    }
+  }
 }
+function mergeRemote(d,fromSave=false){
+  const remote=Array.isArray(d.events)?d.events.map(normalizeEvent):[];
+  updateNewEventBadge(remote, !localStorage.getItem('vehicleSeenEventIds'));const remoteDeleted=d&&d.deleted&&typeof d.deleted==='object'?d.deleted:{};const localById=new Map(events.map(e=>[String(e.id),e]));const remoteById=new Map(remote.map(e=>[String(e.id),e]));
+  const merged=[];
+  remoteById.forEach((r,id)=>{if(pendingDeletes.has(id))return;const dirty=dirtyEvents.get(id);const l=localById.get(id);if(dirty){merged.push(l||dirty.event);return;}if(!l||Number(r.updatedAt||0)>=Number(l.updatedAt||0))merged.push(r);else merged.push(l);});
+  localById.forEach((l,id)=>{if(remoteById.has(id)||pendingDeletes.has(id))return;const tomb=remoteDeleted[id];if(tomb&&Number(tomb.updatedAt||tomb.deletedAt||0)>=Number(l.updatedAt||0))return;merged.push(l);});
+  events=merged; cloudMasterUpdatedAt=Number(d.masterUpdatedAt||cloudMasterUpdatedAt||0); if(Array.isArray(d.people)&&d.people.length&&!masterDirty)peopleList=d.people.map(String); if(Array.isArray(d.vehicles)&&d.vehicles.length&&!masterDirty)vehicleList=d.vehicles.map(v=>({id:String(v.id||''),detail:String(v.detail||'2t'),memo:String(v.memo||'')})).filter(v=>v.id); syncMaster();rebuildChecks();colorPreparedFor='';if(!fromSave)persistLocal();
+}
+async function loadCloud(){if(cloudLoading||cloudSaving)return;cloudLoading=true;setCloudStatus('共有読込中…');try{const d=await jsonpGet(15000);if(d&&d.hasData){mergeRemote(d);render();setCloudStatus(dirtyEvents.size||pendingDeletes.size||masterDirty?'共有同期済み・未保存あり':'共有同期済み');if(dirtyEvents.size||pendingDeletes.size||masterDirty)queueCloudSave();}else if(d){setCloudStatus('共有データなし');if(events.length||vehicleList.length||peopleList.length)queueCloudSave();}else setCloudStatus('共有接続エラー');}catch(err){console.warn(err);setCloudStatus('共有接続エラー')}finally{cloudLoading=false;}}
+function persist(){masterDirty=true;persistLocal();queueCloudSave();}
+function forceCloudReload(){loadCloud();}
+
+function openCloudDiag(){document.getElementById('cloudDiag').classList.add('open');runCloudDiag();}
+function closeCloudDiag(){document.getElementById('cloudDiag').classList.remove('open');}
+async function runCloudDiag(){const out=document.getElementById('cloudDiagText');out.textContent='GASから最新データを確認・同期しています…';const started=Date.now();try{const d=await jsonpGet(15000);if(!d){out.textContent='【接続失敗】';return;}if(d.hasData){mergeRemote(d);render();persistLocal();setCloudStatus(dirtyEvents.size||pendingDeletes.size||masterDirty?'共有同期済み・未保存あり':'共有同期済み');}out.textContent='【GAS接続：OK】\n取得時間: '+(Date.now()-started)+'ms\nrevision: '+(d.revision||0)+'\n最終更新: '+(d.lastUpdated?new Date(Number(d.lastUpdated)).toLocaleString():'なし')+'\n予定件数(GAS): '+(d.events||[]).length+'\n予定件数(端末): '+events.length+'\n車両数: '+(d.vehicles||[]).length+'\n人員数: '+(d.people||[]).length+'\n未保存予定: '+dirtyEvents.size+'\n未保存削除: '+pendingDeletes.size+(d.hasData?'\n\n→ GASの最新データをこの端末へ同期しました。':'');}catch(err){out.textContent='【接続失敗】\n'+String(err&&err.message||err)+'\n\nGAS Webアプリは「自分として実行」＋「全員」で公開してください。';}}
+
+function openSettings(){document.getElementById('settings').classList.add('open');manageTab('people');}
 function closeSettings(){document.getElementById('settings').classList.remove('open');rebuildChecks();render();}
 function manageTab(m){document.getElementById('tabPeople').classList.toggle('on',m==='people');document.getElementById('tabVehicles').classList.toggle('on',m==='vehicles');let h='';if(m==='people'){h='<h3>人員の増減・名前変更</h3>';peopleList.forEach((n,i)=>h+=`<div class="manage-row people"><input id="pn${i}" value="${E(n)}"><button onclick="renamePerson(${i})">変更</button><button onclick="removePerson(${i})">削除</button></div>`);h+='<div class="manage-add"><input id="newPerson" placeholder="新しい人員名"><button onclick="addPerson()">＋ 人員追加</button></div>';}else{h='<h3>車両の増減・詳細変更</h3>';vehicleList.forEach((v,i)=>h+=`<div class="manage-row"><input id="vn${i}" value="${E(v.id)}"><input id="vd${i}" value="${E(v.detail)}"><input id="vm${i}" value="${E(v.memo)}" placeholder="詳細・メモ"><button onclick="updateVehicle(${i})">変更</button><button onclick="removeVehicle(${i})">削除</button></div>`);h+='<div class="manage-add"><input id="newVehicleId" placeholder="車両番号 008"><input id="newVehicleDetail" placeholder="2t"><input id="newVehicleMemo" placeholder="詳細・メモ"><button onclick="addVehicle()">＋ 車両追加</button></div>';}document.getElementById('manageBody').innerHTML=h;}
 function addPerson(){const n=document.getElementById('newPerson').value.trim();if(!n)return alert('人員名を入力してください');if(peopleList.includes(n))return alert('同じ名前があります');peopleList.push(n);syncMaster();masterDirty=true;persistLocal();rebuildChecks();manageTab('people');render();queueCloudSave();}
@@ -897,52 +987,27 @@ function removeVehicle(i){const v=vehicleList[i];if(!confirm(v.id+' を削除し
 // 起動は全関数・変数の初期化後に一度だけ行う。v47系で問題になった「関数定義前のrender/checks呼び出し」を排除。
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{view=b.dataset.v;render();});
 document.getElementById('prev').onclick=()=>shift(-1);document.getElementById('next').onclick=()=>shift(1);document.getElementById('today').onclick=()=>{cur=new Date();cur.setHours(0,0,0,0);render();};document.getElementById('subPrev').onclick=()=>shiftSecondary(-1);document.getElementById('subNext').onclick=()=>shiftSecondary(1);
-rebuildChecks();render();
-// 自動共有診断：手動の「共有診断」で成功しているJSONP取得を、保存処理とは完全に独立して実行する。
-// 今回は「自動処理が本当に走っているか」を画面上で確認できるようにする。
-let cloudAutoTimer=null, cloudAutoRunning=false, cloudAutoCount=0, cloudAutoLastRevision=null, cloudAutoLastAt=0;
-function setAutoDiag(text){
-  const el=document.getElementById('autoCloudStatus');
-  if(el) el.textContent=text;
-}
-async function autoCloudPull(){
-  if(cloudAutoRunning){cloudAutoTimer=setTimeout(autoCloudPull,2000);return;}
-  cloudAutoRunning=true;
-  cloudAutoCount++;
-  const started=Date.now();
+rebuildChecks();render();setAppBadgeCount(newEventIds.size);
+// 自動同期：未保存変更がある間は「読込」を行わず、保存を優先する。
+// これで共有読込→共有保存→共有読込…のループを防ぐ。
+let cloudAutoBusy=false;
+async function autoCloudSync(){
+  if(cloudAutoBusy||cloudSaving||cloudLoading)return;
+  cloudAutoBusy=true;
   try{
-    // loadCloud() の cloudSaving/cloudLoading 条件には依存せず、診断と同じJSONP取得を直接実行する。
-    const d=await jsonpGet(15000);
-    const rev=Number(d&&d.revision||0);
-    cloudAutoLastRevision=rev;
-    cloudAutoLastAt=Date.now();
-    if(d&&d.hasData){
-      const remote=(d.events||[]).map(normalizeEvent);
-      // 未保存のローカル変更がある間は上書きせず、取得自体は記録する。
-      if(!cloudSaving&&!dirtyEvents.size&&!pendingDeletes.size&&!masterDirty){
-        events=remote;
-        if(Array.isArray(d.people)&&d.people.length)peopleList=d.people.map(String);
-        if(Array.isArray(d.vehicles)&&d.vehicles.length)vehicleList=d.vehicles.map(v=>({id:String(v.id||''),detail:String(v.detail||'2t'),memo:String(v.memo||'')})).filter(v=>v.id);
-        syncMaster();rebuildChecks();persistLocal();render();
-      }
-      setAutoDiag('自動共有: '+new Date().toLocaleTimeString()+' / GAS '+remote.length+'件 / rev '+rev);
+    if(dirtyEvents.size||pendingDeletes.size||masterDirty){
+      await postCloud();
     }else{
-      setAutoDiag('自動共有: '+new Date().toLocaleTimeString()+' / GASデータなし');
+      await loadCloud();
     }
-  }catch(e){
-    cloudAutoLastAt=Date.now();
-    setAutoDiag('自動共有エラー: '+String(e&&e.message||e));
-    console.warn('自動共有取得失敗',e);
-  }finally{
-    cloudAutoRunning=false;
-    cloudAutoTimer=setTimeout(autoCloudPull,2000);
-  }
+  }finally{cloudAutoBusy=false;}
 }
-setTimeout(autoCloudPull,500);
-window.addEventListener('focus',()=>setTimeout(autoCloudPull,100));
-window.addEventListener('pageshow',()=>setTimeout(autoCloudPull,100));
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(autoCloudPull,100);});
-window.addEventListener('online',()=>setTimeout(autoCloudPull,100));
+setTimeout(autoCloudSync,700);
+setInterval(autoCloudSync,3000);
+window.addEventListener('focus',()=>setTimeout(autoCloudSync,150));
+window.addEventListener('pageshow',()=>setTimeout(autoCloudSync,150));
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(autoCloudSync,150);});
+window.addEventListener('online',()=>setTimeout(autoCloudSync,150));
 
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;const b=document.getElementById('installBtn');if(b)b.style.display='';});
 window.addEventListener('appinstalled',()=>{deferredInstallPrompt=null;const b=document.getElementById('installBtn');if(b)b.style.display='none';});
