@@ -275,7 +275,7 @@
 .person-list-card{width:min(900px,96vw)!important;max-height:90vh;overflow:auto}.person-list-tools{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid #dce3eb;font-weight:800}.person-list-tools select{padding:9px 12px;border:1px solid #bfc9d6;border-radius:6px;min-width:180px}.person-list-body{padding:12px 16px 18px}.person-list-row{display:grid;grid-template-columns:110px 1fr;gap:10px;align-items:start;border-bottom:1px solid #e5e7eb;padding:10px 0}.person-list-date{font-weight:800;color:#334155}.person-list-item{border:1px solid #d8dee8;border-radius:6px;padding:7px 9px;margin-bottom:6px;background:#fff}.person-list-item.off{background:#fff0f5;border-color:#efb5cb;color:#a11}.person-list-item .kind{font-size:11px;font-weight:800;margin-right:6px}.person-list-item .meta{font-size:12px;color:#64748b;margin-top:3px}.person-list-empty{padding:20px;text-align:center;color:#64748b}.person-list-open{cursor:pointer}@media(max-width:700px){.person-list-card{width:96vw!important}.person-list-tools{flex-wrap:wrap}.person-list-tools select{flex:1;min-width:160px}.person-list-row{grid-template-columns:82px 1fr;gap:7px}.person-list-body{padding:10px}}
 </style>
 <body>
-<header class="top"><div class="logo">🚚 車両・人員 配置管理</div><div class="tabs"><button data-v="day">日予定</button><button data-v="week">週予定</button><button data-v="month" class="on">月予定</button></div><div class="nav"><button id="prev">◀</button><div id="title" class="title"></div><span id="cloudStatus" class="cloud-status">共有確認中…</span><button id="cloudDiagBtn" type="button" onclick="openCloudDiag()">🔄 共有診断</button><button id="next">▶</button><button id="today">今日</button><button type="button" onclick="openPersonList()">👤 人員一覧</button><button type="button" onclick="openVehicleMatrix()">🚚 車両別一覧</button><button type="button" onclick="printTop()">🖨 印刷</button><button id="installBtn" type="button" onclick="installApp()" style="display:none">📱 アプリ追加</button><button class="mobile-add" type="button" onclick="newEvent()">＋ 予定</button><button id="settingsBtn" type="button" onclick="openSettings()">⚙ 設定</button></div></header>
+<header class="top"><div class="logo">🚚 車両・人員 配置管理</div><div class="tabs"><button data-v="day">日予定</button><button data-v="week">週予定</button><button data-v="month" class="on">月予定</button></div><div class="nav"><button id="prev">◀</button><div id="title" class="title"></div><span id="cloudStatus" class="cloud-status">共有確認中…</span><span id="autoCloudStatus" class="cloud-status" style="margin-left:6px">自動共有：待機中</span><button id="cloudDiagBtn" type="button" onclick="openCloudDiag()">🔄 共有診断</button><button id="next">▶</button><button id="today">今日</button><button type="button" onclick="openPersonList()">👤 人員一覧</button><button type="button" onclick="openVehicleMatrix()">🚚 車両別一覧</button><button type="button" onclick="printTop()">🖨 印刷</button><button id="installBtn" type="button" onclick="installApp()" style="display:none">📱 アプリ追加</button><button class="mobile-add" type="button" onclick="newEvent()">＋ 予定</button><button id="settingsBtn" type="button" onclick="openSettings()">⚙ 設定</button></div></header>
 <div id="cloudDiag" class="cloud-diag"><div class="cloud-diag-card"><h3>🔄 共有診断</h3><pre id="cloudDiagText">確認中…</pre><div class="cloud-diag-actions"><button type="button" onclick="closeCloudDiag()">閉じる</button><button type="button" class="primary" onclick="runCloudDiag()">今すぐ確認</button></div></div></div><div id="zoomContent"><div class="color-note">現場ごとに色分け　｜　<span class="red-note">赤＝車両・人員のダブルブッキング</span>　｜　<span class="off-note">休み</span></div><div class="app"><main><section class="panel"><div id="main"></div></section>
 <section class="panel"><div class="head"><span id="sub"></span><button id="subPrev" onclick="shift(-1)">◀</button><button id="subNext" onclick="shift(1)">▶</button><button class="add" onclick="newEvent()">＋ 予定追加</button></div><div id="secondary"></div></section></main>
 <aside class="side"><div class="box"><h3 id="stitle">空き状況</h3><div id="status" class="status"></div></div><div class="box"><h3>お知らせ</h3><div class="notice">・予定／確定をクリックして編集<br>・人員の「休み」を登録<br>・重複した車両／人員だけ赤色<br>・選択した日は青枠で表示</div></div>
@@ -340,12 +340,20 @@ function syncMaster(){
 syncMaster();
 
 let events=(JSON.parse(localStorage.getItem('vehicleScheduleExact')||'null')||[]).map(normalizeEvent);
-// アプリアイコンの新着件数だけを表示する（画面UIは追加しない）。
-let seenEventIds;
-try{seenEventIds=new Set(JSON.parse(localStorage.getItem('vehicleSeenEventIds')||'null')||events.map(e=>String(e.id)));}catch(e){seenEventIds=new Set(events.map(e=>String(e.id)));}
-let newEventIds=new Set();
-function setAppBadgeCount(count){const n=Math.max(0,Number(count)||0);try{if(n>0&&navigator.setAppBadge)navigator.setAppBadge(n);else if(n===0&&navigator.clearAppBadge)navigator.clearAppBadge();}catch(e){}}
-function updateNewEventBadge(remoteEvents,initialize=false){const list=Array.isArray(remoteEvents)?remoteEvents:[];if(initialize){list.forEach(e=>seenEventIds.add(String(e.id)));newEventIds.clear();}else list.forEach(e=>{const id=String(e.id);if(!seenEventIds.has(id))newEventIds.add(id);});try{localStorage.setItem('vehicleSeenEventIds',JSON.stringify([...seenEventIds]));}catch(e){}setAppBadgeCount(newEventIds.size);}
+// アプリアイコンの件数表示だけを追加。共有保存・同期処理には介入しない。
+let appBadgeSeen=null;
+try{const v=JSON.parse(localStorage.getItem('vehicleAppBadgeSeen_v1')||'null');appBadgeSeen=v&&typeof v==='object'?v:null;}catch(e){appBadgeSeen=null;}
+function appBadgeSignature(e){return JSON.stringify({id:String(e&&e.id||''),updatedAt:Number(e&&e.updatedAt||0),date:String(e&&e.date||''),site:String(e&&e.site||''),work:String(e&&e.work||''),kind:String(e&&e.kind||'')});}
+function updateAppBadge(remoteEvents){
+  if(!Array.isArray(remoteEvents)||typeof navigator.setAppBadge!=='function')return;
+  const now={};let count=0;
+  remoteEvents.forEach(e=>{const id=String(e&&e.id||'');if(!id)return;const sig=appBadgeSignature(e);now[id]=sig;if(appBadgeSeen&&appBadgeSeen[id]!==undefined&&appBadgeSeen[id]!==sig)count++;else if(appBadgeSeen&&appBadgeSeen[id]===undefined)count++;});
+  if(!appBadgeSeen){appBadgeSeen=now;try{localStorage.setItem('vehicleAppBadgeSeen_v1',JSON.stringify(appBadgeSeen));}catch(e){}try{navigator.clearAppBadge&&navigator.clearAppBadge();}catch(e){}return;}
+  try{localStorage.setItem('vehicleAppBadgeSeen_v1',JSON.stringify(now));}catch(e){}
+  try{if(count>0)navigator.setAppBadge(count);else if(typeof navigator.clearAppBadge==='function')navigator.clearAppBadge();}catch(e){}
+  appBadgeSeen=now;
+}
+
 let cur=new Date();cur.setHours(0,0,0,0);
 let view='month',eid=null,weekMode=localStorage.getItem('vehicleWeekMode')||'people';
 let dirtyEvents=new Map();
@@ -874,9 +882,11 @@ async function postCloud(){
 
     const remoteDeleted=server.deleted||{};
     sentDeletes.forEach((meta,id)=>{
-      const tomb=remoteDeleted[id];
       if(!pendingDeletes.has(id))return;
-      if(!remoteById.has(id)&&tomb&&Number(tomb.updatedAt||0)>Number(meta.baseUpdatedAt||0)&&String(tomb.deletedBy||'')===CLIENT_ID){
+      const tomb=remoteDeleted[id];
+      // 削除送信後のGAS取得結果に対象IDが存在しなければ、削除が反映されたものとして確定。
+      // tombstoneのdeletedBy等の形式に依存しないため、PC側で削除済み予定が復活するのを防ぐ。
+      if(!remoteById.has(id)){
         pendingDeletes.delete(id);
       }
     });
@@ -938,14 +948,13 @@ async function postCloud(){
   }
 }
 function mergeRemote(d,fromSave=false){
-  const remote=Array.isArray(d.events)?d.events.map(normalizeEvent):[];
-  updateNewEventBadge(remote, !localStorage.getItem('vehicleSeenEventIds'));const remoteDeleted=d&&d.deleted&&typeof d.deleted==='object'?d.deleted:{};const localById=new Map(events.map(e=>[String(e.id),e]));const remoteById=new Map(remote.map(e=>[String(e.id),e]));
+  const remote=Array.isArray(d.events)?d.events.map(normalizeEvent):[];const remoteDeleted=d&&d.deleted&&typeof d.deleted==='object'?d.deleted:{};const localById=new Map(events.map(e=>[String(e.id),e]));const remoteById=new Map(remote.map(e=>[String(e.id),e]));
   const merged=[];
   remoteById.forEach((r,id)=>{if(pendingDeletes.has(id))return;const dirty=dirtyEvents.get(id);const l=localById.get(id);if(dirty){merged.push(l||dirty.event);return;}if(!l||Number(r.updatedAt||0)>=Number(l.updatedAt||0))merged.push(r);else merged.push(l);});
   localById.forEach((l,id)=>{if(remoteById.has(id)||pendingDeletes.has(id))return;const tomb=remoteDeleted[id];if(tomb&&Number(tomb.updatedAt||tomb.deletedAt||0)>=Number(l.updatedAt||0))return;merged.push(l);});
   events=merged; cloudMasterUpdatedAt=Number(d.masterUpdatedAt||cloudMasterUpdatedAt||0); if(Array.isArray(d.people)&&d.people.length&&!masterDirty)peopleList=d.people.map(String); if(Array.isArray(d.vehicles)&&d.vehicles.length&&!masterDirty)vehicleList=d.vehicles.map(v=>({id:String(v.id||''),detail:String(v.detail||'2t'),memo:String(v.memo||'')})).filter(v=>v.id); syncMaster();rebuildChecks();colorPreparedFor='';if(!fromSave)persistLocal();
 }
-async function loadCloud(){if(cloudLoading||cloudSaving)return;cloudLoading=true;setCloudStatus('共有読込中…');try{const d=await jsonpGet(15000);if(d&&d.hasData){mergeRemote(d);render();setCloudStatus(dirtyEvents.size||pendingDeletes.size||masterDirty?'共有同期済み・未保存あり':'共有同期済み');if(dirtyEvents.size||pendingDeletes.size||masterDirty)queueCloudSave();}else if(d){setCloudStatus('共有データなし');if(events.length||vehicleList.length||peopleList.length)queueCloudSave();}else setCloudStatus('共有接続エラー');}catch(err){console.warn(err);setCloudStatus('共有接続エラー')}finally{cloudLoading=false;}}
+async function loadCloud(){if(cloudLoading||cloudSaving)return;cloudLoading=true;setCloudStatus('共有読込中…');try{const d=await jsonpGet(15000);if(d&&d.hasData){const hasLocalPending=dirtyEvents.size||pendingDeletes.size||masterDirty;if(hasLocalPending){mergeRemote(d);}else{events=(d.events||[]).map(normalizeEvent);if(Array.isArray(d.people)&&d.people.length)peopleList=d.people.map(String);if(Array.isArray(d.vehicles)&&d.vehicles.length)vehicleList=d.vehicles.map(v=>({id:String(v.id||''),detail:String(v.detail||'2t'),memo:String(v.memo||'')})).filter(v=>v.id);cloudMasterUpdatedAt=Number(d.masterUpdatedAt||cloudMasterUpdatedAt||0);syncMaster();rebuildChecks();persistLocal();colorPreparedFor='';}render();setCloudStatus(dirtyEvents.size||pendingDeletes.size||masterDirty?'共有同期済み・未保存あり':'共有同期済み');if(dirtyEvents.size||pendingDeletes.size||masterDirty)queueCloudSave();}else if(d){setCloudStatus('共有データなし');if(events.length||vehicleList.length||peopleList.length)queueCloudSave();}else setCloudStatus('共有接続エラー');}catch(err){console.warn(err);setCloudStatus('共有接続エラー')}finally{cloudLoading=false;}}
 function persist(){masterDirty=true;persistLocal();queueCloudSave();}
 function forceCloudReload(){loadCloud();}
 
@@ -966,7 +975,7 @@ function removeVehicle(i){const v=vehicleList[i];if(!confirm(v.id+' を削除し
 // 起動は全関数・変数の初期化後に一度だけ行う。v47系で問題になった「関数定義前のrender/checks呼び出し」を排除。
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{view=b.dataset.v;render();});
 document.getElementById('prev').onclick=()=>shift(-1);document.getElementById('next').onclick=()=>shift(1);document.getElementById('today').onclick=()=>{cur=new Date();cur.setHours(0,0,0,0);render();};document.getElementById('subPrev').onclick=()=>shiftSecondary(-1);document.getElementById('subNext').onclick=()=>shiftSecondary(1);
-rebuildChecks();render();setAppBadgeCount(newEventIds.size);applyZoom();
+rebuildChecks();render();
 // 自動同期：未保存変更がある間は「読込」を行わず、保存を優先する。
 // これで共有読込→共有保存→共有読込…のループを防ぐ。
 let cloudAutoBusy=false;
@@ -1010,6 +1019,38 @@ window.addEventListener('load',()=>{
   if(localStorage.getItem(APP_CACHE_CLEAN_KEY)!=='1') cleanupOldAppCache();
 });
 
+
+/* 自動共有の確認表示（共有保存・同期ロジックには介入しない） */
+(function(){
+  let busy=false;
+  async function updateAutoCloudStatus(){
+    if(busy)return;
+    const el=document.getElementById('autoCloudStatus');
+    if(!el)return;
+    busy=true;
+    try{
+      const d=await jsonpGet(15000);
+      if(d&&d.hasData){
+        const count=Array.isArray(d.events)?d.events.length:0;
+        const rev=Number(d.revision||0);
+        updateAppBadge(d.events||[]);
+        el.textContent='自動共有：'+new Date().toLocaleTimeString()+' / GAS '+count+'件 / rev '+rev;
+      }else if(d){
+        el.textContent='自動共有：'+new Date().toLocaleTimeString()+' / GASデータなし';
+      }else{
+        el.textContent='自動共有：接続エラー';
+      }
+    }catch(e){
+      el.textContent='自動共有：接続エラー';
+    }finally{
+      busy=false;
+    }
+  }
+  setTimeout(updateAutoCloudStatus,1000);
+  setInterval(updateAutoCloudStatus,10000);
+  window.addEventListener('focus',()=>setTimeout(updateAutoCloudStatus,300));
+  window.addEventListener('pageshow',()=>setTimeout(updateAutoCloudStatus,300));
+})();
 </script>
 <div id="settings" class="settings" onclick="if(event.target===this)closeSettings()">
 <div class="settings-card">
