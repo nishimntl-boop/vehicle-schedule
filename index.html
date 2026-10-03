@@ -261,11 +261,7 @@
 .times .time-end::before{content:'';position:absolute;right:0;top:0;bottom:0;border-right:1px solid #e0e5eb;}
 .times .time-end span{position:absolute;right:0;top:0;transform:translateX(50%);background:#fff;padding:5px 0;}
 .timeline{min-width:1175px!important;}
-</style>
-<style>
-.notice-bell{font-weight:900;white-space:nowrap;position:relative}.notice-bell .notice-count{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 5px;margin-left:3px;border-radius:999px;background:#dc2626;color:#fff;font-size:12px;line-height:20px}.notice-bell .notice-count.zero{display:none}.notice-modal{position:fixed;inset:0;background:rgba(15,23,42,.42);z-index:3000;display:none;align-items:center;justify-content:center;padding:14px}.notice-modal.open{display:flex}.notice-card{width:min(760px,96vw);max-height:min(82vh,760px);background:#fff;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden;display:flex;flex-direction:column}.notice-head{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid #dce3eb}.notice-head h2{margin:0;flex:1;font-size:18px}.notice-head button{border:1px solid #cbd5e1;background:#fff;border-radius:7px;padding:6px 11px;font-weight:900}.notice-list{padding:10px 12px;overflow:auto;-webkit-overflow-scrolling:touch;min-height:80px}.notice-item{display:grid;grid-template-columns:92px 1fr auto;gap:9px;align-items:start;padding:10px 8px;border-bottom:1px solid #e5e7eb}.notice-item:last-child{border-bottom:0}.notice-date{font-weight:900;color:#334155}.notice-body{min-width:0}.notice-work{font-weight:900;word-break:break-word}.notice-time{font-size:11px;color:#64748b;margin-top:3px}.notice-action{font-size:11px;font-weight:900;padding:4px 7px;border-radius:999px;background:#eef2ff;color:#3730a3;white-space:nowrap}.notice-action.add{background:#ecfdf5;color:#166534}.notice-action.change{background:#eff6ff;color:#1d4ed8}.notice-action.delete{background:#fef2f2;color:#b91c1c}.notice-empty{padding:28px 12px;text-align:center;color:#64748b;font-weight:800}@media(max-width:700px){.notice-card{width:96vw;max-height:86vh}.notice-item{grid-template-columns:76px 1fr auto;gap:6px;padding:9px 5px}.notice-date{font-size:12px}.notice-work{font-size:13px}.notice-action{font-size:10px;padding:3px 5px}}
-</style>
-<style>
+</style><style>
 .overnight-toggle{display:flex!important;align-items:center!important;gap:10px!important;margin:10px 0!important;padding:10px 12px!important;border:2px solid #64748b!important;border-radius:8px!important;background:#f1f5f9!important;cursor:pointer!important;}
 .overnight-toggle input{width:22px!important;height:22px!important;flex:0 0 auto!important;}
 .overnight-toggle span{display:flex;flex-direction:column;line-height:1.25;}
@@ -279,7 +275,7 @@
 .person-list-card{width:min(900px,96vw)!important;max-height:90vh;overflow:auto}.person-list-tools{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid #dce3eb;font-weight:800}.person-list-tools select{padding:9px 12px;border:1px solid #bfc9d6;border-radius:6px;min-width:180px}.person-list-body{padding:12px 16px 18px}.person-list-row{display:grid;grid-template-columns:110px 1fr;gap:10px;align-items:start;border-bottom:1px solid #e5e7eb;padding:10px 0}.person-list-date{font-weight:800;color:#334155}.person-list-item{border:1px solid #d8dee8;border-radius:6px;padding:7px 9px;margin-bottom:6px;background:#fff}.person-list-item.off{background:#fff0f5;border-color:#efb5cb;color:#a11}.person-list-item .kind{font-size:11px;font-weight:800;margin-right:6px}.person-list-item .meta{font-size:12px;color:#64748b;margin-top:3px}.person-list-empty{padding:20px;text-align:center;color:#64748b}.person-list-open{cursor:pointer}@media(max-width:700px){.person-list-card{width:96vw!important}.person-list-tools{flex-wrap:wrap}.person-list-tools select{flex:1;min-width:160px}.person-list-row{grid-template-columns:82px 1fr;gap:7px}.person-list-body{padding:10px}}
 </style>
 <body>
-<header class="top"><div class="logo">🚚 車両・人員 配置管理</div><div class="tabs"><button data-v="day">日予定</button><button data-v="week">週予定</button><button data-v="month" class="on">月予定</button></div><div class="nav"><button id="prev">◀</button><div id="title" class="title"></div><span id="cloudStatus" class="cloud-status">共有確認中…</span><span id="autoCloudStatus" class="cloud-status">自動共有：確認中…</span><button id="cloudDiagBtn" type="button" onclick="openCloudDiag()">🔄 共有診断</button><button id="next">▶</button><button id="today">今日</button><button type="button" onclick="openPersonList()">👤 人員一覧</button><button type="button" onclick="openVehicleMatrix()">🚚 車両別一覧</button><button type="button" onclick="printTop()">🖨 印刷</button><button id="installBtn" type="button" onclick="installApp()" style="display:none">📱 アプリ追加</button><button class="mobile-add" type="button" onclick="newEvent()">＋ 予定</button><button id="newNoticeBtn" class="notice-bell" type="button" onclick="openNotifications()">🔔 新着 <span id="newNoticeCount" class="notice-count zero">0</span></button><button id="settingsBtn" type="button" onclick="openSettings()">⚙ 設定</button></div></header>
+<header class="top"><div class="logo">🚚 車両・人員 配置管理</div><div class="tabs"><button data-v="day">日予定</button><button data-v="week">週予定</button><button data-v="month" class="on">月予定</button></div><div class="nav"><button id="prev">◀</button><div id="title" class="title"></div><span id="cloudStatus" class="cloud-status">共有確認中…</span><button id="cloudDiagBtn" type="button" onclick="openCloudDiag()">🔄 共有診断</button><button id="next">▶</button><button id="today">今日</button><button type="button" onclick="openPersonList()">👤 人員一覧</button><button type="button" onclick="openVehicleMatrix()">🚚 車両別一覧</button><button type="button" onclick="printTop()">🖨 印刷</button><button id="installBtn" type="button" onclick="installApp()" style="display:none">📱 アプリ追加</button><button class="mobile-add" type="button" onclick="newEvent()">＋ 予定</button><button id="settingsBtn" type="button" onclick="openSettings()">⚙ 設定</button></div></header>
 <div id="cloudDiag" class="cloud-diag"><div class="cloud-diag-card"><h3>🔄 共有診断</h3><pre id="cloudDiagText">確認中…</pre><div class="cloud-diag-actions"><button type="button" onclick="closeCloudDiag()">閉じる</button><button type="button" class="primary" onclick="runCloudDiag()">今すぐ確認</button></div></div></div><div id="zoomContent"><div class="color-note">現場ごとに色分け　｜　<span class="red-note">赤＝車両・人員のダブルブッキング</span>　｜　<span class="off-note">休み</span></div><div class="app"><main><section class="panel"><div id="main"></div></section>
 <section class="panel"><div class="head"><span id="sub"></span><button id="subPrev" onclick="shift(-1)">◀</button><button id="subNext" onclick="shift(1)">▶</button><button class="add" onclick="newEvent()">＋ 予定追加</button></div><div id="secondary"></div></section></main>
 <aside class="side"><div class="box"><h3 id="stitle">空き状況</h3><div id="status" class="status"></div></div><div class="box"><h3>お知らせ</h3><div class="notice">・予定／確定をクリックして編集<br>・人員の「休み」を登録<br>・重複した車両／人員だけ赤色<br>・選択した日は青枠で表示</div></div>
@@ -306,12 +302,6 @@
       <label>人員</label><select id="personListSelect" onchange="renderPersonList()"></select>
     </div>
     <div id="personListBody" class="person-list-body"></div>
-  </div>
-</div>
-<div id="noticeModal" class="notice-modal" onclick="if(event.target===this)closeNotifications()">
-  <div class="notice-card">
-    <div class="notice-head"><h2>🔔 新着通知</h2><button type="button" onclick="closeNotifications()">閉じる</button></div>
-    <div id="noticeList" class="notice-list"></div>
   </div>
 </div>
 <div id="vehicleMatrixModal" class="event-modal" onclick="if(event.target===this)closeVehicleMatrix()">
@@ -359,15 +349,6 @@ let editAssignmentSnapshot=null;
 let masterDirty=false;
 let cloudSaving=false,cloudLoading=false,cloudTimer=null;
 let cloudMasterUpdatedAt=Number(localStorage.getItem('vehicleCloudMasterUpdatedAt')||0);
-const NOTICE_HISTORY_KEY='vehicleNotificationHistory_v1';
-const NOTICE_READ_KEY='vehicleNotificationReadAt_v1';
-const NOTICE_SNAPSHOT_KEY='vehicleNotificationSnapshot_v1';
-let noticeHistory=[];
-let noticeReadAt=Number(localStorage.getItem(NOTICE_READ_KEY)||0);
-let noticeSnapshot=null;
-try{const a=JSON.parse(localStorage.getItem(NOTICE_HISTORY_KEY)||'[]');noticeHistory=Array.isArray(a)?a:[];}catch(e){noticeHistory=[];}
-try{const a=JSON.parse(localStorage.getItem(NOTICE_SNAPSHOT_KEY)||'null');noticeSnapshot=Array.isArray(a)?a:null;}catch(e){noticeSnapshot=null;}
-
 let colorCache=new Map();
 let colorPreparedFor='';
 let siteColorMap=new Map();
@@ -841,34 +822,6 @@ function restoreDirty(){
 restoreDirty();
 document.addEventListener('change',e=>{if(e.target.classList.contains('v')||e.target.classList.contains('p'))assignmentTouched.desktop=true;if(e.target.classList.contains('mv')||e.target.classList.contains('mp'))assignmentTouched.mobile=true;});
 
-function noticeNow(){return Date.now();}
-function noticePrune(){const cutoff=noticeNow()-7*24*60*60*1000;noticeHistory=noticeHistory.filter(n=>Number(n.createdAt||0)>=cutoff);localStorage.setItem(NOTICE_HISTORY_KEY,JSON.stringify(noticeHistory));}
-function noticeEventData(e){if(!e)return null;return {id:String(e.id),date:String(e.date||''),endDate:String(e.endDate||''),site:String(e.site||''),work:String(e.work||''),kind:String(e.kind||''),start:String(e.start||''),end:String(e.end||''),vehicles:(e.vehicles||[]).map(String).sort(),people:(e.people||[]).map(String).sort()};}
-function noticeEventKey(e){return JSON.stringify(noticeEventData(e));}
-function noticeWorkText(e){if(!e)return '予定';const site=String(e.site||'').trim(),work=String(e.work||'').trim();if(site&&work)return site+'　'+work;if(site)return site;if(work)return work;if(e.kind==='off')return '休み';return '予定';}
-function noticeDateText(v){const d=String(v||'');return d?d.replace(/^(\d{4})-(\d{2})-(\d{2})$/,'$1/$2/$3'):'日付未設定';}
-function noticeSnapshotFromEvents(a){return (Array.isArray(a)?a:[]).map(normalizeEvent).map(noticeEventData).filter(Boolean);}
-function noticeUnreadCount(){noticePrune();return noticeHistory.filter(n=>Number(n.createdAt||0)>Number(noticeReadAt||0)).length;}
-function setNoticeBadge(){const count=noticeUnreadCount();const el=document.getElementById('newNoticeCount');if(el){el.textContent=String(count);el.classList.toggle('zero',count===0);}try{if(count>0&&navigator.setAppBadge)navigator.setAppBadge(count);else if(count===0&&navigator.clearAppBadge)navigator.clearAppBadge();}catch(e){}}
-function saveNoticeState(){noticePrune();localStorage.setItem(NOTICE_HISTORY_KEY,JSON.stringify(noticeHistory));localStorage.setItem(NOTICE_READ_KEY,String(noticeReadAt||0));if(noticeSnapshot)localStorage.setItem(NOTICE_SNAPSHOT_KEY,JSON.stringify(noticeSnapshot));setNoticeBadge();}
-function addNotice(action,event,createdAt){const n={id:'n_'+createdAt+'_'+Math.random().toString(36).slice(2),createdAt:Number(createdAt||noticeNow()),action:String(action),date:String(event&&event.date||''),work:noticeWorkText(event)};noticeHistory.unshift(n);}
-function processRemoteNotifications(remoteEvents,remoteDeleted){
-  const current=noticeSnapshotFromEvents(remoteEvents||[]);
-  if(!noticeSnapshot){noticeSnapshot=current;saveNoticeState();return;}
-  const oldById=new Map(noticeSnapshot.map(e=>[String(e.id),e]));
-  const newById=new Map(current.map(e=>[String(e.id),e]));
-  const now=noticeNow();
-  newById.forEach((e,id)=>{const old=oldById.get(id);if(!old)addNotice('追加',e,now);else if(JSON.stringify(old)!==JSON.stringify(e))addNotice('変更',e,now);});
-  oldById.forEach((old,id)=>{if(newById.has(id))return;const tomb=remoteDeleted&&remoteDeleted[id];const e=Object.assign({},old,{date:old.date,site:old.site,work:old.work,kind:old.kind});addNotice('削除',e,Number(tomb&&tomb.updatedAt||now));});
-  noticeSnapshot=current;saveNoticeState();
-}
-function safeProcessRemoteNotifications(remoteEvents,remoteDeleted){try{processRemoteNotifications(remoteEvents,remoteDeleted);}catch(err){console.warn('通知処理をスキップしました',err);}}
-function safeSetNoticeSnapshot(a){try{noticeSnapshot=noticeSnapshotFromEvents(a||[]);saveNoticeState();}catch(err){console.warn('通知スナップショット保存をスキップしました',err);}}
-function markNotificationsRead(){noticePrune();noticeReadAt=noticeNow();saveNoticeState();}
-function renderNotifications(){noticePrune();const el=document.getElementById('noticeList');if(!el)return;if(!noticeHistory.length){el.innerHTML='<div class="notice-empty">過去7日間の新着通知はありません。</div>';setNoticeBadge();return;}el.innerHTML=noticeHistory.map(n=>'<div class="notice-item"><div class="notice-date">'+E(noticeDateText(n.date))+'</div><div class="notice-body"><div class="notice-work">'+E(n.work||'予定')+'</div><div class="notice-time">通知：'+E(new Date(Number(n.createdAt||0)).toLocaleString('ja-JP'))+'</div></div><span class="notice-action '+(n.action==='追加'?'add':n.action==='変更'?'change':'delete')+'">'+E(n.action)+'</span></div>').join('');setNoticeBadge();}
-function openNotifications(){renderNotifications();markNotificationsRead();renderNotifications();document.getElementById('noticeModal')?.classList.add('open');}
-function closeNotifications(){document.getElementById('noticeModal')?.classList.remove('open');}
-setNoticeBadge();
 let jsonpSeq=0;
 function jsonpGet(timeout=15000){return new Promise((resolve,reject)=>{const cb='__vehicleScheduleJsonp_'+Date.now()+'_'+(++jsonpSeq),script=document.createElement('script');let done=false;const timer=setTimeout(()=>finish(new Error('GAS読み込みタイムアウト')),timeout);function finish(err,data){if(done)return;done=true;clearTimeout(timer);if(script.parentNode)script.parentNode.removeChild(script);try{delete window[cb]}catch(e){window[cb]=undefined}err?reject(err):resolve(data);}window[cb]=data=>finish(null,data);script.onerror=()=>finish(new Error('GAS読み込みエラー'));script.src=GAS_URL+'?api=1&nocache=1&prefix='+encodeURIComponent(cb)+'&_='+Date.now();document.head.appendChild(script);});}
 function postForm(payload,timeout=20000){return new Promise((resolve,reject)=>{const frame=document.createElement('iframe');frame.name='vehicleSaveFrame_'+Date.now()+'_'+Math.random().toString(36).slice(2);frame.style.display='none';const form=document.createElement('form');form.method='POST';form.action=GAS_URL;form.target=frame.name;form.style.display='none';const input=document.createElement('textarea');input.name='payload';input.value=JSON.stringify(payload);form.appendChild(input);document.body.appendChild(frame);document.body.appendChild(form);let done=false;const timer=setTimeout(()=>finish(false,new Error('GAS保存タイムアウト')),timeout);function finish(ok,err){if(done)return;done=true;clearTimeout(timer);setTimeout(()=>{frame.remove();form.remove();},100);ok?resolve():reject(err);}frame.addEventListener('load',()=>finish(true),{once:true});try{form.submit();}catch(err){finish(false,err);}});}
@@ -933,7 +886,7 @@ async function postCloud(){
       if(Array.isArray(latest.vehicles)&&latest.vehicles.length)vehicleList=latest.vehicles.map(v=>({id:String(v.id||''),detail:String(v.detail||'2t'),memo:String(v.memo||'')})).filter(v=>v.id);
       syncMaster();dirtyEvents.clear();pendingDeletes.clear();masterDirty=false;
       cloudMasterUpdatedAt=Number(latest.masterUpdatedAt||cloudMasterUpdatedAt||0);
-      safeSetNoticeSnapshot(latest.events||[]);persistLocal();colorPreparedFor='';render();setCloudStatus('共有保存・同期済み');
+      persistLocal();colorPreparedFor='';render();setCloudStatus('共有保存・同期済み');
       return;
     }
 
@@ -955,7 +908,6 @@ async function postCloud(){
     });
 
     // 保存確認後はローカルをサーバー状態へ寄せる。ただし未保存変更は保持。
-    safeSetNoticeSnapshot(server.events||[]);
     mergeRemote(server,true);
     persistLocal();
     colorPreparedFor='';render();
@@ -986,13 +938,13 @@ function mergeRemote(d,fromSave=false){
   localById.forEach((l,id)=>{if(remoteById.has(id)||pendingDeletes.has(id))return;const tomb=remoteDeleted[id];if(tomb&&Number(tomb.updatedAt||tomb.deletedAt||0)>=Number(l.updatedAt||0))return;merged.push(l);});
   events=merged; cloudMasterUpdatedAt=Number(d.masterUpdatedAt||cloudMasterUpdatedAt||0); if(Array.isArray(d.people)&&d.people.length&&!masterDirty)peopleList=d.people.map(String); if(Array.isArray(d.vehicles)&&d.vehicles.length&&!masterDirty)vehicleList=d.vehicles.map(v=>({id:String(v.id||''),detail:String(v.detail||'2t'),memo:String(v.memo||'')})).filter(v=>v.id); syncMaster();rebuildChecks();colorPreparedFor='';if(!fromSave)persistLocal();
 }
-async function loadCloud(){if(cloudLoading||cloudSaving)return;cloudLoading=true;setCloudStatus('共有読込中…');try{const d=await jsonpGet(15000);if(d&&d.hasData){safeProcessRemoteNotifications(d.events||[],d.deleted||{});mergeRemote(d);render();setCloudStatus(dirtyEvents.size||pendingDeletes.size||masterDirty?'共有同期済み・未保存あり':'共有同期済み');if(dirtyEvents.size||pendingDeletes.size||masterDirty)queueCloudSave();}else if(d){setCloudStatus('共有データなし');if(events.length||vehicleList.length||peopleList.length)queueCloudSave();}else setCloudStatus('共有接続エラー');}catch(err){console.warn(err);setCloudStatus('共有接続エラー')}finally{cloudLoading=false;}}
+async function loadCloud(){if(cloudLoading||cloudSaving)return;cloudLoading=true;setCloudStatus('共有読込中…');try{const d=await jsonpGet(15000);if(d&&d.hasData){mergeRemote(d);render();setCloudStatus(dirtyEvents.size||pendingDeletes.size||masterDirty?'共有同期済み・未保存あり':'共有同期済み');if(dirtyEvents.size||pendingDeletes.size||masterDirty)queueCloudSave();}else if(d){setCloudStatus('共有データなし');if(events.length||vehicleList.length||peopleList.length)queueCloudSave();}else setCloudStatus('共有接続エラー');}catch(err){console.warn(err);setCloudStatus('共有接続エラー')}finally{cloudLoading=false;}}
 function persist(){masterDirty=true;persistLocal();queueCloudSave();}
 function forceCloudReload(){loadCloud();}
 
 function openCloudDiag(){document.getElementById('cloudDiag').classList.add('open');runCloudDiag();}
 function closeCloudDiag(){document.getElementById('cloudDiag').classList.remove('open');}
-async function runCloudDiag(){const out=document.getElementById('cloudDiagText');out.textContent='GASから最新データを確認・同期しています…';const started=Date.now();try{const d=await jsonpGet(15000);if(!d){out.textContent='【接続失敗】';return;}if(d.hasData){safeProcessRemoteNotifications(d.events||[],d.deleted||{});mergeRemote(d);render();persistLocal();setCloudStatus(dirtyEvents.size||pendingDeletes.size||masterDirty?'共有同期済み・未保存あり':'共有同期済み');}out.textContent='【GAS接続：OK】\n取得時間: '+(Date.now()-started)+'ms\nrevision: '+(d.revision||0)+'\n最終更新: '+(d.lastUpdated?new Date(Number(d.lastUpdated)).toLocaleString():'なし')+'\n予定件数(GAS): '+(d.events||[]).length+'\n予定件数(端末): '+events.length+'\n車両数: '+(d.vehicles||[]).length+'\n人員数: '+(d.people||[]).length+'\n未保存予定: '+dirtyEvents.size+'\n未保存削除: '+pendingDeletes.size+(d.hasData?'\n\n→ GASの最新データをこの端末へ同期しました。':'');}catch(err){out.textContent='【接続失敗】\n'+String(err&&err.message||err)+'\n\nGAS Webアプリは「自分として実行」＋「全員」で公開してください。';}}
+async function runCloudDiag(){const out=document.getElementById('cloudDiagText');out.textContent='GASから最新データを確認・同期しています…';const started=Date.now();try{const d=await jsonpGet(15000);if(!d){out.textContent='【接続失敗】';return;}if(d.hasData){mergeRemote(d);render();persistLocal();setCloudStatus(dirtyEvents.size||pendingDeletes.size||masterDirty?'共有同期済み・未保存あり':'共有同期済み');}out.textContent='【GAS接続：OK】\n取得時間: '+(Date.now()-started)+'ms\nrevision: '+(d.revision||0)+'\n最終更新: '+(d.lastUpdated?new Date(Number(d.lastUpdated)).toLocaleString():'なし')+'\n予定件数(GAS): '+(d.events||[]).length+'\n予定件数(端末): '+events.length+'\n車両数: '+(d.vehicles||[]).length+'\n人員数: '+(d.people||[]).length+'\n未保存予定: '+dirtyEvents.size+'\n未保存削除: '+pendingDeletes.size+(d.hasData?'\n\n→ GASの最新データをこの端末へ同期しました。':'');}catch(err){out.textContent='【接続失敗】\n'+String(err&&err.message||err)+'\n\nGAS Webアプリは「自分として実行」＋「全員」で公開してください。';}}
 
 function openSettings(){document.getElementById('settings').classList.add('open');manageTab('people');}
 function closeSettings(){document.getElementById('settings').classList.remove('open');rebuildChecks();render();}
