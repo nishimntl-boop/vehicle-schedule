@@ -790,7 +790,7 @@ function saveEvent(fromModal=false){
   const e=normalizeEvent(Object.assign({},old||{},form,{id}));
   if(e.kind==='off'){e.site='';e.work='';}
   if(old)markDirtyEvent(e,old.updatedAt,preserveAssignments);else markDirtyEvent(e,0,false);
-  if(old)events=events.map(x=>String(x.id)===id?e:x);else events.push(e);
+  if(old){addNoticeHistory(e,'変更');events=events.map(x=>String(x.id)===id?e:x);}else{addNoticeHistory(e,'追加');events.push(e);}
   colorPreparedFor='';persistLocal();render();
   // 車両別一覧から登録・編集した場合も、同じ画面を維持して最新データを即時反映。
   const vehicleMatrixWasOpen=document.getElementById('vehicleMatrixModal')?.classList.contains('open');
@@ -799,7 +799,7 @@ function saveEvent(fromModal=false){
   eid=null;editAssignmentSnapshot=null;assignmentTouched={desktop:false,mobile:false};
   queueCloudSave();
 }
-function delEvent(fromModal=false){if(!eid)return;if(!confirm('この予定を削除しますか？'))return;const old=events.find(x=>String(x.id)===String(eid));if(old){pendingDeletes.set(String(old.id),{id:String(old.id),baseUpdatedAt:Number(old.updatedAt||0)});dirtyEvents.delete(String(old.id));events=events.filter(x=>String(x.id)!==String(eid));persistLocal();queueCloudSave();}eid=null;if(fromModal)closeEventModal();render();}
+function delEvent(fromModal=false){if(!eid)return;if(!confirm('この予定を削除しますか？'))return;const old=events.find(x=>String(x.id)===String(eid));if(old){addNoticeHistory(old,'削除');pendingDeletes.set(String(old.id),{id:String(old.id),baseUpdatedAt:Number(old.updatedAt||0)});dirtyEvents.delete(String(old.id));events=events.filter(x=>String(x.id)!==String(eid));persistLocal();queueCloudSave();}eid=null;if(fromModal)closeEventModal();render();}
 function shift(n){if(view==='month')cur.setMonth(cur.getMonth()+n);else if(view==='week')cur.setDate(cur.getDate()+7*n);else cur.setDate(cur.getDate()+n);render();}
 
 function shiftSecondary(n){
@@ -1030,7 +1030,7 @@ function removeVehicle(i){const v=vehicleList[i];if(!confirm(v.id+' を削除し
 // 起動は全関数・変数の初期化後に一度だけ行う。v47系で問題になった「関数定義前のrender/checks呼び出し」を排除。
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{view=b.dataset.v;render();});
 document.getElementById('prev').onclick=()=>shift(-1);document.getElementById('next').onclick=()=>shift(1);document.getElementById('today').onclick=()=>{cur=new Date();cur.setHours(0,0,0,0);render();};document.getElementById('subPrev').onclick=()=>shiftSecondary(-1);document.getElementById('subNext').onclick=()=>shiftSecondary(1);
-rebuildChecks();render();
+rebuildChecks();render();renderNoticeHistory();
 // 自動同期：未保存変更がある間は「読込」を行わず、保存を優先する。
 // これで共有読込→共有保存→共有読込…のループを防ぐ。
 let cloudAutoBusy=false;
