@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="車両人員予定表">
 
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f4f6fa;font-family:Arial,"Yu Gothic",Meiryo,sans-serif;color:#172033}.top{height:58px;background:#101b31;color:white;display:flex;align-items:center;padding:0 16px;gap:5px;position:sticky;top:0;z-index:5}.logo{font-size:20px;font-weight:900;margin-right:12px}.tabs button,.nav button{border:0;border-radius:4px;padding:9px 16px;font-weight:800}.tabs button{background:#1d2943;color:#fff}.tabs .on{background:#1769e0}.nav{margin-left:auto;display:flex;gap:7px;align-items:center}.nav button{background:#fff}.title{font-size:20px;font-weight:900;min-width:125px;text-align:center}.cloud-diag{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:9999;display:none;align-items:center;justify-content:center;padding:18px}.cloud-diag.open{display:flex}.cloud-diag-card{background:#fff;border-radius:16px;max-width:520px;width:100%;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.25)}.cloud-diag-card h3{margin:0 0 12px}.cloud-diag-card pre{white-space:pre-wrap;word-break:break-word;background:#f3f5f8;border-radius:10px;padding:12px;font-size:12px;max-height:45vh;overflow:auto}.cloud-diag-actions{display:flex;gap:8px;justify-content:flex-end}.cloud-diag-actions button{padding:9px 14px;border-radius:9px;border:1px solid #ccd5e1;background:#fff;font-weight:800}.cloud-diag-actions button.primary{background:#1677e8;color:#fff;border-color:#1677e8}.cloud-status{font-size:11px;font-weight:800;opacity:.95;white-space:nowrap}.color-note{margin:8px auto 0;max-width:1600px;padding:7px 12px;background:#fff;border:1px solid #d3dae5;border-radius:6px;font-weight:900;font-size:12px}.red-note{color:#dc2626}.off-note{color:#c52f67}.app{display:grid;grid-template-columns:minmax(0,1fr) 365px;gap:10px;padding:9px;max-width:1600px;margin:auto}.panel,.box{background:#fff;border:1px solid #d3dae5;border-radius:6px;overflow:hidden;margin-bottom:9px}.legend{display:flex;gap:18px;padding:8px 12px;border-bottom:1px solid #d3dae5;font-weight:800}.dot{display:inline-block;width:13px;height:13px;border-radius:2px;margin-right:5px;vertical-align:-2px}.month{display:grid;grid-template-columns:repeat(7,minmax(110px,1fr));min-width:770px}.month .dow{background:#f8fafc;text-align:center;font-weight:900;padding:6px;border-right:1px solid #d3dae5;border-bottom:1px solid #d3dae5}.day{height:92px;padding:5px;border-right:1px solid #d3dae5;border-bottom:1px solid #d3dae5;overflow:hidden}.out{background:#fafafa;color:#a3aab5}.selected{background:#f7fbff;box-shadow:inset 0 0 0 2px #1769e0}.date{font-weight:900;font-size:15px;height:21px}.sun{color:#d11}.sat{color:#145bd7}.bar{display:block;width:100%;height:20px;margin:2px 0;border:0;border-radius:3px;color:white;padding:2px 6px;text-align:left;font-size:11px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.off{background:#f7d8e6!important;color:#c52f67!important}.off-status{color:#c52f67!important;font-weight:900}.plan{background:#9ca3af!important;color:#fff!important}.conflict,.conf{background:#dc2626!important;color:#fff!important}.conf{background:#dc2626!important}.head{height:39px;display:flex;align-items:center;gap:7px;padding:0 9px;border-bottom:1px solid #d3dae5;font-weight:900}.head span{flex:1}.head button{border:1px solid #ccd4df;background:#fff;border-radius:4px;padding:5px 9px}.add{background:#1769e0!important;color:white!important}.week{display:grid;grid-template-columns:120px repeat(7,minmax(105px,1fr));min-width:855px}.week>div{border-right:1px solid #d3dae5;border-bottom:1px solid #d3dae5;padding:5px;min-height:52px}.wh{background:#f8fafc;text-align:center;font-weight:900}.week-switch{display:flex;align-items:center;justify-content:space-between;gap:4px}.week-mode{display:flex;gap:3px}.week-mode .wm{border:1px solid #cbd3df;background:#fff;padding:3px 6px;border-radius:3px;font-size:10px;font-weight:900;cursor:pointer}.week-mode .wm.on{background:#1769e0;color:#fff;border-color:#1769e0}.week-date{cursor:pointer}.overnight{box-shadow:inset 0 0 0 2px #6b7280}.overnight-toggle{display:flex;align-items:center;gap:7px;margin:8px 0;font-weight:900}.overnight-toggle input{width:18px;height:18px}.nighttag{font-size:9px;margin-left:4px;padding:1px 3px;border-radius:2px;background:#374151;color:#fff}.week-date:hover{background:#eaf3ff;box-shadow:inset 0 0 0 2px #1769e0}.person{font-weight:900;background:#fbfcfe}.wbar{display:block;width:100%;margin:2px 0;padding:5px;border:0;border-radius:3px;color:white;font-size:11px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.timeline{min-width:950px}.times{display:grid;grid-template-columns:125px repeat(24,1fr)}.times div{padding:5px;text-align:center;border-right:1px solid #e0e5eb;border-bottom:1px solid #d3dae5;font-size:11px}.trow{display:grid;grid-template-columns:125px 1fr;min-height:58px}.who{padding:8px;font-weight:900;border-right:1px solid #d3dae5;border-bottom:1px solid #d3dae5}.track{position:relative;border-bottom:1px solid #d3dae5;background:repeating-linear-gradient(to right,#fff 0,#fff calc(4.1667% - 1px),#e1e5eb calc(4.1667% - 1px),#e1e5eb 4.1667%)}.tbar{position:absolute;top:8px;height:40px;border:0;border-radius:4px;color:#fff;padding:8px;font-weight:900;overflow:hidden;white-space:nowrap}.side .box{padding:11px}.side h3{margin:0 0 9px}.status{display:grid;grid-template-columns:1fr 1fr;gap:5px 12px}.busy{color:#16843b}.free{color:#777}.notice{line-height:1.8}.notice-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.notice-head h3{margin:0}.notice-head button{border:1px solid #ccd4df;background:#fff;border-radius:4px;padding:5px 9px;font-weight:900;cursor:pointer}.notice-head button.has-new{color:#dc2626;border-color:#fca5a5;background:#fff5f5}.notice-history{max-height:220px;overflow:auto}.notice-history{margin-top:8px;max-height:220px;overflow:auto;border-top:1px solid #d3dae5;padding-top:6px}.notice-history-item{padding:5px 0;border-bottom:1px solid #e5e9ef;font-size:12px;line-height:1.45}.notice-history-date{font-weight:900}.notice-history-change{font-weight:900;margin-left:4px}.notice-history-work{color:#344054;margin-left:4px}.form label{display:block;font-weight:900;margin:7px 0 3px}.form input,.form select{width:100%;padding:7px;border:1px solid #ccd4df;border-radius:4px}.two{display:grid;grid-template-columns:1fr 1fr;gap:7px}.checks{display:grid;grid-template-columns:1fr 1fr;gap:4px}.check{border:1px solid #d5dbe4;border-radius:4px;padding:5px}.event-card .checks{margin-bottom:10px}.event-card .check{display:block;min-height:36px;line-height:24px}.event-card .check input{transform:scale(1.15);margin-right:6px}.check input{width:auto}.actions{display:flex;gap:7px;margin-top:10px}.actions button{flex:1;padding:9px;border:1px solid #ccd4df;background:#fff;border-radius:4px;font-weight:900}.actions .save{background:#1769e0;color:#fff}.actions .del{color:#d11;border-color:#e99}@media(max-width:1000px){.app{grid-template-columns:1fr}.side{order:-1}.logo{font-size:16px}}
+*{box-sizing:border-box}body{margin:0;background:#f4f6fa;font-family:Arial,"Yu Gothic",Meiryo,sans-serif;color:#172033}.top{height:58px;background:#101b31;color:white;display:flex;align-items:center;padding:0 16px;gap:5px;position:sticky;top:0;z-index:5}.logo{font-size:20px;font-weight:900;margin-right:12px}.tabs button,.nav button{border:0;border-radius:4px;padding:9px 16px;font-weight:800}.tabs button{background:#1d2943;color:#fff}.tabs .on{background:#1769e0}.nav{margin-left:auto;display:flex;gap:7px;align-items:center}.nav button{background:#fff}.title{font-size:20px;font-weight:900;min-width:125px;text-align:center}.cloud-diag{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:9999;display:none;align-items:center;justify-content:center;padding:18px}.cloud-diag.open{display:flex}.cloud-diag-card{background:#fff;border-radius:16px;max-width:520px;width:100%;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.25)}.cloud-diag-card h3{margin:0 0 12px}.cloud-diag-card pre{white-space:pre-wrap;word-break:break-word;background:#f3f5f8;border-radius:10px;padding:12px;font-size:12px;max-height:45vh;overflow:auto}.cloud-diag-actions{display:flex;gap:8px;justify-content:flex-end}.cloud-diag-actions button{padding:9px 14px;border-radius:9px;border:1px solid #ccd5e1;background:#fff;font-weight:800}.cloud-diag-actions button.primary{background:#1677e8;color:#fff;border-color:#1677e8}.cloud-status{font-size:11px;font-weight:800;opacity:.95;white-space:nowrap}.color-note{margin:8px auto 0;max-width:1600px;padding:7px 12px;background:#fff;border:1px solid #d3dae5;border-radius:6px;font-weight:900;font-size:12px}.red-note{color:#dc2626}.off-note{color:#c52f67}.app{display:grid;grid-template-columns:minmax(0,1fr) 365px;gap:10px;padding:9px;max-width:1600px;margin:auto}.panel,.box{background:#fff;border:1px solid #d3dae5;border-radius:6px;overflow:hidden;margin-bottom:9px}.legend{display:flex;gap:18px;padding:8px 12px;border-bottom:1px solid #d3dae5;font-weight:800}.dot{display:inline-block;width:13px;height:13px;border-radius:2px;margin-right:5px;vertical-align:-2px}.month{display:grid;grid-template-columns:repeat(7,minmax(110px,1fr));min-width:770px}.month .dow{background:#f8fafc;text-align:center;font-weight:900;padding:6px;border-right:1px solid #d3dae5;border-bottom:1px solid #d3dae5}.day{height:92px;padding:5px;border-right:1px solid #d3dae5;border-bottom:1px solid #d3dae5;overflow:hidden}.out{background:#fafafa;color:#a3aab5}.selected{background:#f7fbff;box-shadow:inset 0 0 0 2px #1769e0}.date{font-weight:900;font-size:15px;height:21px}.sun{color:#d11}.sat{color:#145bd7}.bar{display:block;width:100%;height:20px;margin:2px 0;border:0;border-radius:3px;color:white;padding:2px 6px;text-align:left;font-size:11px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.off{background:#f7d8e6!important;color:#c52f67!important}.off-status{color:#c52f67!important;font-weight:900}.plan{background:#9ca3af!important;color:#fff!important}.conflict,.conf{background:#dc2626!important;color:#fff!important}.conf{background:#dc2626!important}.head{height:39px;display:flex;align-items:center;gap:7px;padding:0 9px;border-bottom:1px solid #d3dae5;font-weight:900}.head span{flex:1}.head button{border:1px solid #ccd4df;background:#fff;border-radius:4px;padding:5px 9px}.add{background:#1769e0!important;color:white!important}.week{display:grid;grid-template-columns:120px repeat(7,minmax(105px,1fr));min-width:855px}.week>div{border-right:1px solid #d3dae5;border-bottom:1px solid #d3dae5;padding:5px;min-height:52px}.wh{background:#f8fafc;text-align:center;font-weight:900}.week-switch{display:flex;align-items:center;justify-content:space-between;gap:4px}.week-mode{display:flex;gap:3px}.week-mode .wm{border:1px solid #cbd3df;background:#fff;padding:3px 6px;border-radius:3px;font-size:10px;font-weight:900;cursor:pointer}.week-mode .wm.on{background:#1769e0;color:#fff;border-color:#1769e0}.week-date{cursor:pointer}.overnight{box-shadow:inset 0 0 0 2px #6b7280}.overnight-toggle{display:flex;align-items:center;gap:7px;margin:8px 0;font-weight:900}.overnight-toggle input{width:18px;height:18px}.nighttag{font-size:9px;margin-left:4px;padding:1px 3px;border-radius:2px;background:#374151;color:#fff}.week-date:hover{background:#eaf3ff;box-shadow:inset 0 0 0 2px #1769e0}.person{font-weight:900;background:#fbfcfe}.wbar{display:block;width:100%;margin:2px 0;padding:5px;border:0;border-radius:3px;color:white;font-size:11px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.timeline{min-width:950px}.times{display:grid;grid-template-columns:125px repeat(24,1fr)}.times div{padding:5px;text-align:center;border-right:1px solid #e0e5eb;border-bottom:1px solid #d3dae5;font-size:11px}.trow{display:grid;grid-template-columns:125px 1fr;min-height:58px}.who{padding:8px;font-weight:900;border-right:1px solid #d3dae5;border-bottom:1px solid #d3dae5}.track{position:relative;border-bottom:1px solid #d3dae5;background:repeating-linear-gradient(to right,#fff 0,#fff calc(4.1667% - 1px),#e1e5eb calc(4.1667% - 1px),#e1e5eb 4.1667%)}.tbar{position:absolute;top:8px;height:40px;border:0;border-radius:4px;color:#fff;padding:8px;font-weight:900;overflow:hidden;white-space:nowrap}.side .box{padding:11px}.side h3{margin:0 0 9px}.status{display:grid;grid-template-columns:1fr 1fr;gap:5px 12px}.busy{color:#16843b}.free{color:#777}.notice{line-height:1.8}.form label{display:block;font-weight:900;margin:7px 0 3px}.form input,.form select{width:100%;padding:7px;border:1px solid #ccd4df;border-radius:4px}.two{display:grid;grid-template-columns:1fr 1fr;gap:7px}.checks{display:grid;grid-template-columns:1fr 1fr;gap:4px}.check{border:1px solid #d5dbe4;border-radius:4px;padding:5px}.event-card .checks{margin-bottom:10px}.event-card .check{display:block;min-height:36px;line-height:24px}.event-card .check input{transform:scale(1.15);margin-right:6px}.check input{width:auto}.actions{display:flex;gap:7px;margin-top:10px}.actions button{flex:1;padding:9px;border:1px solid #ccd4df;background:#fff;border-radius:4px;font-weight:900}.actions .save{background:#1769e0;color:#fff}.actions .del{color:#d11;border-color:#e99}@media(max-width:1000px){.app{grid-template-columns:1fr}.side{order:-1}.logo{font-size:16px}}
 
 .settings{position:fixed;inset:0;background:rgba(10,18,35,.45);z-index:50;display:none;align-items:center;justify-content:center;padding:20px}
 .settings.open{display:flex}.settings-card{background:#fff;width:min(760px,96vw);max-height:90vh;overflow:auto;border-radius:8px;border:1px solid #cfd6e2;box-shadow:0 15px 50px rgba(0,0,0,.25)}
@@ -205,6 +205,20 @@
   body[data-vm-print-active="1"] #vmPrintContainer{display:block;}
 }
 
+/* 新着通知追加（既存共有・印刷・一覧機能には触れない） */
+.notice-new{position:relative}
+.notice-new-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.notice-new-count{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:24px;padding:0 8px;border-radius:999px;background:#dc2626;color:#fff;font-weight:900;font-size:12px}
+.notice-new-count.zero{background:#94a3b8}
+.notice-new-actions{display:flex;gap:6px;margin-bottom:8px}
+.notice-new-actions button{border:1px solid #ccd4df;background:#fff;border-radius:5px;padding:6px 9px;font-weight:900;cursor:pointer}
+.notice-new-list{max-height:230px;overflow-y:auto;border-top:1px solid #e1e5eb}
+.notice-new-item{padding:8px 3px;border-bottom:1px solid #e1e5eb;font-size:12px;line-height:1.55}
+.notice-new-item:last-child{border-bottom:0}
+.notice-new-item b{display:inline-block;margin-right:5px;padding:1px 5px;border-radius:4px;background:#eef2f7}
+.notice-new-empty{padding:10px 3px;color:#777;font-size:12px}
+@media(max-width:700px){.notice-new-list{max-height:220px}.notice-new-item{font-size:13px}}
+
 </style><style>
 /* v47fix40: 車両別一覧だけを拡大・縮小。固定ヘッダーや通常画面には影響しない。 */
 .vm-zoom-tools,.vm-print-tools{display:flex;align-items:center;gap:3px;flex:0 0 auto;}
@@ -278,7 +292,7 @@
 <header class="top"><div class="logo">🚚 車両・人員 配置管理</div><div class="tabs"><button data-v="day">日予定</button><button data-v="week">週予定</button><button data-v="month" class="on">月予定</button></div><div class="nav"><button id="prev">◀</button><div id="title" class="title"></div><span id="cloudStatus" class="cloud-status">共有確認中…</span><span id="autoCloudStatus" class="cloud-status" style="margin-left:6px">自動共有：待機中</span><button id="cloudDiagBtn" type="button" onclick="openCloudDiag()">🔄 共有診断</button><button id="next">▶</button><button id="today">今日</button><button type="button" onclick="openPersonList()">👤 人員一覧</button><button type="button" onclick="openVehicleMatrix()">🚚 車両別一覧</button><button type="button" onclick="printTop()">🖨 印刷</button><button id="installBtn" type="button" onclick="installApp()" style="display:none">📱 アプリ追加</button><button class="mobile-add" type="button" onclick="newEvent()">＋ 予定</button><button id="settingsBtn" type="button" onclick="openSettings()">⚙ 設定</button></div></header>
 <div id="cloudDiag" class="cloud-diag"><div class="cloud-diag-card"><h3>🔄 共有診断</h3><pre id="cloudDiagText">確認中…</pre><div class="cloud-diag-actions"><button type="button" onclick="closeCloudDiag()">閉じる</button><button type="button" class="primary" onclick="runCloudDiag()">今すぐ確認</button></div></div></div><div id="zoomContent"><div class="color-note">現場ごとに色分け　｜　<span class="red-note">赤＝車両・人員のダブルブッキング</span>　｜　<span class="off-note">休み</span></div><div class="app"><main><section class="panel"><div id="main"></div></section>
 <section class="panel"><div class="head"><span id="sub"></span><button id="subPrev" onclick="shift(-1)">◀</button><button id="subNext" onclick="shift(1)">▶</button><button class="add" onclick="newEvent()">＋ 予定追加</button></div><div id="secondary"></div></section></main>
-<aside class="side"><div class="box"><h3 id="stitle">空き状況</h3><div id="status" class="status"></div></div><div class="box"><div class="notice-head"><h3>お知らせ</h3><button id="noticeReadBtn" type="button" onclick="markNoticeRead()">新着 <span id="noticeUnreadCount">0</span>件</button></div><div class="notice"><div id="noticeHistory" class="notice-history"></div></div></div>
+<aside class="side"><div class="box"><h3 id="stitle">空き状況</h3><div id="status" class="status"></div></div><div class="box notice-new"><div class="notice-new-head"><h3 style="margin:0">🔔 新着お知らせ</h3><span id="noticeNewCount" class="notice-new-count zero">0</span></div><div class="notice-new-actions"><button type="button" onclick="vehicleNoticeMarkRead()">確認済みにする</button></div><div id="noticeNewList" class="notice-new-list"><div class="notice-new-empty">新着のお知らせはありません</div></div></div>
 <div class="box form desktop-form"><h3 id="ftitle">予定の追加</h3><label>区分</label><select id="kind"><option value="plan">予定</option><option value="confirmed">確定</option><option value="off">休み</option></select><label>現場</label><input id="site" placeholder="現場A"><label>仕事内容</label><input id="work" placeholder="資材搬入など"><div class="two"><div><label>開始日</label><input id="sd" type="date"></div><div><label>開始</label><input id="st" type="time" value="08:00"></div></div><div class="two"><div><label>終了日</label><input id="ed" type="date"></div><div><label>終了</label><input id="et" type="time" value="16:00"></div></div><label class="overnight-toggle"><input id="overnight" type="checkbox" onchange="toggleOvernight('')"><span><b>🌙 日またぎ</b><small> 翌日まで続く予定</small></span></label><label>車両（複数選択可）</label><div id="vs" class="checks"></div><label>人員（複数選択可）</label><div id="ps" class="checks"></div><div class="actions"><button class="del" onclick="delEvent()">削除</button><button onclick="newEvent()">キャンセル</button><button class="save" onclick="saveEvent()">更新</button></div></div></aside></div></div>
 <div id="eventModal" class="event-modal" onclick="if(event.target===this)closeEventModal()">
   <div class="event-card">
@@ -790,7 +804,7 @@ function saveEvent(fromModal=false){
   const e=normalizeEvent(Object.assign({},old||{},form,{id}));
   if(e.kind==='off'){e.site='';e.work='';}
   if(old)markDirtyEvent(e,old.updatedAt,preserveAssignments);else markDirtyEvent(e,0,false);
-  if(old){addNoticeHistory(e,'変更');events=events.map(x=>String(x.id)===id?e:x);}else{addNoticeHistory(e,'追加');events.push(e);}
+  if(old)events=events.map(x=>String(x.id)===id?e:x);else events.push(e);
   colorPreparedFor='';persistLocal();render();
   // 車両別一覧から登録・編集した場合も、同じ画面を維持して最新データを即時反映。
   const vehicleMatrixWasOpen=document.getElementById('vehicleMatrixModal')?.classList.contains('open');
@@ -799,7 +813,7 @@ function saveEvent(fromModal=false){
   eid=null;editAssignmentSnapshot=null;assignmentTouched={desktop:false,mobile:false};
   queueCloudSave();
 }
-function delEvent(fromModal=false){if(!eid)return;if(!confirm('この予定を削除しますか？'))return;const old=events.find(x=>String(x.id)===String(eid));if(old){addNoticeHistory(old,'削除');pendingDeletes.set(String(old.id),{id:String(old.id),baseUpdatedAt:Number(old.updatedAt||0)});dirtyEvents.delete(String(old.id));events=events.filter(x=>String(x.id)!==String(eid));persistLocal();queueCloudSave();}eid=null;if(fromModal)closeEventModal();render();}
+function delEvent(fromModal=false){if(!eid)return;if(!confirm('この予定を削除しますか？'))return;const old=events.find(x=>String(x.id)===String(eid));if(old){pendingDeletes.set(String(old.id),{id:String(old.id),baseUpdatedAt:Number(old.updatedAt||0)});dirtyEvents.delete(String(old.id));events=events.filter(x=>String(x.id)!==String(eid));persistLocal();queueCloudSave();}eid=null;if(fromModal)closeEventModal();render();}
 function shift(n){if(view==='month')cur.setMonth(cur.getMonth()+n);else if(view==='week')cur.setDate(cur.getDate()+7*n);else cur.setDate(cur.getDate()+n);render();}
 
 function shiftSecondary(n){
@@ -933,90 +947,14 @@ async function postCloud(){
     }
   }
 }
-let appBadgeSeen=null;
-try{const v=JSON.parse(localStorage.getItem('vehicleAppBadgeSeen_v1')||'null');appBadgeSeen=v&&typeof v==='object'?v:null;}catch(e){appBadgeSeen=null;}
-function appBadgeSignature(e){return JSON.stringify({id:String(e&&e.id||''),updatedAt:Number(e&&e.updatedAt||0),date:String(e&&e.date||''),site:String(e&&e.site||''),work:String(e&&e.work||''),kind:String(e&&e.kind||'')});}
-function updateAppBadge(remoteEvents){
-  if(!Array.isArray(remoteEvents)||typeof navigator.setAppBadge!=='function')return;
-  const now={};let count=0;
-  remoteEvents.forEach(e=>{
-    const id=String(e&&e.id||'');if(!id)return;
-    const sig=appBadgeSignature(e);now[id]=sig;
-    if(appBadgeSeen&&appBadgeSeen[id]!==undefined&&appBadgeSeen[id]!==sig)count++;
-    else if(appBadgeSeen&&appBadgeSeen[id]===undefined)count++;
-  });
-  if(!appBadgeSeen){
-    appBadgeSeen=now;
-    try{localStorage.setItem('vehicleAppBadgeSeen_v1',JSON.stringify(appBadgeSeen));}catch(e){}
-    try{navigator.clearAppBadge&&navigator.clearAppBadge();}catch(e){}
-    return;
-  }
-  try{localStorage.setItem('vehicleAppBadgeSeen_v1',JSON.stringify(now));}catch(e){}
-  try{if(count>0)navigator.setAppBadge(count);else if(typeof navigator.clearAppBadge==='function')navigator.clearAppBadge();}catch(e){}
-  appBadgeSeen=now;
-}
-let noticeHistory=[];
-let noticeSnapshot=null;
-let noticeUnreadCount=0;
-try{noticeHistory=JSON.parse(localStorage.getItem('vehicleNoticeHistory_v1')||'[]');if(!Array.isArray(noticeHistory))noticeHistory=[];}catch(e){noticeHistory=[];}
-try{const v=JSON.parse(localStorage.getItem('vehicleNoticeSnapshot_v1')||'null');noticeSnapshot=v&&typeof v==='object'?v:null;}catch(e){noticeSnapshot=null;}
-try{noticeUnreadCount=Number(localStorage.getItem('vehicleNoticeUnread_v1')||0);if(!Number.isFinite(noticeUnreadCount)||noticeUnreadCount<0)noticeUnreadCount=0;}catch(e){noticeUnreadCount=0;}
-function noticeEventSignature(e){return JSON.stringify({date:String(e&&e.date||''),endDate:String(e&&e.endDate||''),start:String(e&&e.start||''),end:String(e&&e.end||''),kind:String(e&&e.kind||''),site:String(e&&e.site||''),work:String(e&&e.work||''),vehicles:(e&&e.vehicles||[]).map(String).sort(),people:(e&&e.people||[]).map(String).sort()});}
-function noticeDate(e){const d=String(e&&e.date||'');return d?d.replace(/-/g,'/'):'';}
-function noticeWork(e){if(e&&e.work)return String(e.work);if(e&&e.kind==='off')return '休み';return String(e&&e.site||'');}
-function noticeHistoryCutoff(){return Date.now()-7*24*60*60*1000;}
-function trimNoticeHistory(){const cutoff=noticeHistoryCutoff();noticeHistory=noticeHistory.filter(x=>Number(x.ts||0)>=cutoff).slice(0,100);}
-function renderNoticeUnread(){const c=document.getElementById('noticeUnreadCount'),b=document.getElementById('noticeReadBtn');if(c)c.textContent=String(noticeUnreadCount);if(b)b.classList.toggle('has-new',noticeUnreadCount>0);}
-function renderNoticeHistory(){const el=document.getElementById('noticeHistory');if(!el)return;trimNoticeHistory();try{localStorage.setItem('vehicleNoticeHistory_v1',JSON.stringify(noticeHistory));}catch(e){}if(!noticeHistory.length){el.innerHTML='<div style="color:#777;font-size:12px">直近1週間の新着履歴はありません。</div>';renderNoticeUnread();return;}el.innerHTML=noticeHistory.map(x=>`<div class="notice-history-item"><span class="notice-history-date">${E(x.date||'')}</span><span class="notice-history-work">${E(x.work||'')}</span><span class="notice-history-change">${E(x.change||'')}</span></div>`).join('');renderNoticeUnread();}
-function addNoticeHistory(e,change,markUnread=true){if(!e)return;const ch=String(change||'変更'),sig=noticeEventSignature(e),id=String(e.id||'');const duplicate=noticeHistory.some(x=>String(x.id||'')===id&&String(x.change||'')===ch&&String(x.sig||'')===sig);if(duplicate)return;noticeHistory.unshift({ts:Date.now(),id:id,sig:sig,date:noticeDate(e),work:noticeWork(e)||'（仕事内容なし）',change:ch});trimNoticeHistory();if(markUnread)noticeUnreadCount++;try{localStorage.setItem('vehicleNoticeHistory_v1',JSON.stringify(noticeHistory));localStorage.setItem('vehicleNoticeUnread_v1',String(noticeUnreadCount));}catch(err){}renderNoticeHistory();}
-function markNoticeRead(){noticeUnreadCount=0;try{localStorage.setItem('vehicleNoticeUnread_v1','0');}catch(e){}renderNoticeUnread();}
-
-function updateNoticeSnapshot(remoteEvents){
-  const next={};
-  (Array.isArray(remoteEvents)?remoteEvents:[]).forEach(e=>{
-    const id=String(e&&e.id||'');
-    if(id){
-      next[id]={
-        sig:noticeEventSignature(e),
-        event:{
-          date:String(e.date||''),
-          endDate:String(e.endDate||''),
-          start:String(e.start||''),
-          end:String(e.end||''),
-          kind:String(e.kind||''),
-          site:String(e.site||''),
-          work:String(e.work||''),
-          vehicles:(e.vehicles||[]).map(String),
-          people:(e.people||[]).map(String)
-        }
-      };
-    }
-  });
-  if(!noticeSnapshot){
-    noticeSnapshot=next;
-    try{localStorage.setItem('vehicleNoticeSnapshot_v1',JSON.stringify(next));}catch(err){}
-    return;
-  }
-  Object.keys(next).forEach(id=>{
-    const prev=noticeSnapshot[id];
-    if(!prev)addNoticeHistory(next[id].event,'追加',true);
-    else if(prev.sig!==next[id].sig)addNoticeHistory(next[id].event,'変更',true);
-  });
-  Object.keys(noticeSnapshot).forEach(id=>{
-    if(!next[id])addNoticeHistory(noticeSnapshot[id].event,'削除',true);
-  });
-  noticeSnapshot=next;
-  try{localStorage.setItem('vehicleNoticeSnapshot_v1',JSON.stringify(next));}catch(err){}
-}
-
 function mergeRemote(d,fromSave=false){
-  const remote=Array.isArray(d.events)?d.events.map(normalizeEvent):[];updateNoticeSnapshot(remote);const remoteDeleted=d&&d.deleted&&typeof d.deleted==='object'?d.deleted:{};const localById=new Map(events.map(e=>[String(e.id),e]));const remoteById=new Map(remote.map(e=>[String(e.id),e]));
+  const remote=Array.isArray(d.events)?d.events.map(normalizeEvent):[];const remoteDeleted=d&&d.deleted&&typeof d.deleted==='object'?d.deleted:{};const localById=new Map(events.map(e=>[String(e.id),e]));const remoteById=new Map(remote.map(e=>[String(e.id),e]));
   const merged=[];
   remoteById.forEach((r,id)=>{if(pendingDeletes.has(id))return;const dirty=dirtyEvents.get(id);const l=localById.get(id);if(dirty){merged.push(l||dirty.event);return;}if(!l||Number(r.updatedAt||0)>=Number(l.updatedAt||0))merged.push(r);else merged.push(l);});
   localById.forEach((l,id)=>{if(remoteById.has(id)||pendingDeletes.has(id))return;const tomb=remoteDeleted[id];if(tomb&&Number(tomb.updatedAt||tomb.deletedAt||0)>=Number(l.updatedAt||0))return;merged.push(l);});
-  events=merged; cloudMasterUpdatedAt=Number(d.masterUpdatedAt||cloudMasterUpdatedAt||0); if(Array.isArray(d.people)&&d.people.length&&!masterDirty)peopleList=d.people.map(String); if(Array.isArray(d.vehicles)&&d.vehicles.length&&!masterDirty)vehicleList=d.vehicles.map(v=>({id:String(v.id||''),detail:String(v.detail||'2t'),memo:String(v.memo||'')})).filter(v=>v.id); syncMaster();rebuildChecks();colorPreparedFor='';if(!fromSave)persistLocal();updateAppBadge(remote);
+  events=merged; cloudMasterUpdatedAt=Number(d.masterUpdatedAt||cloudMasterUpdatedAt||0); if(Array.isArray(d.people)&&d.people.length&&!masterDirty)peopleList=d.people.map(String); if(Array.isArray(d.vehicles)&&d.vehicles.length&&!masterDirty)vehicleList=d.vehicles.map(v=>({id:String(v.id||''),detail:String(v.detail||'2t'),memo:String(v.memo||'')})).filter(v=>v.id); syncMaster();rebuildChecks();colorPreparedFor='';if(!fromSave)persistLocal();
 }
-async function loadCloud(){if(cloudLoading||cloudSaving)return;cloudLoading=true;setCloudStatus('共有読込中…');try{const d=await jsonpGet(15000);if(d&&d.hasData){updateNoticeSnapshot(Array.isArray(d.events)?d.events.map(normalizeEvent):[]);const hasLocalPending=dirtyEvents.size||pendingDeletes.size||masterDirty;if(hasLocalPending){mergeRemote(d);}else{events=(d.events||[]).map(normalizeEvent);if(Array.isArray(d.people)&&d.people.length)peopleList=d.people.map(String);if(Array.isArray(d.vehicles)&&d.vehicles.length)vehicleList=d.vehicles.map(v=>({id:String(v.id||''),detail:String(v.detail||'2t'),memo:String(v.memo||'')})).filter(v=>v.id);cloudMasterUpdatedAt=Number(d.masterUpdatedAt||cloudMasterUpdatedAt||0);syncMaster();rebuildChecks();persistLocal();colorPreparedFor='';}render();setCloudStatus(dirtyEvents.size||pendingDeletes.size||masterDirty?'共有同期済み・未保存あり':'共有同期済み');if(dirtyEvents.size||pendingDeletes.size||masterDirty)queueCloudSave();}else if(d){setCloudStatus('共有データなし');if(events.length||vehicleList.length||peopleList.length)queueCloudSave();}else setCloudStatus('共有接続エラー');}catch(err){console.warn(err);setCloudStatus('共有接続エラー')}finally{cloudLoading=false;}}
+async function loadCloud(){if(cloudLoading||cloudSaving)return;cloudLoading=true;setCloudStatus('共有読込中…');try{const d=await jsonpGet(15000);if(d&&d.hasData){const hasLocalPending=dirtyEvents.size||pendingDeletes.size||masterDirty;if(hasLocalPending){mergeRemote(d);}else{events=(d.events||[]).map(normalizeEvent);if(Array.isArray(d.people)&&d.people.length)peopleList=d.people.map(String);if(Array.isArray(d.vehicles)&&d.vehicles.length)vehicleList=d.vehicles.map(v=>({id:String(v.id||''),detail:String(v.detail||'2t'),memo:String(v.memo||'')})).filter(v=>v.id);cloudMasterUpdatedAt=Number(d.masterUpdatedAt||cloudMasterUpdatedAt||0);syncMaster();rebuildChecks();persistLocal();colorPreparedFor='';}render();setCloudStatus(dirtyEvents.size||pendingDeletes.size||masterDirty?'共有同期済み・未保存あり':'共有同期済み');if(dirtyEvents.size||pendingDeletes.size||masterDirty)queueCloudSave();}else if(d){setCloudStatus('共有データなし');if(events.length||vehicleList.length||peopleList.length)queueCloudSave();}else setCloudStatus('共有接続エラー');}catch(err){console.warn(err);setCloudStatus('共有接続エラー')}finally{cloudLoading=false;}}
 function persist(){masterDirty=true;persistLocal();queueCloudSave();}
 function forceCloudReload(){loadCloud();}
 
@@ -1037,7 +975,7 @@ function removeVehicle(i){const v=vehicleList[i];if(!confirm(v.id+' を削除し
 // 起動は全関数・変数の初期化後に一度だけ行う。v47系で問題になった「関数定義前のrender/checks呼び出し」を排除。
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{view=b.dataset.v;render();});
 document.getElementById('prev').onclick=()=>shift(-1);document.getElementById('next').onclick=()=>shift(1);document.getElementById('today').onclick=()=>{cur=new Date();cur.setHours(0,0,0,0);render();};document.getElementById('subPrev').onclick=()=>shiftSecondary(-1);document.getElementById('subNext').onclick=()=>shiftSecondary(1);
-rebuildChecks();render();renderNoticeHistory();
+rebuildChecks();render();
 // 自動同期：未保存変更がある間は「読込」を行わず、保存を優先する。
 // これで共有読込→共有保存→共有読込…のループを防ぐ。
 let cloudAutoBusy=false;
@@ -1078,7 +1016,6 @@ async function cleanupOldAppCache(){
   }catch(err){console.warn('旧キャッシュ整理失敗',err)}
 }
 window.addEventListener('load',()=>{
-  renderNoticeHistory();
   if(localStorage.getItem(APP_CACHE_CLEAN_KEY)!=='1') cleanupOldAppCache();
 });
 
@@ -1113,6 +1050,112 @@ window.addEventListener('load',()=>{
   window.addEventListener('focus',()=>setTimeout(updateAutoCloudStatus,300));
   window.addEventListener('pageshow',()=>setTimeout(updateAutoCloudStatus,300));
 })();
+/* 新着通知：既存の共有処理を変更せず、GASを読み取り専用で監視する。 */
+(function(){
+  const NOTICE_HISTORY_KEY='vehicleNoticeHistory_v1';
+  const NOTICE_SNAPSHOT_KEY='vehicleNoticeSnapshot_v1';
+  const NOTICE_READ_KEY='vehicleNoticeReadAt_v1';
+  const NOTICE_MAX_AGE=7*24*60*60*1000;
+  let noticeLocalTouched=new Map();
+  let noticeBusy=false;
+
+  function noticeLoad(key,fallback){try{const v=JSON.parse(localStorage.getItem(key)||'null');return v==null?fallback:v}catch(e){return fallback}}
+  function noticeSave(key,v){try{localStorage.setItem(key,JSON.stringify(v))}catch(e){console.warn('通知保存失敗',e)}}
+  function noticeComparable(e){
+    const x=e||{};
+    return {id:String(x.id||''),kind:String(x.kind||''),date:String(x.date||''),endDate:String(x.endDate||''),start:String(x.start||''),end:String(x.end||''),site:String(x.site||''),work:String(x.work||''),vehicles:(x.vehicles||[]).map(String).sort(),people:(x.people||[]).map(String).sort()};
+  }
+  function noticeSame(a,b){return JSON.stringify(noticeComparable(a))===JSON.stringify(noticeComparable(b))}
+  function noticeSnapshotFromData(d){
+    const arr=Array.isArray(d&&d.events)?d.events.map(e=>normalizeEvent(e)):[];
+    const map={},meta={};arr.forEach(e=>{const id=String(e.id);map[id]=noticeComparable(e);meta[id]={updatedAt:Number(e.updatedAt||0),updatedBy:String(e.updatedBy||'')}});
+    const deleted=(d&&d.deleted&&typeof d.deleted==='object')?d.deleted:{};
+    return {events:map,meta:meta,deleted:deleted,capturedAt:Date.now()};
+  }
+  function noticeHistory(){
+    const now=Date.now(),min=now-NOTICE_MAX_AGE;
+    let a=noticeLoad(NOTICE_HISTORY_KEY,[]);
+    if(!Array.isArray(a))a=[];
+    a=a.filter(x=>Number(x&&x.createdAt||0)>=min);
+    noticeSave(NOTICE_HISTORY_KEY,a);
+    return a;
+  }
+  function noticeText(e,old){
+    const x=e||old||{};
+    const date=String(x.date||'')+(x.endDate&&x.endDate!==x.date?'～'+x.endDate:'');
+    const work=String(x.work||'')||'（仕事内容なし）';
+    const site=String(x.site||'');
+    return {date:date||'日付未設定',work:work,site:site};
+  }
+  function noticeAdd(action,e,old){
+    const t=noticeText(e,old);
+    const a=noticeHistory();
+    a.push({id:'n_'+Date.now()+'_'+Math.random().toString(36).slice(2),createdAt:Date.now(),action:action,eventId:String((e||old||{}).id||''),date:t.date,work:t.work,site:t.site});
+    noticeSave(NOTICE_HISTORY_KEY,a);
+  }
+  function noticeUnread(a){
+    const readAt=Number(localStorage.getItem(NOTICE_READ_KEY)||0);
+    return a.filter(x=>Number(x.createdAt||0)>readAt).length;
+  }
+  function noticeRender(){
+    const a=noticeHistory().sort((x,y)=>Number(y.createdAt||0)-Number(x.createdAt||0));
+    const n=noticeUnread(a);
+    const c=document.getElementById('noticeNewCount'),list=document.getElementById('noticeNewList');
+    if(c){c.textContent=String(n);c.classList.toggle('zero',n===0)}
+    if(!list)return;
+    if(!a.length){list.innerHTML='<div class="notice-new-empty">新着のお知らせはありません</div>';return;}
+    list.innerHTML=a.map(x=>'<div class="notice-new-item"><b>'+E(x.action)+'</b> '+E(x.date)+'　'+E(x.work)+(x.site?'（'+E(x.site)+'）':'')+'</div>').join('');
+    try{if(n>0&&navigator.setAppBadge)navigator.setAppBadge(n);else if(n===0&&navigator.clearAppBadge)navigator.clearAppBadge()}catch(e){}
+  }
+  window.vehicleNoticeMarkRead=function(){
+    localStorage.setItem(NOTICE_READ_KEY,String(Date.now()));
+    noticeRender();
+  };
+  function noticeCollectLocalTouched(){
+    try{
+      if(typeof dirtyEvents!=='undefined') dirtyEvents.forEach((v,id)=>{if(v&&v.event)noticeLocalTouched.set(String(id),noticeComparable(v.event));});
+      if(typeof pendingDeletes!=='undefined') pendingDeletes.forEach((v,id)=>noticeLocalTouched.set(String(id),null));
+    }catch(e){}
+  }
+  function noticeProcess(d){
+    if(!d||!d.hasData||!Array.isArray(d.events))return;
+    const current=noticeSnapshotFromData(d);
+    const previous=noticeLoad(NOTICE_SNAPSHOT_KEY,null);
+    if(!previous||!previous.events){noticeSave(NOTICE_SNAPSHOT_KEY,current);noticeRender();return;}
+    const oldMap=previous.events||{},newMap=current.events||{},oldMeta=previous.meta||{},newMeta=current.meta||{};
+    const ids=new Set([...Object.keys(oldMap),...Object.keys(newMap)]);
+    ids.forEach(id=>{
+      const old=oldMap[id],now=newMap[id];
+      const touched=noticeLocalTouched.get(String(id));
+      if(touched!==undefined){
+        if((touched===null&&now===undefined)||(touched!==null&&now&&JSON.stringify(touched)===JSON.stringify(now))) noticeLocalTouched.delete(String(id));
+        return;
+      }
+      if(!old&&now){if(String((newMeta[id]||{}).updatedBy||'')!==String(typeof CLIENT_ID!=='undefined'?CLIENT_ID:'')) noticeAdd('追加',now,null)}
+      else if(old&&!now){const tomb=(current.deleted||{})[id]||{};if(String(tomb.deletedBy||'')!==String(typeof CLIENT_ID!=='undefined'?CLIENT_ID:'')) noticeAdd('削除',old,null)}
+      else if(old&&now&&!noticeSame(old,now)){if(String((newMeta[id]||{}).updatedBy||'')!==String(typeof CLIENT_ID!=='undefined'?CLIENT_ID:'')) noticeAdd('変更',now,old)}
+    });
+    noticeSave(NOTICE_SNAPSHOT_KEY,current);
+    noticeRender();
+  }
+  async function noticePoll(){
+    if(noticeBusy)return;
+    noticeBusy=true;
+    try{
+      noticeCollectLocalTouched();
+      const d=await jsonpGet(15000);
+      noticeProcess(d);
+    }catch(e){console.warn('新着通知読込失敗',e)}
+    finally{noticeBusy=false}
+  }
+  window.addEventListener('load',()=>{
+    noticeRender();
+    setTimeout(noticePoll,1800);
+    setInterval(noticePoll,10000);
+  });
+})();
+
+
 </script>
 <div id="settings" class="settings" onclick="if(event.target===this)closeSettings()">
 <div class="settings-card">
