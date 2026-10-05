@@ -933,40 +933,27 @@ async function postCloud(){
     }
   }
 }
-let appBadgeSeen=null;
-try{const v=JSON.parse(localStorage.getItem('vehicleAppBadgeSeen_v1')||'null');appBadgeSeen=v&&typeof v==='object'?v:null;}catch(e){appBadgeSeen=null;}
-function appBadgeSignature(e){return JSON.stringify({id:String(e&&e.id||''),updatedAt:Number(e&&e.updatedAt||0),date:String(e&&e.date||''),site:String(e&&e.site||''),work:String(e&&e.work||''),kind:String(e&&e.kind||'')});}
-function updateAppBadge(remoteEvents){
-  if(!Array.isArray(remoteEvents)||typeof navigator.setAppBadge!=='function')return;
-  const now={};let count=0;
-  remoteEvents.forEach(e=>{
-    const id=String(e&&e.id||'');if(!id)return;
-    const sig=appBadgeSignature(e);now[id]=sig;
-    if(appBadgeSeen&&appBadgeSeen[id]!==undefined&&appBadgeSeen[id]!==sig)count++;
-    else if(appBadgeSeen&&appBadgeSeen[id]===undefined)count++;
-  });
-  if(!appBadgeSeen){
-    appBadgeSeen=now;
-    try{localStorage.setItem('vehicleAppBadgeSeen_v1',JSON.stringify(appBadgeSeen));}catch(e){}
-    try{navigator.clearAppBadge&&navigator.clearAppBadge();}catch(e){}
-    return;
-  }
-  try{localStorage.setItem('vehicleAppBadgeSeen_v1',JSON.stringify(now));}catch(e){}
-  try{if(count>0)navigator.setAppBadge(count);else if(typeof navigator.clearAppBadge==='function')navigator.clearAppBadge();}catch(e){}
-  appBadgeSeen=now;
+function updateAppBadge(){
+  if(typeof navigator.setAppBadge!=='function')return;
+  try{
+    if(noticeUnreadCount>0) navigator.setAppBadge(noticeUnreadCount);
+    else if(typeof navigator.clearAppBadge==='function') navigator.clearAppBadge();
+  }catch(e){}
 }
+
 let noticeHistory=[];
 let noticeSnapshot=null;
 let noticeUnreadCount=0;
 try{noticeHistory=JSON.parse(localStorage.getItem('vehicleNoticeHistory_v1')||'[]');if(!Array.isArray(noticeHistory))noticeHistory=[];}catch(e){noticeHistory=[];}
 try{const v=JSON.parse(localStorage.getItem('vehicleNoticeSnapshot_v1')||'null');noticeSnapshot=v&&typeof v==='object'?v:null;}catch(e){noticeSnapshot=null;}
 try{noticeUnreadCount=Number(localStorage.getItem('vehicleNoticeUnread_v1')||0);if(!Number.isFinite(noticeUnreadCount)||noticeUnreadCount<0)noticeUnreadCount=0;}catch(e){noticeUnreadCount=0;}
+setTimeout(updateAppBadge,0);
 function noticeEventSignature(e){return JSON.stringify({date:String(e&&e.date||''),endDate:String(e&&e.endDate||''),start:String(e&&e.start||''),end:String(e&&e.end||''),kind:String(e&&e.kind||''),site:String(e&&e.site||''),work:String(e&&e.work||''),vehicles:(e&&e.vehicles||[]).map(String).sort(),people:(e&&e.people||[]).map(String).sort()});}
 function noticeDate(e){const d=String(e&&e.date||'');return d?d.replace(/-/g,'/'):'';}
 function noticeWork(e){if(e&&e.work)return String(e.work);if(e&&e.kind==='off')return '休み';return String(e&&e.site||'');}
 function noticeHistoryCutoff(){return Date.now()-7*24*60*60*1000;}
 function trimNoticeHistory(){const cutoff=noticeHistoryCutoff();noticeHistory=noticeHistory.filter(x=>Number(x.ts||0)>=cutoff).slice(0,100);}
-function renderNoticeUnread(){const c=document.getElementById('noticeUnreadCount'),b=document.getElementById('noticeReadBtn');if(c)c.textContent=String(noticeUnreadCount);if(b)b.classList.toggle('has-new',noticeUnreadCount>0);}
+function renderNoticeUnread(){const c=document.getElementById('noticeUnreadCount'),b=document.getElementById('noticeReadBtn');if(c)c.textContent=String(noticeUnreadCount);if(b)b.classList.toggle('has-new',noticeUnreadCount>0);updateAppBadge();}
 function renderNoticeHistory(){const el=document.getElementById('noticeHistory');if(!el)return;trimNoticeHistory();try{localStorage.setItem('vehicleNoticeHistory_v1',JSON.stringify(noticeHistory));}catch(e){}if(!noticeHistory.length){el.innerHTML='<div style="color:#777;font-size:12px">直近1週間の新着履歴はありません。</div>';renderNoticeUnread();return;}el.innerHTML=noticeHistory.map(x=>`<div class="notice-history-item"><span class="notice-history-date">${E(x.date||'')}</span><span class="notice-history-work">${E(x.work||'')}</span><span class="notice-history-change">${E(x.change||'')}</span></div>`).join('');renderNoticeUnread();}
 function addNoticeHistory(e,change,markUnread=true){if(!e)return;const ch=String(change||'変更'),sig=noticeEventSignature(e),id=String(e.id||'');const duplicate=noticeHistory.some(x=>String(x.id||'')===id&&String(x.change||'')===ch&&String(x.sig||'')===sig);if(duplicate)return;noticeHistory.unshift({ts:Date.now(),id:id,sig:sig,date:noticeDate(e),work:noticeWork(e)||'（仕事内容なし）',change:ch});trimNoticeHistory();if(markUnread)noticeUnreadCount++;try{localStorage.setItem('vehicleNoticeHistory_v1',JSON.stringify(noticeHistory));localStorage.setItem('vehicleNoticeUnread_v1',String(noticeUnreadCount));}catch(err){}renderNoticeHistory();}
 function markNoticeRead(){noticeUnreadCount=0;try{localStorage.setItem('vehicleNoticeUnread_v1','0');}catch(e){}renderNoticeUnread();}
@@ -1014,7 +1001,7 @@ function mergeRemote(d,fromSave=false){
   const merged=[];
   remoteById.forEach((r,id)=>{if(pendingDeletes.has(id))return;const dirty=dirtyEvents.get(id);const l=localById.get(id);if(dirty){merged.push(l||dirty.event);return;}if(!l||Number(r.updatedAt||0)>=Number(l.updatedAt||0))merged.push(r);else merged.push(l);});
   localById.forEach((l,id)=>{if(remoteById.has(id)||pendingDeletes.has(id))return;const tomb=remoteDeleted[id];if(tomb&&Number(tomb.updatedAt||tomb.deletedAt||0)>=Number(l.updatedAt||0))return;merged.push(l);});
-  events=merged; cloudMasterUpdatedAt=Number(d.masterUpdatedAt||cloudMasterUpdatedAt||0); if(Array.isArray(d.people)&&d.people.length&&!masterDirty)peopleList=d.people.map(String); if(Array.isArray(d.vehicles)&&d.vehicles.length&&!masterDirty)vehicleList=d.vehicles.map(v=>({id:String(v.id||''),detail:String(v.detail||'2t'),memo:String(v.memo||'')})).filter(v=>v.id); syncMaster();rebuildChecks();colorPreparedFor='';if(!fromSave)persistLocal();updateAppBadge(remote);
+  events=merged; cloudMasterUpdatedAt=Number(d.masterUpdatedAt||cloudMasterUpdatedAt||0); if(Array.isArray(d.people)&&d.people.length&&!masterDirty)peopleList=d.people.map(String); if(Array.isArray(d.vehicles)&&d.vehicles.length&&!masterDirty)vehicleList=d.vehicles.map(v=>({id:String(v.id||''),detail:String(v.detail||'2t'),memo:String(v.memo||'')})).filter(v=>v.id); syncMaster();rebuildChecks();colorPreparedFor='';if(!fromSave)persistLocal();
 }
 async function loadCloud(){if(cloudLoading||cloudSaving)return;cloudLoading=true;setCloudStatus('共有読込中…');try{const d=await jsonpGet(15000);if(d&&d.hasData){updateNoticeSnapshot(Array.isArray(d.events)?d.events.map(normalizeEvent):[]);const hasLocalPending=dirtyEvents.size||pendingDeletes.size||masterDirty;if(hasLocalPending){mergeRemote(d);}else{events=(d.events||[]).map(normalizeEvent);if(Array.isArray(d.people)&&d.people.length)peopleList=d.people.map(String);if(Array.isArray(d.vehicles)&&d.vehicles.length)vehicleList=d.vehicles.map(v=>({id:String(v.id||''),detail:String(v.detail||'2t'),memo:String(v.memo||'')})).filter(v=>v.id);cloudMasterUpdatedAt=Number(d.masterUpdatedAt||cloudMasterUpdatedAt||0);syncMaster();rebuildChecks();persistLocal();colorPreparedFor='';}render();setCloudStatus(dirtyEvents.size||pendingDeletes.size||masterDirty?'共有同期済み・未保存あり':'共有同期済み');if(dirtyEvents.size||pendingDeletes.size||masterDirty)queueCloudSave();}else if(d){setCloudStatus('共有データなし');if(events.length||vehicleList.length||peopleList.length)queueCloudSave();}else setCloudStatus('共有接続エラー');}catch(err){console.warn(err);setCloudStatus('共有接続エラー')}finally{cloudLoading=false;}}
 function persist(){masterDirty=true;persistLocal();queueCloudSave();}
