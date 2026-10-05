@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="車両人員予定表">
 
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f4f6fa;font-family:Arial,"Yu Gothic",Meiryo,sans-serif;color:#172033}.top{height:58px;background:#101b31;color:white;display:flex;align-items:center;padding:0 16px;gap:5px;position:sticky;top:0;z-index:5}.logo{font-size:20px;font-weight:900;margin-right:12px}.tabs button,.nav button{border:0;border-radius:4px;padding:9px 16px;font-weight:800}.tabs button{background:#1d2943;color:#fff}.tabs .on{background:#1769e0}.nav{margin-left:auto;display:flex;gap:7px;align-items:center}.nav button{background:#fff}.title{font-size:20px;font-weight:900;min-width:125px;text-align:center}.cloud-diag{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:9999;display:none;align-items:center;justify-content:center;padding:18px}.cloud-diag.open{display:flex}.cloud-diag-card{background:#fff;border-radius:16px;max-width:520px;width:100%;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.25)}.cloud-diag-card h3{margin:0 0 12px}.cloud-diag-card pre{white-space:pre-wrap;word-break:break-word;background:#f3f5f8;border-radius:10px;padding:12px;font-size:12px;max-height:45vh;overflow:auto}.cloud-diag-actions{display:flex;gap:8px;justify-content:flex-end}.cloud-diag-actions button{padding:9px 14px;border-radius:9px;border:1px solid #ccd5e1;background:#fff;font-weight:800}.cloud-diag-actions button.primary{background:#1677e8;color:#fff;border-color:#1677e8}.cloud-status{font-size:11px;font-weight:800;opacity:.95;white-space:nowrap}.color-note{margin:8px auto 0;max-width:1600px;padding:7px 12px;background:#fff;border:1px solid #d3dae5;border-radius:6px;font-weight:900;font-size:12px}.red-note{color:#dc2626}.off-note{color:#c52f67}.app{display:grid;grid-template-columns:minmax(0,1fr) 365px;gap:10px;padding:9px;max-width:1600px;margin:auto}.panel,.box{background:#fff;border:1px solid #d3dae5;border-radius:6px;overflow:hidden;margin-bottom:9px}.legend{display:flex;gap:18px;padding:8px 12px;border-bottom:1px solid #d3dae5;font-weight:800}.dot{display:inline-block;width:13px;height:13px;border-radius:2px;margin-right:5px;vertical-align:-2px}.month{display:grid;grid-template-columns:repeat(7,minmax(110px,1fr));min-width:770px}.month .dow{background:#f8fafc;text-align:center;font-weight:900;padding:6px;border-right:1px solid #d3dae5;border-bottom:1px solid #d3dae5}.day{height:92px;padding:5px;border-right:1px solid #d3dae5;border-bottom:1px solid #d3dae5;overflow:hidden}.out{background:#fafafa;color:#a3aab5}.selected{background:#f7fbff;box-shadow:inset 0 0 0 2px #1769e0}.date{font-weight:900;font-size:15px;height:21px}.sun{color:#d11}.sat{color:#145bd7}.bar{display:block;width:100%;height:20px;margin:2px 0;border:0;border-radius:3px;color:white;padding:2px 6px;text-align:left;font-size:11px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.off{background:#f7d8e6!important;color:#c52f67!important}.off-status{color:#c52f67!important;font-weight:900}.plan{background:#9ca3af!important;color:#fff!important}.conflict,.conf{background:#dc2626!important;color:#fff!important}.conf{background:#dc2626!important}.head{height:39px;display:flex;align-items:center;gap:7px;padding:0 9px;border-bottom:1px solid #d3dae5;font-weight:900}.head span{flex:1}.head button{border:1px solid #ccd4df;background:#fff;border-radius:4px;padding:5px 9px}.add{background:#1769e0!important;color:white!important}.week{display:grid;grid-template-columns:120px repeat(7,minmax(105px,1fr));min-width:855px}.week>div{border-right:1px solid #d3dae5;border-bottom:1px solid #d3dae5;padding:5px;min-height:52px}.wh{background:#f8fafc;text-align:center;font-weight:900}.week-switch{display:flex;align-items:center;justify-content:space-between;gap:4px}.week-mode{display:flex;gap:3px}.week-mode .wm{border:1px solid #cbd3df;background:#fff;padding:3px 6px;border-radius:3px;font-size:10px;font-weight:900;cursor:pointer}.week-mode .wm.on{background:#1769e0;color:#fff;border-color:#1769e0}.week-date{cursor:pointer}.overnight{box-shadow:inset 0 0 0 2px #6b7280}.overnight-toggle{display:flex;align-items:center;gap:7px;margin:8px 0;font-weight:900}.overnight-toggle input{width:18px;height:18px}.nighttag{font-size:9px;margin-left:4px;padding:1px 3px;border-radius:2px;background:#374151;color:#fff}.week-date:hover{background:#eaf3ff;box-shadow:inset 0 0 0 2px #1769e0}.person{font-weight:900;background:#fbfcfe}.wbar{display:block;width:100%;margin:2px 0;padding:5px;border:0;border-radius:3px;color:white;font-size:11px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.timeline{min-width:950px}.times{display:grid;grid-template-columns:125px repeat(24,1fr)}.times div{padding:5px;text-align:center;border-right:1px solid #e0e5eb;border-bottom:1px solid #d3dae5;font-size:11px}.trow{display:grid;grid-template-columns:125px 1fr;min-height:58px}.who{padding:8px;font-weight:900;border-right:1px solid #d3dae5;border-bottom:1px solid #d3dae5}.track{position:relative;border-bottom:1px solid #d3dae5;background:repeating-linear-gradient(to right,#fff 0,#fff calc(4.1667% - 1px),#e1e5eb calc(4.1667% - 1px),#e1e5eb 4.1667%)}.tbar{position:absolute;top:8px;height:40px;border:0;border-radius:4px;color:#fff;padding:8px;font-weight:900;overflow:hidden;white-space:nowrap}.side .box{padding:11px}.side h3{margin:0 0 9px}.status{display:grid;grid-template-columns:1fr 1fr;gap:5px 12px}.busy{color:#16843b}.free{color:#777}.notice{line-height:1.8}.notice-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.notice-head h3{margin:0}.notice-head button{border:1px solid #ccd4df;background:#fff;border-radius:4px;padding:5px 9px;font-weight:900;cursor:pointer}.notice-head button.has-new{color:#dc2626;border-color:#fca5a5;background:#fff5f5}.notice-history{max-height:220px;overflow:auto}.notice-history{margin-top:8px;max-height:220px;overflow:auto;border-top:1px solid #d3dae5;padding-top:6px}.notice-history-item{padding:5px 0;border-bottom:1px solid #e5e9ef;font-size:12px;line-height:1.45}.notice-history-date{font-weight:900}.notice-history-change{font-weight:900;margin-left:4px}.notice-history-work{color:#344054;margin-left:4px}.form label{display:block;font-weight:900;margin:7px 0 3px}.form input,.form select{width:100%;padding:7px;border:1px solid #ccd4df;border-radius:4px}.two{display:grid;grid-template-columns:1fr 1fr;gap:7px}.checks{display:grid;grid-template-columns:1fr 1fr;gap:4px}.check{border:1px solid #d5dbe4;border-radius:4px;padding:5px}.event-card .checks{margin-bottom:10px}.event-card .check{display:block;min-height:36px;line-height:24px}.event-card .check input{transform:scale(1.15);margin-right:6px}.check input{width:auto}.actions{display:flex;gap:7px;margin-top:10px}.actions button{flex:1;padding:9px;border:1px solid #ccd4df;background:#fff;border-radius:4px;font-weight:900}.actions .save{background:#1769e0;color:#fff}.actions .del{color:#d11;border-color:#e99}@media(max-width:1000px){.app{grid-template-columns:1fr}.side{order:-1}.logo{font-size:16px}}
+*{box-sizing:border-box}body{margin:0;background:#f4f6fa;font-family:Arial,"Yu Gothic",Meiryo,sans-serif;color:#172033}.top{height:58px;background:#101b31;color:white;display:flex;align-items:center;padding:0 16px;gap:5px;position:sticky;top:0;z-index:5}.logo{font-size:20px;font-weight:900;margin-right:12px}.tabs button,.nav button{border:0;border-radius:4px;padding:9px 16px;font-weight:800}.tabs button{background:#1d2943;color:#fff}.tabs .on{background:#1769e0}.nav{margin-left:auto;display:flex;gap:7px;align-items:center}.nav button{background:#fff}.title{font-size:20px;font-weight:900;min-width:125px;text-align:center}.cloud-diag{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:9999;display:none;align-items:center;justify-content:center;padding:18px}.cloud-diag.open{display:flex}.cloud-diag-card{background:#fff;border-radius:16px;max-width:520px;width:100%;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.25)}.cloud-diag-card h3{margin:0 0 12px}.cloud-diag-card pre{white-space:pre-wrap;word-break:break-word;background:#f3f5f8;border-radius:10px;padding:12px;font-size:12px;max-height:45vh;overflow:auto}.cloud-diag-actions{display:flex;gap:8px;justify-content:flex-end}.cloud-diag-actions button{padding:9px 14px;border-radius:9px;border:1px solid #ccd5e1;background:#fff;font-weight:800}.cloud-diag-actions button.primary{background:#1677e8;color:#fff;border-color:#1677e8}.cloud-status{font-size:11px;font-weight:800;opacity:.95;white-space:nowrap}.color-note{margin:8px auto 0;max-width:1600px;padding:7px 12px;background:#fff;border:1px solid #d3dae5;border-radius:6px;font-weight:900;font-size:12px}.red-note{color:#dc2626}.off-note{color:#c52f67}.app{display:grid;grid-template-columns:minmax(0,1fr) 365px;gap:10px;padding:9px;max-width:1600px;margin:auto}.panel,.box{background:#fff;border:1px solid #d3dae5;border-radius:6px;overflow:hidden;margin-bottom:9px}.legend{display:flex;gap:18px;padding:8px 12px;border-bottom:1px solid #d3dae5;font-weight:800}.dot{display:inline-block;width:13px;height:13px;border-radius:2px;margin-right:5px;vertical-align:-2px}.month{display:grid;grid-template-columns:repeat(7,minmax(110px,1fr));min-width:770px}.month .dow{background:#f8fafc;text-align:center;font-weight:900;padding:6px;border-right:1px solid #d3dae5;border-bottom:1px solid #d3dae5}.day{height:92px;padding:5px;border-right:1px solid #d3dae5;border-bottom:1px solid #d3dae5;overflow:hidden}.out{background:#fafafa;color:#a3aab5}.selected{background:#f7fbff;box-shadow:inset 0 0 0 2px #1769e0}.date{font-weight:900;font-size:15px;height:21px}.sun{color:#d11}.sat{color:#145bd7}.bar{display:block;width:100%;height:20px;margin:2px 0;border:0;border-radius:3px;color:white;padding:2px 6px;text-align:left;font-size:11px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.off{background:#f7d8e6!important;color:#c52f67!important}.off-status{color:#c52f67!important;font-weight:900}.plan{background:#9ca3af!important;color:#fff!important}.conflict,.conf{background:#dc2626!important;color:#fff!important}.conf{background:#dc2626!important}.head{height:39px;display:flex;align-items:center;gap:7px;padding:0 9px;border-bottom:1px solid #d3dae5;font-weight:900}.head span{flex:1}.head button{border:1px solid #ccd4df;background:#fff;border-radius:4px;padding:5px 9px}.add{background:#1769e0!important;color:white!important}.week{display:grid;grid-template-columns:120px repeat(7,minmax(105px,1fr));min-width:855px}.week>div{border-right:1px solid #d3dae5;border-bottom:1px solid #d3dae5;padding:5px;min-height:52px}.wh{background:#f8fafc;text-align:center;font-weight:900}.week-switch{display:flex;align-items:center;justify-content:space-between;gap:4px}.week-mode{display:flex;gap:3px}.week-mode .wm{border:1px solid #cbd3df;background:#fff;padding:3px 6px;border-radius:3px;font-size:10px;font-weight:900;cursor:pointer}.week-mode .wm.on{background:#1769e0;color:#fff;border-color:#1769e0}.week-date{cursor:pointer}.overnight{box-shadow:inset 0 0 0 2px #6b7280}.overnight-toggle{display:flex;align-items:center;gap:7px;margin:8px 0;font-weight:900}.overnight-toggle input{width:18px;height:18px}.nighttag{font-size:9px;margin-left:4px;padding:1px 3px;border-radius:2px;background:#374151;color:#fff}.week-date:hover{background:#eaf3ff;box-shadow:inset 0 0 0 2px #1769e0}.person{font-weight:900;background:#fbfcfe}.wbar{display:block;width:100%;margin:2px 0;padding:5px;border:0;border-radius:3px;color:white;font-size:11px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.timeline{min-width:950px}.times{display:grid;grid-template-columns:125px repeat(24,1fr)}.times div{padding:5px;text-align:center;border-right:1px solid #e0e5eb;border-bottom:1px solid #d3dae5;font-size:11px}.trow{display:grid;grid-template-columns:125px 1fr;min-height:58px}.who{padding:8px;font-weight:900;border-right:1px solid #d3dae5;border-bottom:1px solid #d3dae5}.track{position:relative;border-bottom:1px solid #d3dae5;background:repeating-linear-gradient(to right,#fff 0,#fff calc(4.1667% - 1px),#e1e5eb calc(4.1667% - 1px),#e1e5eb 4.1667%)}.tbar{position:absolute;top:8px;height:40px;border:0;border-radius:4px;color:#fff;padding:8px;font-weight:900;overflow:hidden;white-space:nowrap}.side .box{padding:11px}.side h3{margin:0 0 9px}.status{display:grid;grid-template-columns:1fr 1fr;gap:5px 12px}.busy{color:#16843b}.free{color:#777}.notice{line-height:1.8}.form label{display:block;font-weight:900;margin:7px 0 3px}.form input,.form select{width:100%;padding:7px;border:1px solid #ccd4df;border-radius:4px}.two{display:grid;grid-template-columns:1fr 1fr;gap:7px}.checks{display:grid;grid-template-columns:1fr 1fr;gap:4px}.check{border:1px solid #d5dbe4;border-radius:4px;padding:5px}.event-card .checks{margin-bottom:10px}.event-card .check{display:block;min-height:36px;line-height:24px}.event-card .check input{transform:scale(1.15);margin-right:6px}.check input{width:auto}.actions{display:flex;gap:7px;margin-top:10px}.actions button{flex:1;padding:9px;border:1px solid #ccd4df;background:#fff;border-radius:4px;font-weight:900}.actions .save{background:#1769e0;color:#fff}.actions .del{color:#d11;border-color:#e99}@media(max-width:1000px){.app{grid-template-columns:1fr}.side{order:-1}.logo{font-size:16px}}
 
 .settings{position:fixed;inset:0;background:rgba(10,18,35,.45);z-index:50;display:none;align-items:center;justify-content:center;padding:20px}
 .settings.open{display:flex}.settings-card{background:#fff;width:min(760px,96vw);max-height:90vh;overflow:auto;border-radius:8px;border:1px solid #cfd6e2;box-shadow:0 15px 50px rgba(0,0,0,.25)}
@@ -274,11 +274,35 @@
 @media(max-width:480px){.vehicle-matrix thead th,.vehicle-matrix .vm-cell{min-width:88px}.vehicle-matrix thead th:first-child,.vehicle-matrix tbody th{min-width:52px;width:52px}.vehicle-matrix .vm-event{padding:4px;font-size:10px}.vehicle-matrix .vm-site{font-size:10px}.vehicle-matrix .vm-time,.vehicle-matrix .vm-people{font-size:9px}}
 .person-list-card{width:min(900px,96vw)!important;max-height:90vh;overflow:auto}.person-list-tools{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid #dce3eb;font-weight:800}.person-list-tools select{padding:9px 12px;border:1px solid #bfc9d6;border-radius:6px;min-width:180px}.person-list-body{padding:12px 16px 18px}.person-list-row{display:grid;grid-template-columns:110px 1fr;gap:10px;align-items:start;border-bottom:1px solid #e5e7eb;padding:10px 0}.person-list-date{font-weight:800;color:#334155}.person-list-item{border:1px solid #d8dee8;border-radius:6px;padding:7px 9px;margin-bottom:6px;background:#fff}.person-list-item.off{background:#fff0f5;border-color:#efb5cb;color:#a11}.person-list-item .kind{font-size:11px;font-weight:800;margin-right:6px}.person-list-item .meta{font-size:12px;color:#64748b;margin-top:3px}.person-list-empty{padding:20px;text-align:center;color:#64748b}.person-list-open{cursor:pointer}@media(max-width:700px){.person-list-card{width:96vw!important}.person-list-tools{flex-wrap:wrap}.person-list-tools select{flex:1;min-width:160px}.person-list-row{grid-template-columns:82px 1fr;gap:7px}.person-list-body{padding:10px}}
 </style>
+
+<style id="notification-addition-css">
+.notice-live{margin-top:8px;border:1px solid #d7dee8;border-radius:8px;background:#fff;overflow:hidden}
+.notice-live-head{display:flex;align-items:center;gap:8px;padding:8px 9px;border-bottom:1px solid #e2e7ee;background:#f8fafc}
+.notice-live-head b{flex:1}
+.notice-live-count{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:22px;padding:0 7px;border-radius:11px;background:#dbeafe;color:#1d4ed8;font-weight:900;font-size:12px}
+.notice-live-count.has-new{background:#dc2626;color:#fff}
+.notice-live-read{border:1px solid #cbd5e1;background:#fff;border-radius:6px;padding:5px 8px;font-size:11px;font-weight:800;cursor:pointer}
+.notice-live-read:disabled{opacity:.45;cursor:default}
+.notice-live-list{max-height:220px;overflow:auto;-webkit-overflow-scrolling:touch}
+.notice-live-item{padding:8px 9px;border-bottom:1px solid #edf0f4;line-height:1.35}
+.notice-live-item:last-child{border-bottom:0}
+.notice-live-item.unread{background:#eff6ff}
+.notice-live-meta{font-size:11px;color:#64748b;margin-bottom:2px}
+.notice-live-main{font-size:12px;font-weight:800;word-break:break-word}
+.notice-live-action{display:inline-block;margin-right:5px;padding:2px 5px;border-radius:4px;background:#e2e8f0;font-size:10px}
+.notice-live-empty{padding:12px 9px;color:#64748b;font-size:12px;text-align:center}
+.notice-live-note{margin-top:6px;font-size:11px;color:#64748b;line-height:1.4}
+</style>
 <body>
-<header class="top"><div class="logo">🚚 車両・人員 配置管理</div><div class="tabs"><button data-v="day">日予定</button><button data-v="week">週予定</button><button data-v="month" class="on">月予定</button></div><div class="nav"><button id="prev">◀</button><div id="title" class="title"></div><span id="cloudStatus" class="cloud-status">共有確認中…</span><span id="autoCloudStatus" class="cloud-status" style="margin-left:6px">自動共有：待機中</span><button id="cloudDiagBtn" type="button" onclick="openCloudDiag()">🔄 共有診断</button><button id="next">▶</button><button id="today">今日</button><button type="button" onclick="openPersonList()">👤 人員一覧</button><button type="button" onclick="openVehicleMatrix()">🚚 車両別一覧</button><button type="button" onclick="printTop()">🖨 印刷</button><button id="installBtn" type="button" onclick="installApp()" style="display:none">📱 アプリ追加</button><button class="mobile-add" type="button" onclick="newEvent()">＋ 予定</button><button id="settingsBtn" type="button" onclick="openSettings()">⚙ 設定</button></div></header>
+<header class="top"><div class="logo">🚚 車両・人員 配置管理</div><div class="tabs"><button data-v="day">日予定</button><button data-v="week">週予定</button><button data-v="month" class="on">月予定</button></div><div class="nav"><button id="prev">◀</button><div id="title" class="title"></div><span id="cloudStatus" class="cloud-status">共有確認中…</span><button id="cloudDiagBtn" type="button" onclick="openCloudDiag()">🔄 共有診断</button><button id="next">▶</button><button id="today">今日</button><button type="button" onclick="openPersonList()">👤 人員一覧</button><button type="button" onclick="openVehicleMatrix()">🚚 車両別一覧</button><button type="button" onclick="printTop()">🖨 印刷</button><button id="installBtn" type="button" onclick="installApp()" style="display:none">📱 アプリ追加</button><button class="mobile-add" type="button" onclick="newEvent()">＋ 予定</button><button id="settingsBtn" type="button" onclick="openSettings()">⚙ 設定</button></div></header>
 <div id="cloudDiag" class="cloud-diag"><div class="cloud-diag-card"><h3>🔄 共有診断</h3><pre id="cloudDiagText">確認中…</pre><div class="cloud-diag-actions"><button type="button" onclick="closeCloudDiag()">閉じる</button><button type="button" class="primary" onclick="runCloudDiag()">今すぐ確認</button></div></div></div><div id="zoomContent"><div class="color-note">現場ごとに色分け　｜　<span class="red-note">赤＝車両・人員のダブルブッキング</span>　｜　<span class="off-note">休み</span></div><div class="app"><main><section class="panel"><div id="main"></div></section>
 <section class="panel"><div class="head"><span id="sub"></span><button id="subPrev" onclick="shift(-1)">◀</button><button id="subNext" onclick="shift(1)">▶</button><button class="add" onclick="newEvent()">＋ 予定追加</button></div><div id="secondary"></div></section></main>
-<aside class="side"><div class="box"><h3 id="stitle">空き状況</h3><div id="status" class="status"></div></div><div class="box"><div class="notice-head"><h3>お知らせ</h3><button id="noticeReadBtn" type="button" onclick="markNoticeRead()">新着 <span id="noticeUnreadCount">0</span>件</button></div><div class="notice"><div id="noticeHistory" class="notice-history"></div></div></div>
+<aside class="side"><div class="box"><h3 id="stitle">空き状況</h3><div id="status" class="status"></div></div><div class="box"><h3>お知らせ</h3><div class="notice">
+<div class="notice-live" id="noticeLiveBox">
+  <div class="notice-live-head"><b>🔔 新着</b><span id="noticeLiveCount" class="notice-live-count">0</span><button id="noticeLiveRead" class="notice-live-read" type="button" onclick="markVehicleNoticesRead()">確認済みにする</button></div>
+  <div id="noticeLiveList" class="notice-live-list"><div class="notice-live-empty">読み込み中…</div></div>
+</div>
+<div class="notice-live-note">新着は追加・変更・削除を表示します。履歴は直近7日分のみ保持します。</div><br>・予定／確定をクリックして編集<br>・人員の「休み」を登録<br>・重複した車両／人員だけ赤色<br>・選択した日は青枠で表示</div></div>
 <div class="box form desktop-form"><h3 id="ftitle">予定の追加</h3><label>区分</label><select id="kind"><option value="plan">予定</option><option value="confirmed">確定</option><option value="off">休み</option></select><label>現場</label><input id="site" placeholder="現場A"><label>仕事内容</label><input id="work" placeholder="資材搬入など"><div class="two"><div><label>開始日</label><input id="sd" type="date"></div><div><label>開始</label><input id="st" type="time" value="08:00"></div></div><div class="two"><div><label>終了日</label><input id="ed" type="date"></div><div><label>終了</label><input id="et" type="time" value="16:00"></div></div><label class="overnight-toggle"><input id="overnight" type="checkbox" onchange="toggleOvernight('')"><span><b>🌙 日またぎ</b><small> 翌日まで続く予定</small></span></label><label>車両（複数選択可）</label><div id="vs" class="checks"></div><label>人員（複数選択可）</label><div id="ps" class="checks"></div><div class="actions"><button class="del" onclick="delEvent()">削除</button><button onclick="newEvent()">キャンセル</button><button class="save" onclick="saveEvent()">更新</button></div></div></aside></div></div>
 <div id="eventModal" class="event-modal" onclick="if(event.target===this)closeEventModal()">
   <div class="event-card">
@@ -790,7 +814,7 @@ function saveEvent(fromModal=false){
   const e=normalizeEvent(Object.assign({},old||{},form,{id}));
   if(e.kind==='off'){e.site='';e.work='';}
   if(old)markDirtyEvent(e,old.updatedAt,preserveAssignments);else markDirtyEvent(e,0,false);
-  if(old){addNoticeHistory(e,'変更');events=events.map(x=>String(x.id)===id?e:x);}else{addNoticeHistory(e,'追加');events.push(e);}
+  if(old)events=events.map(x=>String(x.id)===id?e:x);else events.push(e);
   colorPreparedFor='';persistLocal();render();
   // 車両別一覧から登録・編集した場合も、同じ画面を維持して最新データを即時反映。
   const vehicleMatrixWasOpen=document.getElementById('vehicleMatrixModal')?.classList.contains('open');
@@ -799,7 +823,7 @@ function saveEvent(fromModal=false){
   eid=null;editAssignmentSnapshot=null;assignmentTouched={desktop:false,mobile:false};
   queueCloudSave();
 }
-function delEvent(fromModal=false){if(!eid)return;if(!confirm('この予定を削除しますか？'))return;const old=events.find(x=>String(x.id)===String(eid));if(old){addNoticeHistory(old,'削除');pendingDeletes.set(String(old.id),{id:String(old.id),baseUpdatedAt:Number(old.updatedAt||0)});dirtyEvents.delete(String(old.id));events=events.filter(x=>String(x.id)!==String(eid));persistLocal();queueCloudSave();}eid=null;if(fromModal)closeEventModal();render();}
+function delEvent(fromModal=false){if(!eid)return;if(!confirm('この予定を削除しますか？'))return;const old=events.find(x=>String(x.id)===String(eid));if(old){pendingDeletes.set(String(old.id),{id:String(old.id),baseUpdatedAt:Number(old.updatedAt||0)});dirtyEvents.delete(String(old.id));events=events.filter(x=>String(x.id)!==String(eid));persistLocal();queueCloudSave();}eid=null;if(fromModal)closeEventModal();render();}
 function shift(n){if(view==='month')cur.setMonth(cur.getMonth()+n);else if(view==='week')cur.setDate(cur.getDate()+7*n);else cur.setDate(cur.getDate()+n);render();}
 
 function shiftSecondary(n){
@@ -868,11 +892,9 @@ async function postCloud(){
 
     const remoteDeleted=server.deleted||{};
     sentDeletes.forEach((meta,id)=>{
-      if(!pendingDeletes.has(id))return;
       const tomb=remoteDeleted[id];
-      // 削除送信後のGAS取得結果に対象IDが存在しなければ、削除が反映されたものとして確定。
-      // tombstoneのdeletedBy等の形式に依存しないため、PC側で削除済み予定が復活するのを防ぐ。
-      if(!remoteById.has(id)){
+      if(!pendingDeletes.has(id))return;
+      if(!remoteById.has(id)&&tomb&&Number(tomb.updatedAt||0)>Number(meta.baseUpdatedAt||0)&&String(tomb.deletedBy||'')===CLIENT_ID){
         pendingDeletes.delete(id);
       }
     });
@@ -933,77 +955,14 @@ async function postCloud(){
     }
   }
 }
-function updateAppBadge(){
-  if(typeof navigator.setAppBadge!=='function')return;
-  try{
-    if(noticeUnreadCount>0) navigator.setAppBadge(noticeUnreadCount);
-    else if(typeof navigator.clearAppBadge==='function') navigator.clearAppBadge();
-  }catch(e){}
-}
-
-let noticeHistory=[];
-let noticeSnapshot=null;
-let noticeUnreadCount=0;
-try{noticeHistory=JSON.parse(localStorage.getItem('vehicleNoticeHistory_v1')||'[]');if(!Array.isArray(noticeHistory))noticeHistory=[];}catch(e){noticeHistory=[];}
-try{const v=JSON.parse(localStorage.getItem('vehicleNoticeSnapshot_v1')||'null');noticeSnapshot=v&&typeof v==='object'?v:null;}catch(e){noticeSnapshot=null;}
-try{noticeUnreadCount=Number(localStorage.getItem('vehicleNoticeUnread_v1')||0);if(!Number.isFinite(noticeUnreadCount)||noticeUnreadCount<0)noticeUnreadCount=0;}catch(e){noticeUnreadCount=0;}
-setTimeout(updateAppBadge,0);
-function noticeEventSignature(e){return JSON.stringify({date:String(e&&e.date||''),endDate:String(e&&e.endDate||''),start:String(e&&e.start||''),end:String(e&&e.end||''),kind:String(e&&e.kind||''),site:String(e&&e.site||''),work:String(e&&e.work||''),vehicles:(e&&e.vehicles||[]).map(String).sort(),people:(e&&e.people||[]).map(String).sort()});}
-function noticeDate(e){const d=String(e&&e.date||'');return d?d.replace(/-/g,'/'):'';}
-function noticeWork(e){if(e&&e.work)return String(e.work);if(e&&e.kind==='off')return '休み';return String(e&&e.site||'');}
-function noticeHistoryCutoff(){return Date.now()-7*24*60*60*1000;}
-function trimNoticeHistory(){const cutoff=noticeHistoryCutoff();noticeHistory=noticeHistory.filter(x=>Number(x.ts||0)>=cutoff).slice(0,100);}
-function renderNoticeUnread(){const c=document.getElementById('noticeUnreadCount'),b=document.getElementById('noticeReadBtn');if(c)c.textContent=String(noticeUnreadCount);if(b)b.classList.toggle('has-new',noticeUnreadCount>0);updateAppBadge();}
-function renderNoticeHistory(){const el=document.getElementById('noticeHistory');if(!el)return;trimNoticeHistory();try{localStorage.setItem('vehicleNoticeHistory_v1',JSON.stringify(noticeHistory));}catch(e){}if(!noticeHistory.length){el.innerHTML='<div style="color:#777;font-size:12px">直近1週間の新着履歴はありません。</div>';renderNoticeUnread();return;}el.innerHTML=noticeHistory.map(x=>`<div class="notice-history-item"><span class="notice-history-date">${E(x.date||'')}</span><span class="notice-history-work">${E(x.work||'')}</span><span class="notice-history-change">${E(x.change||'')}</span></div>`).join('');renderNoticeUnread();}
-function addNoticeHistory(e,change,markUnread=true){if(!e)return;const ch=String(change||'変更'),sig=noticeEventSignature(e),id=String(e.id||'');const duplicate=noticeHistory.some(x=>String(x.id||'')===id&&String(x.change||'')===ch&&String(x.sig||'')===sig);if(duplicate)return;noticeHistory.unshift({ts:Date.now(),id:id,sig:sig,date:noticeDate(e),work:noticeWork(e)||'（仕事内容なし）',change:ch});trimNoticeHistory();if(markUnread)noticeUnreadCount++;try{localStorage.setItem('vehicleNoticeHistory_v1',JSON.stringify(noticeHistory));localStorage.setItem('vehicleNoticeUnread_v1',String(noticeUnreadCount));}catch(err){}renderNoticeHistory();}
-function markNoticeRead(){noticeUnreadCount=0;try{localStorage.setItem('vehicleNoticeUnread_v1','0');}catch(e){}renderNoticeUnread();}
-
-function updateNoticeSnapshot(remoteEvents){
-  const next={};
-  (Array.isArray(remoteEvents)?remoteEvents:[]).forEach(e=>{
-    const id=String(e&&e.id||'');
-    if(id){
-      next[id]={
-        sig:noticeEventSignature(e),
-        event:{
-          date:String(e.date||''),
-          endDate:String(e.endDate||''),
-          start:String(e.start||''),
-          end:String(e.end||''),
-          kind:String(e.kind||''),
-          site:String(e.site||''),
-          work:String(e.work||''),
-          vehicles:(e.vehicles||[]).map(String),
-          people:(e.people||[]).map(String)
-        }
-      };
-    }
-  });
-  if(!noticeSnapshot){
-    noticeSnapshot=next;
-    try{localStorage.setItem('vehicleNoticeSnapshot_v1',JSON.stringify(next));}catch(err){}
-    return;
-  }
-  Object.keys(next).forEach(id=>{
-    const prev=noticeSnapshot[id];
-    if(!prev)addNoticeHistory(next[id].event,'追加',true);
-    else if(prev.sig!==next[id].sig)addNoticeHistory(next[id].event,'変更',true);
-  });
-  Object.keys(noticeSnapshot).forEach(id=>{
-    if(!next[id])addNoticeHistory(noticeSnapshot[id].event,'削除',true);
-  });
-  noticeSnapshot=next;
-  try{localStorage.setItem('vehicleNoticeSnapshot_v1',JSON.stringify(next));}catch(err){}
-}
-
 function mergeRemote(d,fromSave=false){
-  const remote=Array.isArray(d.events)?d.events.map(normalizeEvent):[];updateNoticeSnapshot(remote);const remoteDeleted=d&&d.deleted&&typeof d.deleted==='object'?d.deleted:{};const localById=new Map(events.map(e=>[String(e.id),e]));const remoteById=new Map(remote.map(e=>[String(e.id),e]));
+  const remote=Array.isArray(d.events)?d.events.map(normalizeEvent):[];const remoteDeleted=d&&d.deleted&&typeof d.deleted==='object'?d.deleted:{};const localById=new Map(events.map(e=>[String(e.id),e]));const remoteById=new Map(remote.map(e=>[String(e.id),e]));
   const merged=[];
   remoteById.forEach((r,id)=>{if(pendingDeletes.has(id))return;const dirty=dirtyEvents.get(id);const l=localById.get(id);if(dirty){merged.push(l||dirty.event);return;}if(!l||Number(r.updatedAt||0)>=Number(l.updatedAt||0))merged.push(r);else merged.push(l);});
   localById.forEach((l,id)=>{if(remoteById.has(id)||pendingDeletes.has(id))return;const tomb=remoteDeleted[id];if(tomb&&Number(tomb.updatedAt||tomb.deletedAt||0)>=Number(l.updatedAt||0))return;merged.push(l);});
   events=merged; cloudMasterUpdatedAt=Number(d.masterUpdatedAt||cloudMasterUpdatedAt||0); if(Array.isArray(d.people)&&d.people.length&&!masterDirty)peopleList=d.people.map(String); if(Array.isArray(d.vehicles)&&d.vehicles.length&&!masterDirty)vehicleList=d.vehicles.map(v=>({id:String(v.id||''),detail:String(v.detail||'2t'),memo:String(v.memo||'')})).filter(v=>v.id); syncMaster();rebuildChecks();colorPreparedFor='';if(!fromSave)persistLocal();
 }
-async function loadCloud(){if(cloudLoading||cloudSaving)return;cloudLoading=true;setCloudStatus('共有読込中…');try{const d=await jsonpGet(15000);if(d&&d.hasData){updateNoticeSnapshot(Array.isArray(d.events)?d.events.map(normalizeEvent):[]);const hasLocalPending=dirtyEvents.size||pendingDeletes.size||masterDirty;if(hasLocalPending){mergeRemote(d);}else{events=(d.events||[]).map(normalizeEvent);if(Array.isArray(d.people)&&d.people.length)peopleList=d.people.map(String);if(Array.isArray(d.vehicles)&&d.vehicles.length)vehicleList=d.vehicles.map(v=>({id:String(v.id||''),detail:String(v.detail||'2t'),memo:String(v.memo||'')})).filter(v=>v.id);cloudMasterUpdatedAt=Number(d.masterUpdatedAt||cloudMasterUpdatedAt||0);syncMaster();rebuildChecks();persistLocal();colorPreparedFor='';}render();setCloudStatus(dirtyEvents.size||pendingDeletes.size||masterDirty?'共有同期済み・未保存あり':'共有同期済み');if(dirtyEvents.size||pendingDeletes.size||masterDirty)queueCloudSave();}else if(d){setCloudStatus('共有データなし');if(events.length||vehicleList.length||peopleList.length)queueCloudSave();}else setCloudStatus('共有接続エラー');}catch(err){console.warn(err);setCloudStatus('共有接続エラー')}finally{cloudLoading=false;}}
+async function loadCloud(){if(cloudLoading||cloudSaving)return;cloudLoading=true;setCloudStatus('共有読込中…');try{const d=await jsonpGet(15000);if(d&&d.hasData){mergeRemote(d);render();setCloudStatus(dirtyEvents.size||pendingDeletes.size||masterDirty?'共有同期済み・未保存あり':'共有同期済み');if(dirtyEvents.size||pendingDeletes.size||masterDirty)queueCloudSave();}else if(d){setCloudStatus('共有データなし');if(events.length||vehicleList.length||peopleList.length)queueCloudSave();}else setCloudStatus('共有接続エラー');}catch(err){console.warn(err);setCloudStatus('共有接続エラー')}finally{cloudLoading=false;}}
 function persist(){masterDirty=true;persistLocal();queueCloudSave();}
 function forceCloudReload(){loadCloud();}
 
@@ -1024,7 +983,7 @@ function removeVehicle(i){const v=vehicleList[i];if(!confirm(v.id+' を削除し
 // 起動は全関数・変数の初期化後に一度だけ行う。v47系で問題になった「関数定義前のrender/checks呼び出し」を排除。
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{view=b.dataset.v;render();});
 document.getElementById('prev').onclick=()=>shift(-1);document.getElementById('next').onclick=()=>shift(1);document.getElementById('today').onclick=()=>{cur=new Date();cur.setHours(0,0,0,0);render();};document.getElementById('subPrev').onclick=()=>shiftSecondary(-1);document.getElementById('subNext').onclick=()=>shiftSecondary(1);
-rebuildChecks();render();renderNoticeHistory();
+rebuildChecks();render();applyZoom();
 // 自動同期：未保存変更がある間は「読込」を行わず、保存を優先する。
 // これで共有読込→共有保存→共有読込…のループを防ぐ。
 let cloudAutoBusy=false;
@@ -1065,41 +1024,38 @@ async function cleanupOldAppCache(){
   }catch(err){console.warn('旧キャッシュ整理失敗',err)}
 }
 window.addEventListener('load',()=>{
-  renderNoticeHistory();
   if(localStorage.getItem(APP_CACHE_CLEAN_KEY)!=='1') cleanupOldAppCache();
 });
 
 
-/* 自動共有の確認表示（共有保存・同期ロジックには介入しない） */
-(function(){
-  let busy=false;
-  async function updateAutoCloudStatus(){
-    if(busy)return;
-    const el=document.getElementById('autoCloudStatus');
-    if(!el)return;
-    busy=true;
-    try{
-      const d=await jsonpGet(15000);
-      if(d&&d.hasData){
-        const count=Array.isArray(d.events)?d.events.length:0;
-        const rev=Number(d.revision||0);
-        el.textContent='自動共有：'+new Date().toLocaleTimeString()+' / GAS '+count+'件 / rev '+rev;
-      }else if(d){
-        el.textContent='自動共有：'+new Date().toLocaleTimeString()+' / GASデータなし';
-      }else{
-        el.textContent='自動共有：接続エラー';
-      }
-    }catch(e){
-      el.textContent='自動共有：接続エラー';
-    }finally{
-      busy=false;
-    }
-  }
-  setTimeout(updateAutoCloudStatus,1000);
-  setInterval(updateAutoCloudStatus,10000);
-  window.addEventListener('focus',()=>setTimeout(updateAutoCloudStatus,300));
-  window.addEventListener('pageshow',()=>setTimeout(updateAutoCloudStatus,300));
-})();
+
+/* ===== 新着通知：既存の共有・保存・診断処理には手を加えず、GASを読み取り専用で監視 ===== */
+const VEHICLE_NOTICE_HISTORY_KEY='vehicleNoticeHistory_v1';
+const VEHICLE_NOTICE_SNAPSHOT_KEY='vehicleNoticeSnapshot_v1';
+const VEHICLE_NOTICE_READ_KEY='vehicleNoticeReadAt_v1';
+const VEHICLE_NOTICE_LOCAL_KEY='vehicleNoticeLocalTouched_v1';
+const VEHICLE_NOTICE_KEEP_MS=7*24*60*60*1000;
+let vehicleNoticePolling=false;
+let vehicleNoticeLocalTouched={};
+function vehicleNoticeLoadJson(key,fallback){try{const v=JSON.parse(localStorage.getItem(key)||'');return v==null?fallback:v;}catch(e){return fallback;}}
+function vehicleNoticeSaveJson(key,v){try{localStorage.setItem(key,JSON.stringify(v));}catch(e){console.warn('通知保存失敗',e);}}
+function vehicleNoticeEsc(v){return String(v==null?'':v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function vehicleNoticeNorm(e){if(!e)return null;const a=v=>Array.isArray(v)?v.map(String).sort():[];return{id:String(e.id||''),date:String(e.date||''),endDate:String(e.endDate||''),start:String(e.start||''),end:String(e.end||''),kind:String(e.kind||''),site:String(e.site||''),work:String(e.work||''),vehicles:a(e.vehicles),people:a(e.people),memo:String(e.memo||'')};}
+function vehicleNoticeSig(e){return JSON.stringify(vehicleNoticeNorm(e));}
+function vehicleNoticeDisplayDate(e){const d=String(e&&e.date||'');if(!d)return'日付未設定';const ed=String(e&&e.endDate||'');return ed&&ed!==d?d+' ～ '+ed:d;}
+function vehicleNoticeLoadHistory(){return vehicleNoticeLoadJson(VEHICLE_NOTICE_HISTORY_KEY,[]).filter(x=>x&&x.createdAt);}
+function vehicleNoticePrune(){const cut=Date.now()-VEHICLE_NOTICE_KEEP_MS;const a=vehicleNoticeLoadHistory().filter(x=>Number(x.createdAt)>=cut);vehicleNoticeSaveJson(VEHICLE_NOTICE_HISTORY_KEY,a);return a;}
+function vehicleNoticeRememberLocalChanges(){let changed=false;try{if(typeof dirtyEvents!=='undefined'&&dirtyEvents&&dirtyEvents.forEach){dirtyEvents.forEach((v,id)=>{const e=v&&v.event?v.event:v;vehicleNoticeLocalTouched[String(id)]={sig:vehicleNoticeSig(e),deleted:false};changed=true;});}if(typeof pendingDeletes!=='undefined'&&pendingDeletes&&pendingDeletes.forEach){pendingDeletes.forEach((v,id)=>{vehicleNoticeLocalTouched[String(id)]={sig:null,deleted:true};changed=true;});}}catch(e){}if(changed)vehicleNoticeSaveJson(VEHICLE_NOTICE_LOCAL_KEY,vehicleNoticeLocalTouched);}
+function vehicleNoticeAdd(action,e){const x=e||{};const h=vehicleNoticeLoadHistory();h.push({id:'n_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),createdAt:Date.now(),action,date:vehicleNoticeDisplayDate(x),work:String(x.work||''),site:String(x.site||''),eventId:String(x.id||''),kind:String(x.kind||'')});vehicleNoticeSaveJson(VEHICLE_NOTICE_HISTORY_KEY,h);}
+function vehicleNoticeCompare(oldMap,newMap){const ids=new Set([...Object.keys(oldMap),...Object.keys(newMap)]);ids.forEach(id=>{const old=oldMap[id],neu=newMap[id],local=vehicleNoticeLocalTouched[id];if(local){const matched=(neu&&local.sig&&vehicleNoticeSig(neu)===local.sig)||(!neu&&local.deleted);if(matched){delete vehicleNoticeLocalTouched[id];return;}}if(!old&&neu)vehicleNoticeAdd('追加',neu);else if(old&&!neu)vehicleNoticeAdd('削除',old);else if(old&&neu&&vehicleNoticeSig(old)!==vehicleNoticeSig(neu))vehicleNoticeAdd('変更',neu);});vehicleNoticeSaveJson(VEHICLE_NOTICE_LOCAL_KEY,vehicleNoticeLocalTouched);vehicleNoticePrune();}
+function vehicleNoticeApplyRemote(d){if(!d||!d.hasData||!Array.isArray(d.events))return;vehicleNoticeRememberLocalChanges();const snap=vehicleNoticeLoadJson(VEHICLE_NOTICE_SNAPSHOT_KEY,null);const current={events:d.events.map(vehicleNoticeNorm).filter(Boolean)};if(!snap||!Array.isArray(snap.events)){vehicleNoticeSaveJson(VEHICLE_NOTICE_SNAPSHOT_KEY,current);vehicleNoticePrune();vehicleNoticeRender();return;}const oldMap=Object.fromEntries(snap.events.map(e=>[String(e.id),e]));const newMap=Object.fromEntries(current.events.map(e=>[String(e.id),e]));vehicleNoticeCompare(oldMap,newMap);vehicleNoticeSaveJson(VEHICLE_NOTICE_SNAPSHOT_KEY,current);vehicleNoticeRender();}
+function vehicleNoticeUnreadCount(h){const readAt=Number(localStorage.getItem(VEHICLE_NOTICE_READ_KEY)||0);return h.filter(x=>Number(x.createdAt)>readAt).length;}
+function vehicleNoticeRender(){const list=document.getElementById('noticeLiveList'),count=document.getElementById('noticeLiveCount'),read=document.getElementById('noticeLiveRead');if(!list||!count)return;const h=vehicleNoticePrune().sort((a,b)=>Number(b.createdAt)-Number(a.createdAt)),unread=vehicleNoticeUnreadCount(h),readAt=Number(localStorage.getItem(VEHICLE_NOTICE_READ_KEY)||0);count.textContent=String(unread);count.classList.toggle('has-new',unread>0);if(read)read.disabled=unread===0;if('setAppBadge'in navigator){try{if(unread>0)navigator.setAppBadge(unread);else if('clearAppBadge'in navigator)navigator.clearAppBadge();}catch(e){}}if(!h.length){list.innerHTML='<div class="notice-live-empty">新着・履歴はありません</div>';return;}list.innerHTML=h.map(x=>'<div class="notice-live-item '+(Number(x.createdAt)>readAt?'unread':'')+'"><div class="notice-live-meta">'+vehicleNoticeEsc(new Date(Number(x.createdAt)).toLocaleString())+'</div><div class="notice-live-main"><span class="notice-live-action">'+vehicleNoticeEsc(x.action)+'</span>'+vehicleNoticeEsc(x.date||'日付未設定')+'　'+vehicleNoticeEsc(x.work||x.site||'仕事内容未設定')+'</div></div>').join('');}
+function markVehicleNoticesRead(){localStorage.setItem(VEHICLE_NOTICE_READ_KEY,String(Date.now()));vehicleNoticeRender();}
+window.addEventListener('focus',()=>setTimeout(vehicleNoticeRender,100));window.addEventListener('pageshow',()=>setTimeout(vehicleNoticeRender,100));
+async function vehicleNoticePoll(){if(vehicleNoticePolling||document.visibilityState==='hidden')return;vehicleNoticePolling=true;try{const d=await jsonpGet(15000);vehicleNoticeApplyRemote(d);}catch(e){console.warn('新着通知の読込失敗',e);}finally{vehicleNoticePolling=false;}}
+window.addEventListener('load',()=>{vehicleNoticeLocalTouched=vehicleNoticeLoadJson(VEHICLE_NOTICE_LOCAL_KEY,{});vehicleNoticeRender();setTimeout(vehicleNoticePoll,1200);setInterval(vehicleNoticePoll,10000);});
+
 </script>
 <div id="settings" class="settings" onclick="if(event.target===this)closeSettings()">
 <div class="settings-card">
