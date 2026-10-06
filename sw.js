@@ -32,6 +32,9 @@ self.addEventListener('fetch', event=>{
 
   if(req.method!=='GET') return;
 
+  // chrome-extension:// など、Cache APIで扱えない通信は無視する
+  if(req.url.startsWith('chrome-extension://')) return;
+
   const isNavigation=
     req.mode==='navigate' ||
     (req.headers.get('accept')||'').includes('text/html');
@@ -48,17 +51,17 @@ self.addEventListener('fetch', event=>{
   event.respondWith(
     fetch(req)
       .then(res=>{
-        if(res.ok){
+        if(res.ok && /^https?:$/.test(new URL(req.url).protocol)){
           const copy=res.clone();
           caches.open(CACHE_NAME)
-            .then(c=>c.put(req,copy));
+            .then(c=>c.put(req,copy))
+            .catch(()=>{});
         }
         return res;
       })
       .catch(()=>caches.match(req))
   );
 });
-
 
 /* =========================================
    通知機能：ここから追加
