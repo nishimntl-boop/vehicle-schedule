@@ -1109,7 +1109,65 @@ if('serviceWorker' in navigator){
   window.addEventListener('online',()=>setTimeout(poll,500));
   render();
 })();
+/* =========================================
+   Web Push 通知購読登録
+   ========================================= */
+(function(){
+  const VAPID_PUBLIC_KEY='BIy6DB1y_CEqswJd2L6fZwOVdFz1uufDP2zV8mkkg13Fg6aRtnfefSRfj5p5rA3ynQfqz117Cwe0OulPxb2Eols';
+  const PUSH_SUB_KEY='vehiclePushSubscription_v1';
 
+  function urlBase64ToUint8Array(base64String){
+    const padding='='.repeat((4-base64String.length%4)%4);
+    const base64=(base64String+padding)
+      .replace(/-/g,'+')
+      .replace(/_/g,'/');
+    const rawData=atob(base64);
+    return Uint8Array.from(
+      [...rawData].map(char=>char.charCodeAt(0))
+    );
+  }
+
+  async function subscribePush(){
+    if(!('serviceWorker' in navigator)) return;
+    if(!('PushManager' in window)) return;
+    if(!('Notification' in window)) return;
+
+    try{
+      const permission=await Notification.requestPermission();
+
+      if(permission!=='granted'){
+        console.log('通知許可なし:',permission);
+        return;
+      }
+
+      const reg=await navigator.serviceWorker.ready;
+
+      let sub=await reg.pushManager.getSubscription();
+
+      if(!sub){
+        sub=await reg.pushManager.subscribe({
+          userVisibleOnly:true,
+          applicationServerKey:urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+        });
+      }
+
+      localStorage.setItem(
+        PUSH_SUB_KEY,
+        JSON.stringify(sub.toJSON())
+      );
+
+      console.log('Web Push購読登録完了');
+      console.log('通知エンドポイント:',sub.endpoint);
+
+    }catch(err){
+      console.warn('Web Push購読登録失敗',err);
+    }
+  }
+
+  window.addEventListener('load',()=>{
+    setTimeout(subscribePush,1500);
+  });
+})();
 /* 自動共有の確認表示（共有保存・同期ロジックには介入しない） */
 (function(){
   let busy=false;
