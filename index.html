@@ -222,8 +222,9 @@
 .notice-detail-head button{border:0;background:transparent;font-size:24px;cursor:pointer}
 .notice-detail-row{padding:7px 0;border-bottom:1px solid #edf0f4}
 .notice-detail-label{font-weight:800;color:#475569;display:block;font-size:12px}
-.notice-detail-old{color:#64748b;text-decoration:line-through}
-.notice-detail-new{color:#dc2626;font-weight:900;text-decoration:underline wavy}
+.notice-detail-old{color:#64748b}
+.notice-detail-new{color:#dc2626;font-weight:900}
+.notice-detail-value{color:inherit;white-space:pre-wrap}
 @media(max-width:700px){.notice-detail-overlay{padding:0}.notice-detail-card{width:100%;height:100%;max-height:none;border-radius:0;padding:14px}}
 .notice-new-empty{padding:10px 3px;color:#777;font-size:12px}
 .notice-new-actions{margin-top:8px}
@@ -1130,13 +1131,19 @@ if('serviceWorker' in navigator){
   }
   function escapeHtml(v){return String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
   const detailFields=[['区分','kind'],['請求先','invoiceTo'],['現場','site'],['仕事内容','work'],['外注先','subcontractor'],['開始日','date'],['終了日','endDate'],['開始時間','start'],['終了時間','end'],['車両','vehicles'],['人員','people']];
-  function fieldValue(obj,key){const v=obj&&obj[key];return Array.isArray(v)?(v.length?v.join('・'):'なし'):String(v||'なし');}
+  function fieldValue(obj,key){const v=obj&&obj[key];if(key==='kind'){const kinds={plan:'予定',confirmed:'確定',off:'休み'};return kinds[String(v||'')]||String(v||'なし');}return Array.isArray(v)?(v.length?v.join('・'):'なし'):String(v||'なし');}
   function detailRows(entry,oldEntry,newEntry,action){
     let html='';
     detailFields.forEach(([label,key])=>{
       const val=fieldValue(entry,key);
-      if(action==='変更'&&oldEntry&&newEntry){const a=fieldValue(oldEntry,key),b=fieldValue(newEntry,key);if(a===b)return;html+='<div class="notice-detail-row"><span class="notice-detail-label">'+label+'</span><span class="notice-detail-old">'+escapeHtml(a)+'</span>　→　<span class="notice-detail-new">'+escapeHtml(b)+'</span></div>';}
-      else html+='<div class="notice-detail-row"><span class="notice-detail-label">'+label+'</span>'+escapeHtml(val)+'</div>';
+      if(action==='変更'&&oldEntry&&newEntry){
+        const a=fieldValue(oldEntry,key),b=fieldValue(newEntry,key);
+        if(a!==b){
+          html+='<div class="notice-detail-row"><span class="notice-detail-label">'+label+'</span><span class="notice-detail-old">'+escapeHtml(a)+'</span>　→　<span class="notice-detail-new">'+escapeHtml(b)+'</span></div>';
+        }else{
+          html+='<div class="notice-detail-row"><span class="notice-detail-label">'+label+'</span><span class="notice-detail-value">'+escapeHtml(val)+'</span></div>';
+        }
+      }else html+='<div class="notice-detail-row"><span class="notice-detail-label">'+label+'</span><span class="notice-detail-value">'+escapeHtml(val)+'</span></div>';
     });return html;
   }
   window.openNoticeDetail=function(i){const x=history[i];if(!x)return;let overlay=document.getElementById('noticeDetailOverlay');if(!overlay){overlay=document.createElement('div');overlay.id='noticeDetailOverlay';overlay.className='notice-detail-overlay';overlay.innerHTML='<div class="notice-detail-card"><div class="notice-detail-head"><h3 id="noticeDetailTitle"></h3><button type="button" onclick="closeNoticeDetail()\" aria-label="閉じる">×</button></div><div id="noticeDetailBody"></div></div>';document.body.appendChild(overlay);overlay.addEventListener('click',e=>{if(e.target===overlay)closeNoticeDetail();});}
